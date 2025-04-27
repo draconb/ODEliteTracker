@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ODEliteTracker.Database;
+﻿using ODEliteTracker.Database;
 using ODJournalDatabase.JournalManagement;
 using ODMVVM.ViewModels;
 

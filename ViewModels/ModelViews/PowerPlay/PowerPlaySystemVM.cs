@@ -1,5 +1,4 @@
 ﻿using ODEliteTracker.Models.PowerPlay;
-using ODEliteTracker.Stores;
 using ODMVVM.ViewModels;
 
 namespace ODEliteTracker.ViewModels.ModelViews.PowerPlay

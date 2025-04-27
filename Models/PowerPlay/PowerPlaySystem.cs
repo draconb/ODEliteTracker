@@ -1,5 +1,4 @@
 ﻿using EliteJournalReader.Events;
-using NetTopologySuite.Geometries;
 using ODEliteTracker.Models.Galaxy;
 
 namespace ODEliteTracker.Models.PowerPlay

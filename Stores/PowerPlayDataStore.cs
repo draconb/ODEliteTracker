@@ -3,7 +3,6 @@ using EliteJournalReader;
 using ODJournalDatabase.JournalManagement;
 using ODEliteTracker.Models.PowerPlay;
 using ODMVVM.Helpers;
-using NetTopologySuite.Geometries;
 
 namespace ODEliteTracker.Stores
 {

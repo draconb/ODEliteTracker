@@ -182,6 +182,11 @@ namespace ODEliteTracker.ViewModels
 
         private async Task OnResetDataBase()
         {
+            var dialog = dialogService.ShowWithOwner(null, "Reset Database?", "This will delete all commanders and their records.\nAre you sure?", MessageBoxButton.YesNo);
+
+            if (dialog == MessageBoxResult.No)
+                return;
+
             JournalCommanderViews.ClearCollection();
             SelectedCommander = null;
             OnPropertyChanged(nameof(JournalCommanderViews));

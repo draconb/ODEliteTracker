@@ -23,9 +23,11 @@ namespace ODEliteTracker
     /// </summary>
     public partial class App
     {
-//#if INSTALL
-//        public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OD Explorer");
-//#else
+        public static Version AppVersion { get; internal set; } = new Version(1, 0);
+
+        //#if INSTALL
+        //        public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OD Explorer");
+        //#else
         public readonly static string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 //#endif
         private const string database = "ODEliteTracker.db";

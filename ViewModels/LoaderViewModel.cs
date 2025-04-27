@@ -1,20 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ODEliteTracker.Database;
+using ODMVVM.Helpers.IO;
+using ODMVVM.Models;
+using ODMVVM.Services.MessageBox;
 using ODMVVM.ViewModels;
 
 namespace ODEliteTracker.ViewModels
 {
     public sealed class LoaderViewModel : ODObservableObject
     {
-        public LoaderViewModel(ODEliteTrackerDbContextFactory contextFactory)
+        public LoaderViewModel(ODEliteTrackerDbContextFactory contextFactory,
+                               IODDialogService dialogService)
         {
             this.contextFactory = contextFactory;
-
+            this.dialogService = dialogService;
             _ = Initialise();
         }
 
         private readonly ODEliteTrackerDbContextFactory contextFactory;
-
+        private readonly IODDialogService dialogService;
         private string statusText = "Loading";
         public string StatusText
         {
@@ -23,7 +27,6 @@ namespace ODEliteTracker.ViewModels
             {
                 statusText = value;
                 OnPropertyChanged(nameof(StatusText));
-
             }
         }
 
@@ -32,6 +35,34 @@ namespace ODEliteTracker.ViewModels
         public async Task Initialise()
         {
             await Task.Delay(1000);
+            StatusText = "Checking For App Updates";
+            await Task.Delay(1000);
+
+            try
+            {
+                var updateInfo = await Json.GetJsonFromUrlAndDeserialise<UpdateInfo>("https://raw.githubusercontent.com", "/WarmedxMints/ODUpdates/main/ODEliteTrackerUpdate.json");
+
+                if (updateInfo.Version > App.AppVersion)
+                {
+                    var update = dialogService.ShowWithOwner(null, $"Version {updateInfo.Version} is available", "Would you like to download?", System.Windows.MessageBoxButton.YesNo);
+
+                    if(update == System.Windows.MessageBoxResult.OK)
+                    {
+                        ODMVVM.Helpers.OperatingSystem.OpenUrl(updateInfo.Url);
+                    }                    
+                }
+
+                if(updateInfo.Version == App.AppVersion)
+                {
+                    StatusText = "Already on latest version";
+                    await Task.Delay(1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusText = "Error Getting Update";
+                await Task.Delay(1000);
+            }
             StatusText = "Migrating Database";
             try
             {
@@ -51,7 +82,7 @@ namespace ODEliteTracker.ViewModels
                 await Task.Delay(2000);
                 InitialiseComplete?.Invoke(this, false);
             }
-            await Task.Delay(1000);
+
             InitialiseComplete?.Invoke(this, true);
         }
     }

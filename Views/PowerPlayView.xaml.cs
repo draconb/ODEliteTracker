@@ -1,5 +1,4 @@
-﻿using ODEliteTracker.ViewModels;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace ODEliteTracker.Views
 {
