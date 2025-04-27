@@ -16,6 +16,9 @@ namespace ODEliteTracker.ViewModels
             this.dataStore.OnStoreLive += OnStoreLive;
             this.dataStore.PledgeDataUpdated += OnPledgeDataUpdated;
             this.dataStore.CyclesUpdated += OnCyclesUpdated;
+            this.dataStore.SystemAdded += OnSystemAdded;
+            this.dataStore.SystemUpdated += OnSystemUpdated;
+
             SetSelectedSystemCommand = new ODRelayCommand<PowerPlaySystemVM>(OnSetSelectedSystem);
 
             currentCycleNo = EliteHelpers.CurrentCycleNo();
@@ -73,7 +76,6 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
-        private PowerPlayCycleDataVM? selectedSystemData;
         public PowerPlayCycleDataVM? SelectedSystemData
         {
             get
@@ -121,6 +123,18 @@ namespace ODEliteTracker.ViewModels
             }
 
             OnModelLive(e);
+        }
+
+        private void OnSystemAdded(object? sender, PowerPlaySystem e)
+        {
+            //TODO add the system
+            UpdateSystems(e);
+        }
+
+        private void OnSystemUpdated(object? sender, PowerPlaySystem e)
+        {
+            //TODO update the properties instead
+            UpdateSystems(e);
         }
 
         private void UpdateSystems(PowerPlaySystem? system)
@@ -182,10 +196,14 @@ namespace ODEliteTracker.ViewModels
 
             SelectedSystem = LastCycleSystems?.FirstOrDefault(x => x.Address == SelectedSystem.Address) ?? LastCycleSystems?.FirstOrDefault();
         }
+
         public override void Dispose()
         {
             this.dataStore.OnStoreLive -= OnStoreLive;
             this.dataStore.PledgeDataUpdated -= OnPledgeDataUpdated;
+            this.dataStore.CyclesUpdated -= OnCyclesUpdated;
+            this.dataStore.SystemAdded -= OnSystemAdded;
+            this.dataStore.SystemUpdated -= OnSystemUpdated;
         }
     }
 }

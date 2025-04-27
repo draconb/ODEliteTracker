@@ -4,9 +4,7 @@
 
     <ControlTemplate x:Key="PPConflict"
                      TargetType="{x:Type Control}">
-        <Grid Grid.Row="1"
-              Grid.ColumnSpan="2"
-              TextBlock.FontSize="16"
+        <Grid TextBlock.FontSize="16"
               MinHeight="80"
               DataContext="{Binding PowerPlayConflictData}">
             <Grid.ColumnDefinitions>
@@ -83,9 +81,116 @@
 
     <ControlTemplate x:Key="PPOther"
                      TargetType="{x:Type Control}">
-        <Grid>
+        <Grid TextBlock.FontSize="16"
+              MinHeight="80" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
-            <TextBlock Text="It also Worked" />
+            <Border Background="#FF4A2D2D"
+                    CornerRadius="5,30,30,5"
+                    Margin="5"
+                    Padding="5">
+                <Grid >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="Undermining"
+                                   FontSize="18"
+                                   Foreground="#FFEC4126"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"
+                                   Margin="5"/>
+                        <TextBlock Text="{Binding PowerplayStateUndermining}"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Foreground="#FFEC4126"
+                                   Margin="5,0" />
+                    </StackPanel>
+                    <ListBox ItemsSource="{Binding OpposingPowers}"
+                             Grid.Row="1"
+                             HorizontalAlignment="Stretch"
+                             HorizontalContentAlignment="Stretch"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             Foreground="#FFEC4126">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock Text="{Binding }"
+                                               Margin="5,0" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <Border Background="{DynamicResource ViewBackground}"
+                    CornerRadius="20"
+                    Grid.Column="1"
+                    TextBlock.FontSize="16"
+                    Margin="5"
+                    Padding="10">
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center" >
+                    <TextBlock HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="18"
+                               Margin="5"
+                               Text="{Binding ControllingPower}" />
+                    <TextBlock HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                               FontSize="18"
+                               Margin="5"
+                               Foreground="{DynamicResource Header}"
+                           Text="{Binding PowerStateString}" />
+                    <TextBlock HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="18"
+                               Margin="5"
+                               Text="{Binding PowerplayStateControlProgress}" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="#FF384858"
+                    CornerRadius="30,5,5,30"
+                    TextBlock.FontSize="16"
+                    Margin="5"
+                    Grid.Column="2"
+                    Padding="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Reinforcement"
+                               FontSize="18"
+                               Foreground="#FF66ADEE"
+                               FontWeight="Bold"
+                               Margin="5"
+                               HorizontalAlignment="Right" />
+        
+                    <TextBlock Text="{Binding PowerplayStateReinforcement}"
+                               Grid.Row="1"
+                               Margin="5"
+                               HorizontalAlignment="Right"
+                               FontWeight="Bold"
+                               Foreground="#FF66ADEE" />
+                    <TextBlock Text="{Binding ControllingPower}"
+                               Foreground="White"
+                               Grid.Row="2"
+                               HorizontalAlignment="Right"
+                               Margin="5" />
+           
+                </Grid>
+            </Border>
         </Grid>
     </ControlTemplate>
 

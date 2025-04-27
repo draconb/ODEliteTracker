@@ -51,12 +51,27 @@ namespace ODEliteTracker.ViewModels.ModelViews.PowerPlay
         public string ControllingPower => data.ControllingPower ?? "";
         public PowerplayState PowerState => data.PowerState;
         public string PowerStateString => data.PowerState.GetEnumDescription();
-        public string PowerplayStateControlProgress => $"{data.PowerplayStateControlProgress * 100:N0}";
-        public string PowerplayStateReinforcement => $"{data.PowerplayStateReinforcement * 100:N0}";
-        public string PowerplayStateUndermining => $"{data.PowerplayStateUndermining * 100:N0}";
+        public string PowerplayStateControlProgress => $"{data.PowerplayStateControlProgress * 100:N2} %";
+        public string PowerplayStateReinforcement => $"{data.PowerplayStateReinforcement:N0}";
+        public string PowerplayStateUndermining => $"{data.PowerplayStateUndermining:N0}";
         public List<PowerPlayItemVM> GoodsCollected { get; } = [];
         public List<PowerPlayItemVM> GoodsDelivered { get; } = [];
         public List<string>? Powers => data.Powers;
+        public List<string> OpposingPowers
+        {
+            get
+            {
+                var opposing = Powers?.Where(x => string.Equals(ControllingPower, x) == false);
+
+                if (opposing is null || opposing.Count() == 0)
+                {
+                    return ["No Opposing Power"];
+                }
+                var ret = opposing.ToList();
+                ret.Sort();
+                return ret;
+            }
+        }
         public PowerPlayConflictDataVM? PowerPlayConflictData { get; set; }
     }
 }

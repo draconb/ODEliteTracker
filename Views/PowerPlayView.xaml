@@ -27,7 +27,7 @@
                 <ColumnDefinition Width="400" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            
+
             <Border Background="{DynamicResource CardBackground}"
                     CornerRadius="5"
                     HorizontalAlignment="Stretch"
@@ -128,7 +128,7 @@
                         Margin="5"
                         Width="400"
                         SelectedIndex="{Binding TabIndex, Mode=TwoWay}"
-                        Background="{DynamicResource CardBackground}" >
+                        Background="{DynamicResource CardBackground}">
                 <TabItem Header="This Cycle">
                     <ListBox ItemsSource="{Binding ThisCycleSystems}"
                              x:Name="ThisCycleList"
@@ -152,7 +152,7 @@
                                                Margin="0,2"
                                                Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}"
                                                Fill="{DynamicResource NavBtnForeground}" />
-                                    
+
                                     <Button FontSize="20"
                                             Margin="5,0"
                                             Tag="1"
@@ -161,13 +161,13 @@
                                             HorizontalContentAlignment="Stretch"
                                             Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
                                             CommandParameter="{Binding }"
-                                            Style="{DynamicResource EliteStyleButton}" >
+                                            Style="{DynamicResource EliteStyleButton}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="40" />
                                             </Grid.ColumnDefinitions>
-                                   
+
                                             <TextBlock Text="{Binding Name}"
                                                        HorizontalAlignment="Left"
                                                        VerticalAlignment="Center"
@@ -228,7 +228,7 @@
                                             CommandParameter="{Binding }"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch"
-                                            Style="{DynamicResource EliteStyleButton}" >
+                                            Style="{DynamicResource EliteStyleButton}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -262,84 +262,98 @@
                 </TabItem>
             </TabControl>
 
-
-                <Grid Grid.Column="1"
-                      TextBlock.FontSize="20"
-                      Grid.RowSpan="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
+            <Grid Grid.Column="1"
+                  Grid.RowSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
                 <Border Background="{DynamicResource CardBackground}"
                         CornerRadius="5"
+                        HorizontalAlignment="Stretch"
                         Margin="5"
                         Padding="5">
-                    <Grid>
+                    <Grid Grid.Column="1"
+                          TextBlock.FontSize="20"
+                          Grid.RowSpan="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition />
+                            <ColumnDefinition Width="200" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition />
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        
-                        <TextBlock Text="{Binding SelectedSystem.Name}"
-                                   FontSize="35"
-                                   Margin="0,5"
-                                   Grid.ColumnSpan="2"
-                                   Foreground="{StaticResource Header}" />
 
-                        <TextBlock Text="Controlling Power"
-                                   Grid.Row="1"
-                                   Grid.Column="0"
-                                   Margin="5" />
-                        <TextBlock Text="{Binding SelectedSystem.Power}"
-                                   Grid.Row="1"
-                                   Grid.Column="1"
-                                   Margin="5" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding SelectedSystem.Name}"
+                                       FontSize="35"
+                                       Margin="0,5"
+                                       Grid.ColumnSpan="2"
+                                       Foreground="{StaticResource Header}" />
 
-                        <TextBlock Text="Powerplay State"
-                                   Grid.Row="2"
-                                   Grid.Column="0"
-                                   Margin="5" />
-                        <TextBlock Text="{Binding SelectedSystem.PowerState}"
-                                   Grid.Row="2"
-                                   Grid.Column="1"
-                                   Margin="5" />
+                            <TextBlock Text="Controlling Power"
+                                       Grid.Row="1"
+                                       Grid.Column="0"
+                                       Margin="5" />
+                            <TextBlock Text="{Binding SelectedSystem.Power}"
+                                       Grid.Row="1"
+                                       Grid.Column="1"
+                                       Margin="5" />
 
-                        <TextBlock Text="Merits Earned"
-                                   Grid.Row="3"
-                                   Grid.Column="0"
-                                   Margin="5" />
-                        <TextBlock Text="{Binding SelectedSystemData.MeritsEarned}"
-                                   Grid.Row="3"
-                                   Grid.Column="1"
-                                   Margin="5" />
+                            <TextBlock Text="Powerplay State"
+                                       Grid.Row="2"
+                                       Grid.Column="0"
+                                       Margin="5" />
+                            <TextBlock Text="{Binding SelectedSystem.PowerState}"
+                                       Grid.Row="2"
+                                       Grid.Column="1"
+                                       Margin="5" />
 
-                        <TextBlock Text="Controlling Faction"
-                                   Grid.Row="4"
-                                   Grid.Column="0"
-                                   Margin="5" />
-                        <TextBlock Text="{Binding SelectedSystem.ControllingFaction}"
-                                   Grid.Row="4"
-                                   Grid.Column="1"
-                                   Margin="5" />
+                            <TextBlock Text="Merits Earned"
+                                       Grid.Row="3"
+                                       Grid.Column="0"
+                                       Margin="5" />
+                            <TextBlock Text="{Binding SelectedSystemData.MeritsEarned}"
+                                       Grid.Row="3"
+                                       Grid.Column="1"
+                                       Margin="5" />
 
-                        <TextBlock Text="System Allegiance"
-                                   Grid.Row="5"
-                                   Grid.Column="0"
-                                   Margin="5" />
-                        <TextBlock Text="{Binding SelectedSystem.SystemAllegiance}"
-                                   Grid.Row="5"
-                                   Grid.Column="1"
-                                   Margin="5" />
+                            <TextBlock Text="Controlling Faction"
+                                       Grid.Row="4"
+                                       Grid.Column="0"
+                                       Margin="5" />
+                            <TextBlock Text="{Binding SelectedSystem.ControllingFaction}"
+                                       Grid.Row="4"
+                                       Grid.Column="1"
+                                       Margin="5" />
+
+                            <TextBlock Text="System Allegiance"
+                                       Grid.Row="5"
+                                       Grid.Column="0"
+                                       Margin="5" />
+                            <TextBlock Text="{Binding SelectedSystem.SystemAllegiance}"
+                                       Grid.Row="5"
+                                       Grid.Column="1"
+                                       Margin="5" />
+
+                        </Grid>
 
                         <TextBlock Text="{Binding CurrentCycle}"
                                    FontSize="35"
@@ -364,41 +378,88 @@
                         </Rectangle>
                     </Grid>
                 </Border>
-  
 
-                    <!--<Grid Grid.Row="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Text="{Binding SelectedSystemData.PowerplayStateReinforcement}" />
-                        <TextBlock Text="{Binding SelectedSystemData.PowerplayStateUndermining}" 
-                                   Grid.Row="1"/>
-                        <ListBox ItemsSource="{Binding SelectedSystemData.Powers}"
-                                 Grid.Row="2"/>
-                    </Grid>-->
-
-                    <Control Grid.Row="1"
-                             Grid.ColumnSpan="2"
-                             DataContext="{Binding SelectedSystemData}"
+                <Border Background="{DynamicResource CardBackground}"
+                        CornerRadius="5"
+                        Grid.Row="1"
+                        HorizontalAlignment="Stretch"
+                        Margin="5"
+                        Padding="5">
+                    <Control DataContext="{Binding SelectedSystemData}"
                              Style="{DynamicResource PowerStateContent}" />
-                    <!--<ContentPresenter Grid.Row="1"
+                </Border>
+                <!--<ContentPresenter Grid.Row="1"
                                       Grid.ColumnSpan="2"
                                       DataContext="{Binding SelectedSystemData}"
                                       Style="{DynamicResource PowerStateContent}" />-->
-                    
-                    
-                    <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsCollected}"
-                             AutoGenerateColumns="True"
-                              Grid.Row="2" />
 
+                <Border Background="{DynamicResource CardBackground}"
+                        CornerRadius="5"
+                        Grid.Row="2"
+                        HorizontalAlignment="Stretch"
+                        Margin="5"
+                        Padding="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
 
-                    <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsDelivered}"
-                              AutoGenerateColumns="True"
-                              Grid.Row="3" />
-                </Grid>   
+                        <TextBlock Text="Items Collected"
+                                   Foreground="{DynamicResource Header}"
+                                   FontSize="24"
+                                   Margin="5,5"/>
+                        <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsCollected}"
+                                  Style="{DynamicResource BaseDataGridStyle}"
+                                  RowStyle="{DynamicResource ConstructionResourcesStyle}"
+                                  HeadersVisibility="Column"
+                                  Grid.Column="0"
+                                  Grid.Row="1" >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Item"
+                                                    Width="*"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                    Binding="{Binding Name}" />
+                                <DataGridTextColumn Header="Count"
+                                                    MinWidth="100"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                    ElementStyle="{DynamicResource DataGridElementCenter}"
+                                                    Binding="{Binding Count}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock Text="Items Delivered"
+                                   Foreground="{DynamicResource Header}"
+                                   FontSize="24"
+                                   Margin="5,5"
+                                   Grid.Column="1"/>
+                        <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsDelivered}"
+                                  Style="{DynamicResource BaseDataGridStyle}"
+                                  RowStyle="{DynamicResource ConstructionResourcesStyle}"
+                                  HeadersVisibility="Column"
+                                  Grid.Column="1"
+                                  Grid.Row="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Item"
+                                                    Width="*"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                    Binding="{Binding Name}" />
+                                <DataGridTextColumn Header="Count"
+                                                    MinWidth="100"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                    ElementStyle="{DynamicResource DataGridElementCenter}"
+                                                    Binding="{Binding Count}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </Grid>
         </Grid>
     </busyIndicator:BusyMask>
 </UserControl>
