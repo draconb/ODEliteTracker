@@ -138,8 +138,6 @@ namespace ODEliteTracker.ViewModels
             navigationService.NavigateTo<LoadingViewModel>();
             if (navigationService.CurrentView is LoadingViewModel loadingViewModel)
             {
-                await loadingViewModel.Initialise();               
-                settings.LoadSettings();
                 await Task.Run(journalManager.Initialise).ConfigureAwait(true);
             }
             navigationService.NavigateTo(settings.CurrentViewModel);

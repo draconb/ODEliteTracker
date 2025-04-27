@@ -19,8 +19,8 @@ namespace ODEliteTracker.ViewModels
         private readonly ODEliteTrackerDbContextFactory contextFactory;
         private readonly JournalEventParser eventParser;
 
-        private string? statusText;
-        public string? StatusText
+        private string statusText = "Reading History";
+        public string StatusText
         {
             get => statusText;
             set
@@ -28,35 +28,6 @@ namespace ODEliteTracker.ViewModels
                 statusText = value;
                 OnPropertyChanged(nameof(StatusText));
             }
-        }
-
-        public async Task Initialise()
-        {
-            await Task.Delay(500);
-            StatusText = "Loading";
-            await Task.Delay(500);
-            StatusText = "Migrating Database";
-            try
-            {
-                using var dbContext = contextFactory.CreateDbContext();
-                await dbContext.Database.MigrateAsync();
-                await Task.Delay(500);
-            }
-            catch (Microsoft.Data.Sqlite.SqliteException ex)
-            {
-                StatusText = "Error Accessing Database\nApplication will now close";
-                await Task.Delay(5000);
-                App.Current.Shutdown();
-            }
-            catch (Exception ex)
-            {
-                StatusText ="Error Loading\nApplication will now close";
-                await Task.Delay(5000);
-                App.Current.Shutdown();
-            }
-            await Task.Delay(500);
-            StatusText = "Reading History";
-            await Task.Delay(500);
         }
 
         private void EventParser_OnReadingNewFile(object? sender, string e)

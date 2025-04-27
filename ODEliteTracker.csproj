@@ -21,6 +21,8 @@
     <None Remove="Assets\Icons\settings.png" />
     <None Remove="Assets\Icons\trade.png" />
     <None Remove="Assets\Icons\Wing.png" />
+    <None Remove="Assets\Images\elite-dangerous-clean.png" />
+    <None Remove="Assets\Images\OD.png" />
     <None Remove="Assets\OD.ico" />
     <None Remove="Assets\PowerPlay\aisling-duval.png" />
     <None Remove="Assets\PowerPlay\archon-delaine.png" />
@@ -73,6 +75,8 @@
     <Resource Include="Assets\Icons\settings.png" />
     <Resource Include="Assets\Icons\trade.png" />
     <Resource Include="Assets\Icons\Wing.png" />
+    <Resource Include="Assets\Images\elite-dangerous-clean.png" />
+    <Resource Include="Assets\Images\OD.png" />
     <Resource Include="Assets\OD.ico" />
     <Resource Include="Assets\PowerPlay\aisling-duval.png" />
     <Resource Include="Assets\PowerPlay\archon-delaine.png" />

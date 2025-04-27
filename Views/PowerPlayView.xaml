@@ -417,6 +417,7 @@
                                   Style="{DynamicResource BaseDataGridStyle}"
                                   RowStyle="{DynamicResource ConstructionResourcesStyle}"
                                   HeadersVisibility="Column"
+                                  Margin="5"
                                   Grid.Column="0"
                                   Grid.Row="1" >
                             <DataGrid.Columns>
@@ -442,6 +443,7 @@
                                   Style="{DynamicResource BaseDataGridStyle}"
                                   RowStyle="{DynamicResource ConstructionResourcesStyle}"
                                   HeadersVisibility="Column"
+                                  Margin="5"
                                   Grid.Column="1"
                                   Grid.Row="1">
                             <DataGrid.Columns>

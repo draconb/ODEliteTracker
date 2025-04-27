@@ -38,12 +38,15 @@ namespace ODEliteTracker
             .ConfigureAppConfiguration(c => { c.SetBasePath(Path.GetDirectoryName(AppContext.BaseDirectory) ?? string.Empty); })
             .ConfigureServices((context, services) =>
             {
-                //View
+                //Windows
                 services.AddSingleton(provider => new MainWindow(provider.GetRequiredService<IODNavigationService>())
                 {
                     DataContext = provider.GetRequiredService<MainViewModel>()
                 });
-
+                services.AddTransient(provider => new LoaderWindow()
+                {
+                    DataContext = provider.GetRequiredService<LoaderViewModel>()
+                });
                 //Database
                 services.AddSingleton<IODDatabaseProvider, ODEliteTrackerDatabaseProvider>();
                 services.AddSingleton(new ODEliteTrackerDbContextFactory(connectionString));
@@ -51,7 +54,7 @@ namespace ODEliteTracker
                 services.AddSingleton<IODNavigationService, ODNavigationService>();
                 services.AddSingleton<Func<Type, ODViewModel>>(provider => viewModelType => (ODViewModel)provider.GetRequiredService(viewModelType));
                 
-                //VMs
+                //View Models
                 services.AddSingleton<MainViewModel>();
 
                 services.AddTransient<ColonisationViewModel>();
@@ -61,6 +64,7 @@ namespace ODEliteTracker
                 services.AddTransient<LoadingViewModel>();
                 services.AddTransient<BGSViewModel>();
                 services.AddTransient<PowerPlayViewModel>();
+                services.AddTransient<LoaderViewModel>();
 
                 //Services
                 services.AddSingleton<ThemeManager>();
@@ -93,6 +97,19 @@ namespace ODEliteTracker
         private async void OnStartup(object sender, StartupEventArgs e)
         {
             await _host.StartAsync();
+
+            //Disable shutdown when the dialog closes
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var updateWindow = _host.Services.GetRequiredService<LoaderWindow>();
+            if (updateWindow.ShowDialog() is bool v && !v)
+            {
+                Shutdown();
+                return;
+            }
+
+            var settings = Services.GetRequiredService<SettingsStore>();
+            settings.LoadSettings();
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
 
             var mainWindow = Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
