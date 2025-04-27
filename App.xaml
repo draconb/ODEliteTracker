@@ -1,0 +1,62 @@
+﻿<Application x:Class="ODEliteTracker.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ODEliteTracker"
+             xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels"
+             xmlns:views="clr-namespace:ODEliteTracker.Views"
+             xmlns:themes="clr-namespace:ODEliteTracker.Themes"
+             xmlns:converters="clr-namespace:ODMVVM.WpfConverters;assembly=ODMVVM"
+             DispatcherUnhandledException="OnDispatcherUnhandledException"
+             Exit="OnExit"
+             Startup="OnStartup">
+    <Application.Resources>
+        <ResourceDictionary>
+            <DataTemplate DataType="{x:Type viewmodels:LoadingViewModel}">
+                <views:LoadingView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:SettingsViewModel}">
+                <views:SettingsView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:ColonisationViewModel}">
+                <views:ColonisationView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:MassacreMissionsViewModel}">
+                <views:MassacreMissionView />
+            </DataTemplate>    
+            <DataTemplate DataType="{x:Type viewmodels:TradeMissionViewModel}">
+                <views:TradeMissionView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:BGSViewModel}">
+                <views:BGSDataView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:PowerPlayViewModel}">
+                <views:PowerPlayView />
+            </DataTemplate>
+            
+            <BooleanToVisibilityConverter x:Key="BoolToVis" />
+            <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
+            
+            <FontFamily x:Key="Eurostile">pack://application:,,,/Assets/Fonts/#Eurostile</FontFamily>
+            
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/BusyIndicator;component/Theme/Default.xaml" />
+                <!--<ResourceDictionary Source="/Controls/ControlsResources.xaml" />-->
+                <ResourceDictionary Source="/Controls/Navigation/NavigationBtnStyle.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/ScrollbarStyle.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/DataGridStyles.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/ComboBoxStyle.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/ListBoxStyles.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/ButtonStyles.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/TabControlStyles.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/RadioButton.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/CheckBoxStyles.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/TextBoxStyles.xaml" />
+                <ResourceDictionary Source="/Controls/Trade/DeliveryMissionTemplate.xaml" />                
+                <ResourceDictionary Source="/Controls/Styles/RectangleStyles.xaml" />                
+                <ResourceDictionary Source="/Controls/Styles/PowerPlayStyles.xaml" />                
+                <themes:ThemeDictionary DefaultSource="pack://application:,,,/ODEliteTracker;component/Themes/DefaultTheme.xaml" 
+                                        Source="/Themes/DefaultTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>            
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

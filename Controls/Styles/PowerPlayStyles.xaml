@@ -1,0 +1,104 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ejr="clr-namespace:EliteJournalReader;assembly=EliteJournalReader">
+
+    <ControlTemplate x:Key="PPConflict"
+                     TargetType="{x:Type Control}">
+        <Grid Grid.Row="1"
+              Grid.ColumnSpan="2"
+              TextBlock.FontSize="16"
+              MinHeight="80"
+              DataContext="{Binding PowerPlayConflictData}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Border Background="#FF4A2D2D"
+                    CornerRadius="5,30,30,5"
+                    Margin="5"
+                    Padding="5">
+                <ListBox ItemsSource="{Binding LosingPowers}"
+                         HorizontalAlignment="Stretch"
+                         HorizontalContentAlignment="Stretch"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         Foreground="#FFD37D00">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="{Binding Progress}"
+                                           Foreground="#FFEC4126" />
+                                <TextBlock Text="{Binding Power}"
+                                           Margin="5,0"
+                                           Grid.Column="1" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+
+            <Border Background="{DynamicResource ViewBackground}"
+                    CornerRadius="20"
+                    Grid.Column="1"
+                    TextBlock.FontSize="16"
+                    Margin="5"
+                    Padding="10">
+                <TextBlock HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="18"
+                           Text="{Binding ConflictState}" />
+            </Border>
+
+            <Border Background="#FF384858"
+                    CornerRadius="30,5,5,30"
+                    TextBlock.FontSize="16"
+                    Margin="5"
+                    Grid.Column="2"
+                    Padding="5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="80" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="{Binding WinningPower.Power}"
+                               Foreground="White"
+                               HorizontalAlignment="Right"
+                               Margin="10,5" />
+                    <TextBlock Text="{Binding WinningPower.Progress}"
+                               Grid.Column="1"
+                               Margin="10,5"
+                               Foreground="#FF66ADEE" />
+                </Grid>
+            </Border>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="PPOther"
+                     TargetType="{x:Type Control}">
+        <Grid>
+
+            <TextBlock Text="It also Worked" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="PowerStateContent"
+           TargetType="{x:Type Control}">
+        <Setter Property="Template"
+                Value="{DynamicResource PPOther}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding PowerState}"
+                         Value="{x:Static ejr:PowerplayState.Unoccupied}">
+                <Setter Property="Template"
+                        Value="{DynamicResource PPConflict}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,202 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ControlTemplate x:Key="DeliveryMissionCommodities"
+                     TargetType="{x:Type DataGridCell}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid Margin="5,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding Commodity_Localised, StringFormat={}{0} Collected}" />
+                <TextBlock Grid.Column="1">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} / {1} [ R: {2} ]">
+                            <Binding Path="ItemsCollected" />
+                            <Binding Path="Count" />
+                            <Binding Path="ItemsToCollectRemaining" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <ProgressBar Grid.Row="1"
+                             Grid.ColumnSpan="2"
+                             Minimum="0"
+                             Margin="0,5,0,0"
+                             Maximum="{Binding Count}"
+                             Value="{Binding ItemsCollected}" />
+            </Grid>
+
+
+            <Grid Grid.Column="1"
+                  Margin="5,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding Commodity_Localised, StringFormat={}{0} Delivered}" />
+                <TextBlock Grid.Column="1">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} / {1} [ R: {2} ]">
+                            <Binding Path="ItemsDelivered" />
+                            <Binding Path="Count" />
+                            <Binding Path="ItemsToDeliverRemaining" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <ProgressBar Grid.Row="1"
+                             Grid.ColumnSpan="2"
+                             Minimum="0"
+                             Margin="0,5,0,0"
+                             Maximum="{Binding Count}"
+                             Value="{Binding ItemsDelivered}" />
+            </Grid>
+
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="SourceMissionCommodities"
+                     TargetType="{x:Type DataGridCell}">
+        <Grid Grid.Column="1"
+              Margin="10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBlock Text="{Binding Commodity_Localised, StringFormat={}{0} Delivered}" />
+            <TextBlock Grid.Column="1">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0} / {1} [ R: {2} ]">
+                        <Binding Path="ItemsDelivered" />
+                        <Binding Path="Count" />
+                        <Binding Path="ItemsToDeliverRemaining" />
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+            <ProgressBar Grid.Row="1"
+                         Grid.ColumnSpan="2"
+                         Minimum="0"
+                         Margin="0,5,0,0"
+                         Maximum="{Binding Count}"
+                         Value="{Binding ItemsDelivered}" />
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="CommoditiesColumn"
+           TargetType="{x:Type DataGridCell}">
+        <Setter Property="Template"
+                Value="{StaticResource SourceMissionCommodities}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding DeliveryMission}"
+                         Value="True">
+                <Setter Property="Template"
+                        Value="{StaticResource DeliveryMissionCommodities}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <ControlTemplate x:Key="DelerivryMissionSource">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="DeliveryColumn"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition SharedSizeGroup="DeliveryColumn"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource Header}"
+                           Text="{Binding OriginSystemName}"
+                           Margin="5,0,0,0" />
+                <TextBlock Grid.Row="1"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           Text="{Binding OriginStationName}"
+                           Margin="5,0,0,0" />
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <TextBlock Text=">"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </Grid>
+            
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource Header}"
+                           Text="{Binding DestinationSystem}"
+                           Margin="5,0,0,0" />
+                <TextBlock Grid.Row="1"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"                           
+                           Text="{Binding DestinationStation}"
+                           Margin="5,0,0,0" />
+            </Grid>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="SourceMissionSource">
+        <Grid >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       HorizontalAlignment="Left"
+                       Text="{Binding OriginSystemName}"
+                       Foreground="{DynamicResource Header}"
+                       Margin="5,0,0,0" />
+
+            <TextBlock Grid.Row="1"
+                       HorizontalAlignment="Left"
+                       Text="{Binding OriginStationName}"
+                       Margin="5,0,0,0" />        
+           
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="SourceColumn"
+           TargetType="{x:Type DataGridCell}">
+        <Setter Property="Template"
+                Value="{StaticResource SourceMissionSource}" />     
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding DeliveryMission}"
+                         Value="True">
+                <Setter Property="Template"
+                        Value="{StaticResource DelerivryMissionSource}" />
+                <Setter Property="MinWidth"
+                        Value="500" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

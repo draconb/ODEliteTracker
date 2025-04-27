@@ -1,0 +1,88 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <Color x:Key="P_Foreground">#FFF3F3F3</Color>
+    <Color x:Key="P_Foreground_Disabled">Gray</Color>
+
+    <SolidColorBrush x:Key="IndicatorForeground"
+                     Color="{StaticResource P_Foreground}" />
+    <SolidColorBrush x:Key="IndicatorBackground"
+                     Color="#1E1E1E" />
+    <sys:Double x:Key="IndicatorScaleX">2</sys:Double>
+    <sys:Double x:Key="IndicatorScaleY">2</sys:Double>
+    
+    <SolidColorBrush x:Key="PrimaryForeground"
+                     Color="{DynamicResource P_Foreground}" />
+    <SolidColorBrush x:Key="PrimaryForegroundDisabled"
+                     Color="{StaticResource P_Foreground_Disabled}" />
+
+    <!--Primary Controls-->
+    <SolidColorBrush x:Key="PrimaryControlBackground"
+                     Color="#FF333333" />
+    <SolidColorBrush x:Key="PrimaryControlBorder"
+                     Color="DarkGray" />
+    <SolidColorBrush x:Key="PrimaryControlForeground"
+                     Color="{StaticResource P_Foreground}" />
+    <SolidColorBrush x:Key="PrimaryControlForegroundDisabled"
+                     Color="{StaticResource P_Foreground_Disabled}" />
+    <SolidColorBrush x:Key="PrimaryControlMouseOver"
+                     Color="#FF7A7A7A" />
+    <SolidColorBrush x:Key="PrimaryControlPressed"
+                     Color="#BF4D4949" />
+    <SolidColorBrush x:Key="Header"
+                     Color="White" />
+
+    <SolidColorBrush x:Key="CardBackground"
+                     Color="#FF2D2D2D" />
+    <SolidColorBrush x:Key="CardBackgroundMouseOver"
+                     Color="#FF2B2B2B" />
+
+
+    <SolidColorBrush x:Key="EliteBtnBG"
+                     Color="#FF1F1C1C" />
+    <SolidColorBrush x:Key="EliteBtnBGMouseOver"
+                     Color="DarkGray" />
+    <SolidColorBrush x:Key="EliteBtnFG"
+                     Color="White" />
+    <SolidColorBrush x:Key="EliteBtnFGMouseOver"
+                     Color="Black" />
+    <SolidColorBrush x:Key="EliteBtnBGPressed"
+                     Color="White" />
+    <SolidColorBrush x:Key="EliteBtnBorder"
+                     Color="DarkGray" />
+    
+    <!--Navigation-->
+    <SolidColorBrush x:Key="NavBtnForeground"
+                     Color="White" />
+    <SolidColorBrush x:Key="NavBtnBackground"
+                     Color="#FF1F1C1C" />
+    <SolidColorBrush x:Key="NavBtnForegroundDisabled"
+                     Color="DarkGray" />
+    <SolidColorBrush x:Key="NavBtnBackgroundDisabled"
+                     Color="Gray" />
+    <SolidColorBrush x:Key="NavigationBarBackground"
+                     Color="#FF333333" />
+    <SolidColorBrush x:Key="ViewBackground"
+                     Color="#1E1E1E" />
+
+    <!--TitleBar-->
+    <SolidColorBrush x:Key="TitleBarBackGround"
+                     Color="Black" />
+    <SolidColorBrush x:Key="TitlebarForeGround"
+                     Color="White" />
+    <SolidColorBrush x:Key="TitlebarMouseOver"
+                     Color="#FF333333" />
+
+    <!--Scrollbar-->
+    <SolidColorBrush x:Key="ScrollBarLine"
+                     Color="#FF545050" />
+    <SolidColorBrush x:Key="ScrollBarThumbColour"
+                     Color="#FFCAC6C6" />
+    <SolidColorBrush x:Key="ScrollBarThumbMouseOver"
+                     Color="White" />
+    
+    <!--Datagrid-->
+    <SolidColorBrush x:Key="RowAlternationColour"
+                     Color="#FF545050" />
+</ResourceDictionary>

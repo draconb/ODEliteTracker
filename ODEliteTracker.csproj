@@ -1,0 +1,92 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\OD.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Fonts\EUROSTILE.TTF" />
+    <None Remove="Assets\Icons\assassin.png" />
+    <None Remove="Assets\Icons\bgs.png" />
+    <None Remove="Assets\Icons\ColonisationBtn.png" />
+    <None Remove="Assets\Icons\GitHub_Logo_White.png" />
+    <None Remove="Assets\Icons\OD.png" />
+    <None Remove="Assets\Icons\paypal-donate-button.png" />
+    <None Remove="Assets\Icons\powerplay.png" />
+    <None Remove="Assets\Icons\settings.png" />
+    <None Remove="Assets\Icons\trade.png" />
+    <None Remove="Assets\Icons\Wing.png" />
+    <None Remove="Assets\OD.ico" />
+    <None Remove="Assets\PowerPlay\aisling-duval.png" />
+    <None Remove="Assets\PowerPlay\archon-delaine.png" />
+    <None Remove="Assets\PowerPlay\arissa-lavigny-duval.png" />
+    <None Remove="Assets\PowerPlay\denton-patreus.png" />
+    <None Remove="Assets\PowerPlay\edmund-mahon.png" />
+    <None Remove="Assets\PowerPlay\felicia-winters.png" />
+    <None Remove="Assets\PowerPlay\jerome-archer.png" />
+    <None Remove="Assets\PowerPlay\li-yong-rui.png" />
+    <None Remove="Assets\PowerPlay\nakato-kaine.png" />
+    <None Remove="Assets\PowerPlay\pranav-antal.png" />
+    <None Remove="Assets\PowerPlay\yuri-grom.png" />
+    <None Remove="Assets\PowerPlay\zachary-hudson.png" />
+    <None Remove="Assets\PowerPlay\zemina-torval.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\OD.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BusyIndicators" Version="2.1.3" />
+    <PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="9.0.1" />
+    <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="ToastNotifications" Version="2.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ODJournalDatabase\ODJournalDatabase.csproj" />
+    <ProjectReference Include="..\ODMvvm\ODMVVM.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Fonts\EUROSTILE.TTF" />
+    <Resource Include="Assets\Icons\assassin.png" />
+    <Resource Include="Assets\Icons\bgs.png" />
+    <Resource Include="Assets\Icons\ColonisationBtn.png" />
+    <Resource Include="Assets\Icons\GitHub_Logo_White.png" />
+    <Resource Include="Assets\Icons\OD.png" />
+    <Resource Include="Assets\Icons\paypal-donate-button.png" />
+    <Resource Include="Assets\Icons\powerplay.png" />
+    <Resource Include="Assets\Icons\settings.png" />
+    <Resource Include="Assets\Icons\trade.png" />
+    <Resource Include="Assets\Icons\Wing.png" />
+    <Resource Include="Assets\OD.ico" />
+    <Resource Include="Assets\PowerPlay\aisling-duval.png" />
+    <Resource Include="Assets\PowerPlay\archon-delaine.png" />
+    <Resource Include="Assets\PowerPlay\arissa-lavigny-duval.png" />
+    <Resource Include="Assets\PowerPlay\denton-patreus.png" />
+    <Resource Include="Assets\PowerPlay\edmund-mahon.png" />
+    <Resource Include="Assets\PowerPlay\felicia-winters.png" />
+    <Resource Include="Assets\PowerPlay\jerome-archer.png" />
+    <Resource Include="Assets\PowerPlay\li-yong-rui.png" />
+    <Resource Include="Assets\PowerPlay\nakato-kaine.png" />
+    <Resource Include="Assets\PowerPlay\pranav-antal.png" />
+    <Resource Include="Assets\PowerPlay\yuri-grom.png" />
+    <Resource Include="Assets\PowerPlay\zachary-hudson.png" />
+    <Resource Include="Assets\PowerPlay\zemina-torval.png" />
+  </ItemGroup>
+
+</Project>

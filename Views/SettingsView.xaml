@@ -1,0 +1,390 @@
+﻿<UserControl x:Class="ODEliteTracker.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ODEliteTracker.Views"
+             xmlns:themes="clr-namespace:ODEliteTracker.Themes"
+             xmlns:wpfconverters="clr-namespace:ODEliteTracker.WPFConverters"
+             xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:models="clr-namespace:ODEliteTracker.Models"
+             mc:Ignorable="d"
+             FontFamily="Eurostile"
+             x:Name="Root"
+             Foreground="{DynamicResource PrimaryForeground}"
+             FontSize="18"
+             d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
+             d:DesignHeight="450"
+             d:DesignWidth="800">
+    <UserControl.Resources>
+        <wpfconverters:ThemeToBoolConverter x:Key="ThemeToBool" />
+        <Storyboard x:Key="Storyboard">
+            <DoubleAnimation Storyboard.TargetName="RotateImage"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                             From="0"
+                             To="360"
+                             Duration="00:00:03.000"
+                             RepeatBehavior="Forever" />
+        </Storyboard>
+
+        <ObjectDataProvider x:Key="journalAgeValues"
+                            MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:JournalLogAge" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition MinHeight="100"
+                           Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Border Background="{DynamicResource CardBackground}"
+                Margin="5"
+                Padding="5"
+                Grid.ColumnSpan="3"
+                CornerRadius="5">
+
+            <Grid Margin="10"                  
+                  x:Name="grid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBox Text="COMMANDERS"
+                         Foreground="{DynamicResource Header}"
+                         Background="Transparent"
+                         BorderThickness="0" />
+
+                <DataGrid ItemsSource="{Binding JournalCommanderViews}"
+                          SelectedValue="{Binding SelectedCommander}"
+                          Grid.Row="1"
+                          SelectionMode="Single"
+                          IsHitTestVisible="True"
+                          GridLinesVisibility="All"
+                          Width="{Binding ElementName=grid, Path=ActualWidth}"
+                          BorderBrush="{DynamicResource PrimaryControlBorder}"
+                          CanUserAddRows="False"
+                          Background="Transparent"
+                          HeadersVisibility="Column"
+                          RowStyle="{DynamicResource CommanderRowStyle}"
+                          Style="{DynamicResource BaseDataGridStyle}">
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Binding="{Binding Name}"
+                                            Width="SizeToCells"
+                                            MinWidth="150"
+                                            IsReadOnly="True"
+                                            Header="Name"
+                                            CellStyle="{DynamicResource CmdrSelectionCellLeft}"
+                                            HeaderStyle="{DynamicResource DataGridHeaderLeft}" />
+                        <DataGridTemplateColumn Width="*"
+                                                MinWidth="120"
+                                                IsReadOnly="True"
+                                                Header="Journal Folder"
+                                                CellStyle="{DynamicResource CmdrSelectionCellLeft}"
+                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding JournalPath}"
+                                               TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="280"
+                                                IsReadOnly="True"
+                                                Header="Last Journal File"
+                                                CellStyle="{DynamicResource CmdrSelectionCellLeft}"
+                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding LastFile}"
+                                               TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width="90"
+                                                Header="Hidden"
+                                                IsReadOnly="True"
+                                                CellStyle="{DynamicResource CmdrSelectionCellCenter}"
+                                                HeaderStyle="{DynamicResource DataGridHeaderCenter}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox VerticalAlignment="Center"
+                                              HorizontalAlignment="Center"
+                                              Width="20"
+                                              IsHitTestVisible="True"
+                                              Style="{DynamicResource CheckBoxStyle}"
+                                              Command="{Binding ElementName=Root, Path=DataContext.ToggleCommanderHidden}"
+                                              IsChecked="{Binding IsHidden, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Grid Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="50" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="{Binding SelectedCommander.Name}"
+                               FontSize="24" />
+
+                    <TextBox Text="{Binding SelectedCommander.JournalPath}"
+                             VerticalAlignment="Center"
+                             Padding="0,8"
+                             Background="Transparent"
+                             BorderBrush="{DynamicResource PrimaryControlBorder}"
+                             TextAlignment="Justify"
+                             BorderThickness="1"
+                             IsReadOnly="True"
+                             FontSize="16"
+                             Height="40"
+                             Grid.Row="1" />
+
+                    <Button Content="Delete Commander"
+                            HorizontalAlignment="Center"
+                            Height="40"
+                            FontSize="18"
+                            Width="180"
+                            VerticalAlignment="Center"
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            Style="{DynamicResource EliteStyleButton}"
+                            Command="{Binding DeleteCommander}" />
+
+                    <Button Content="Change Logs Folder"
+                            HorizontalAlignment="Center"
+                            Height="40"
+                            FontSize="18"
+                            Width="180"
+                            Style="{DynamicResource EliteStyleButton}"
+                            Command="{Binding ChangeJourneyDirectoryCommand}"
+                            VerticalAlignment="Center"
+                            Grid.Row="1"
+                            Grid.Column="2" />
+
+                    <TextBox Text="{Binding SelectedCommander.LastFile}"
+                             VerticalAlignment="Center"
+                             Background="Transparent"
+                             Padding="0,8"
+                             BorderBrush="{DynamicResource PrimaryControlBorder}"
+                             BorderThickness="1"
+                             IsReadOnly="True"
+                             FontSize="16"
+                             Height="40"
+                             Grid.Row="2" />
+
+                    <Button Content="Reset Last File"
+                            HorizontalAlignment="Center"
+                            Height="40"
+                            FontSize="18"
+                            Width="180"
+                            VerticalAlignment="Center"
+                            Grid.Row="2"
+                            Grid.Column="2"
+                            Style="{DynamicResource EliteStyleButton}"
+                            Command="{Binding ResetLastReadFile}" />
+
+                    <Button Content="Scan Directory"
+                            x:Name="ScanDirectoryBtn"
+                            ToolTip="Scans the selected Directory for Commander Data"
+                            HorizontalAlignment="Left"
+                            Height="40"
+                            FontSize="18"
+                            Width="180"
+                            Style="{DynamicResource EliteStyleButton}"
+                            Command="{Binding ReadNewDirectoryCommand}"
+                            VerticalAlignment="Center"
+                            Grid.Row="3"
+                            Grid.Column="0" />
+
+                    <Button Content="Save Changes"
+                            HorizontalAlignment="Center"
+                            Height="40"
+                            FontSize="18"
+                            Width="180"
+                            VerticalAlignment="Center"
+                            Grid.Row="3"
+                            Grid.Column="2"
+                            Command="{Binding SaveCommanderChanges}"
+                            Style="{DynamicResource EliteStyleButton}" />
+                </Grid>
+            </Grid>
+        </Border>
+        
+        <Border Background="{DynamicResource CardBackground}"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Margin="5"
+                Padding="5"
+                Grid.Row="1"
+                CornerRadius="5">
+            <StackPanel Width="200">
+                <TextBox Text="THEME"
+                         Foreground="{DynamicResource Header}"
+                         Background="Transparent"
+                         BorderThickness="0" />
+
+                <RadioButton GroupName="ThemeButtons"
+                             Command="{Binding SetTheme}"
+                             CommandParameter="{x:Static themes:Theme.OD}"
+                             Content="OD"
+                             Margin="10"
+                             Style="{StaticResource EliteStyleRadioButton}"
+                             HorizontalAlignment="Left"
+                             FontSize="24"
+                             Foreground="{DynamicResource PrimaryForeground}"
+                             IsChecked="{Binding CurrentTheme, Converter={StaticResource ThemeToBool}, ConverterParameter=OD, Mode=OneWay}" />
+                <RadioButton GroupName="ThemeButtons"
+                             Command="{Binding SetTheme}"
+                             CommandParameter="{x:Static themes:Theme.Dark}"
+                             Content="DARK"
+                             HorizontalAlignment="Left"
+                             Margin="10"
+                             FontSize="24"
+                             Style="{StaticResource EliteStyleRadioButton}"
+                             Foreground="{DynamicResource PrimaryForeground}"
+                             IsChecked="{Binding CurrentTheme, Converter={StaticResource ThemeToBool}, ConverterParameter=Dark, Mode=OneWay}" />
+                <RadioButton GroupName="ThemeButtons"
+                             Command="{Binding SetTheme}"
+                             CommandParameter="{x:Static themes:Theme.Light}"
+                             Content="LIGHT"
+                             HorizontalAlignment="Left"
+                             Margin="10"
+                             FontSize="24"
+                             Style="{StaticResource EliteStyleRadioButton}"
+                             Foreground="{DynamicResource PrimaryForeground}"
+                             IsChecked="{Binding CurrentTheme, Converter={StaticResource ThemeToBool}, ConverterParameter=Light, Mode=OneWay}" />
+
+
+            </StackPanel>
+        </Border>
+
+        <Border Background="{DynamicResource CardBackground}"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Margin="5"
+                Padding="5"
+                Grid.Row="1"
+                Grid.Column="1"
+                CornerRadius="5">
+            <StackPanel Orientation="Vertical">
+                <TextBox Text="DATABASE"
+                         Foreground="{DynamicResource Header}"
+                         Background="Transparent"
+                         BorderThickness="0" />
+                <Button Content="Reset DataBase"
+                        Style="{DynamicResource EliteStyleButton}"
+                        Command="{Binding ResetDataBaseCommand}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Grid.RowSpan="2"
+                        Margin="5,5,5,10"
+                        Width="130"
+                        Height="40" />
+
+                <TextBlock Text="Log Age"
+                           Margin="5,5,5,10"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Grid.Column="1" />
+                <ComboBox ItemsSource="{Binding Source={StaticResource journalAgeValues}}"
+                          SelectedItem="{Binding LogAge}"
+                          IsEnabled="{Binding IsLive}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Grid.Column="1"
+                          Margin="5,5,5,10"
+                          Grid.Row="1"
+                          Height="30"
+                          Width="145">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}"
+                                       Margin="5,0,0,0" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+        </Border>
+        <Border Background="{DynamicResource CardBackground}"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Right"
+                Margin="5"
+                Padding="5"
+                Grid.Row="1"
+                Grid.Column="2"
+                CornerRadius="5">
+            <Grid >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBox Text="LINKS"
+                         Grid.Row="0"
+                         Foreground="{DynamicResource Header}"
+                         Background="Transparent"
+                         BorderThickness="0" />
+                <DockPanel VerticalAlignment="Center"
+                           Grid.Row="1">
+                    <Button Width="250"
+                            Grid.Column="2"
+                            Grid.Row="1"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Cursor="Hand"
+                            Command="{Binding OpenUrlCommand}"
+                            CommandParameter="https://github.com/WarmedxMints">
+                        <Button.Template>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Image Stretch="Uniform"
+                                       SnapsToDevicePixels="True"
+                                       Source="/Assets/Icons/GitHub_Logo_White.png" />
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <Button Width="250"
+                        Grid.Column="2"
+                        Grid.Row="1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Cursor="Hand"
+                        Command="{Binding OpenUrlCommand}"
+                        CommandParameter="https://www.paypal.com/donate/?business=UPEJS3PN7H4XJ&amp;no_recurring=0&amp;item_name=Creator+of+OD+Software.+Thank+you+for+your+donation.&amp;currency_code=GBP">
+                    <Button.Template>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Image Stretch="Uniform"
+                                   SnapsToDevicePixels="True"
+                                   Source="/Assets/Icons/paypal-donate-button.png" />
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                </DockPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

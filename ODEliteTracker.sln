@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ODEliteTracker", "ODEliteTracker.csproj", "{5CB167B9-ADD0-46B6-A84D-D5DCA05DD4BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ODMVVM", "..\ODMvvm\ODMVVM.csproj", "{33FBD8C9-2BA4-54C7-4B43-8CAF7B543856}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ODJournalDatabase", "..\ODJournalDatabase\ODJournalDatabase.csproj", "{FEA5B99D-12FA-EF21-26BB-69E1E532632E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EliteJournalReader", "F:\GitHub\EliteJournalReader\EliteJournalReader\EliteJournalReader.csproj", "{199FD349-94BA-0D3B-0F4B-9882697BFED1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5CB167B9-ADD0-46B6-A84D-D5DCA05DD4BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CB167B9-ADD0-46B6-A84D-D5DCA05DD4BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CB167B9-ADD0-46B6-A84D-D5DCA05DD4BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CB167B9-ADD0-46B6-A84D-D5DCA05DD4BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33FBD8C9-2BA4-54C7-4B43-8CAF7B543856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33FBD8C9-2BA4-54C7-4B43-8CAF7B543856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33FBD8C9-2BA4-54C7-4B43-8CAF7B543856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33FBD8C9-2BA4-54C7-4B43-8CAF7B543856}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEA5B99D-12FA-EF21-26BB-69E1E532632E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEA5B99D-12FA-EF21-26BB-69E1E532632E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEA5B99D-12FA-EF21-26BB-69E1E532632E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEA5B99D-12FA-EF21-26BB-69E1E532632E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{199FD349-94BA-0D3B-0F4B-9882697BFED1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{199FD349-94BA-0D3B-0F4B-9882697BFED1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{199FD349-94BA-0D3B-0F4B-9882697BFED1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{199FD349-94BA-0D3B-0F4B-9882697BFED1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {049C5D61-E313-4F59-B5BD-8FCAB315E572}
+	EndGlobalSection
+EndGlobal
