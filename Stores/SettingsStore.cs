@@ -35,7 +35,7 @@ namespace ODEliteTracker.Stores
         private readonly IODNavigationService navigationService;
 
         public int SelectedCommanderID { get; set; } = 0;
-        public Type CurrentViewModel { get; set; } = typeof(ColonisationViewModel);
+        public Type CurrentViewModel { get; set; } = typeof(MassacreMissionsViewModel);
         public Theme CurrentTheme { get; set; } = Theme.OD;
         public JournalLogAge JournalAge { get; set; } = JournalLogAge.OneHundredEightyDays;
         public DateTime JournalAgeDateTime
@@ -54,7 +54,7 @@ namespace ODEliteTracker.Stores
             }
         }
 
-        public CommoditySorting ColonisationCommoditySorting { get; internal set; }
+        public CommoditySorting ColonisationCommoditySorting { get; internal set; } = CommoditySorting.Category;
 
         public void LoadSettings()
         {
@@ -64,7 +64,7 @@ namespace ODEliteTracker.Stores
             {
                 SelectedCommanderID = SettingsDTOHelpers.SettingsDtoToInt(settings.GetSettingDTO(nameof(SelectedCommanderID)));
                 CurrentTheme = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(CurrentTheme)), Theme.OD);
-                ColonisationCommoditySorting = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(ColonisationCommoditySorting)), CommoditySorting.Name);
+                ColonisationCommoditySorting = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(ColonisationCommoditySorting)), CommoditySorting.Category);
                 CurrentViewModel = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(CurrentViewModel)), typeof(ColonisationViewModel));
             }
 

@@ -45,11 +45,11 @@ namespace ODEliteTracker.Stores
         #endregion
 
         #region Events
-        public EventHandler<StarSystem?>? OnCurrentSystemChanged;
-        public EventHandler<string?>? OnCurrentBody_Station;
-        public EventHandler<StationMarket?>? OnMarketEvent;
-        public EventHandler<ShipInfo?>? OnShipChangedEvent;
-        public EventHandler<IEnumerable<ShipCargo>?>? OnShipCargoUpdatedEvent;
+        public EventHandler<StarSystem?>? CurrentSystemChanged;
+        public EventHandler<string?>? CurrentBody_StationChanged;
+        public EventHandler<StationMarket?>? MarketEvent;
+        public EventHandler<ShipInfo?>? ShipChangedEvent;
+        public EventHandler<IEnumerable<ShipCargo>?>? ShipCargoUpdatedEvent;
         #endregion
 
         public override void ClearData()
@@ -59,10 +59,10 @@ namespace ODEliteTracker.Stores
             CurrentShipInfo = null;
             CurrentShipCargo = null;
             CurrentBody_Station = null;
-            OnCurrentSystemChanged?.Invoke(this, null);
-            OnMarketEvent?.Invoke(this, null);
-            OnShipChangedEvent?.Invoke(this, null);
-            OnShipCargoUpdatedEvent?.Invoke(this, null);
+            CurrentSystemChanged?.Invoke(this, null);
+            MarketEvent?.Invoke(this, null);
+            ShipChangedEvent?.Invoke(this, null);
+            ShipCargoUpdatedEvent?.Invoke(this, null);
             IsLive = false;
         }
 
@@ -116,13 +116,13 @@ namespace ODEliteTracker.Stores
                 case ApproachBodyEvent.ApproachBodyEventArgs approachBody:
                     UpdateCurrentBody_Station(approachBody.Body);
                     break;
-                case MarketEvent.MarketEventArgs:
+                case EliteJournalReader.Events.MarketEvent.MarketEventArgs:
                     var market = journalManager.GetMarketInfo();
 
                     if(market != null)
                     {
                         CurrentMarket = new(market);
-                        OnMarketEvent?.Invoke(this, CurrentMarket);
+                        MarketEvent?.Invoke(this, CurrentMarket);
                     }
                     break;
                 case LoadoutEvent.LoadoutEventArgs loadOut:
@@ -130,7 +130,7 @@ namespace ODEliteTracker.Stores
                     CurrentShipInfo = new ShipInfo(string.IsNullOrEmpty(loadOut.ShipName.Trim()) ? EliteHelpers.ConvertShipName(loadOut.Ship) : loadOut.ShipName, loadOut.ShipIdent, loadOut.CargoCapacity);
                     
                     if(IsLive)
-                        OnShipChangedEvent?.Invoke(this, CurrentShipInfo);
+                        ShipChangedEvent?.Invoke(this, CurrentShipInfo);
                     break;
                 case CargoEvent.CargoEventArgs:
                     var cargo = journalManager.GetCargo();
@@ -144,7 +144,7 @@ namespace ODEliteTracker.Stores
 
                         if (CurrentShipCargo != null)
                         {
-                            OnShipCargoUpdatedEvent?.Invoke(this, CurrentShipCargo);
+                            ShipCargoUpdatedEvent?.Invoke(this, CurrentShipCargo);
                         }
                     }
                     break;
@@ -167,14 +167,14 @@ namespace ODEliteTracker.Stores
                 return;
             }
 
-            OnCurrentSystemChanged?.Invoke(this, CurrentSystem);
+            CurrentSystemChanged?.Invoke(this, CurrentSystem);
         }
 
         private void UpdateCurrentBody_Station(string? text)
         {
             CurrentBody_Station = text;
             if (IsLive)
-                OnCurrentBody_Station?.Invoke(this, CurrentBody_Station);
+                CurrentBody_StationChanged?.Invoke(this, CurrentBody_Station);
         }
 
         public override void RunAfterParsingHistory()
@@ -188,7 +188,7 @@ namespace ODEliteTracker.Stores
 
                 if (CurrentShipCargo != null)
                 {
-                    OnShipCargoUpdatedEvent?.Invoke(this, CurrentShipCargo);
+                    ShipCargoUpdatedEvent?.Invoke(this, CurrentShipCargo);
                 }
             }
         }

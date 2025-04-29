@@ -6,11 +6,15 @@
              xmlns:local="clr-namespace:ODEliteTracker.Views"
              xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels"
              xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
+             xmlns:wpfconverters="clr-namespace:ODEliteTracker.WPFConverters"
              d:DataContext="{d:DesignInstance viewmodels:PowerPlayViewModel}"
              mc:Ignorable="d"
              x:Name="Root"
              d:DesignHeight="450"
              d:DesignWidth="800">
+    <UserControl.Resources>
+        <wpfconverters:PowerToImageConverter x:Key="PowerToImage" />
+    </UserControl.Resources>
     <busyIndicator:BusyMask x:Name="BusyIndicator"
                             IsBusy="{Binding IsBusy}"
                             Background="{DynamicResource IndicatorBackground}"
@@ -56,7 +60,7 @@
                             <VisualBrush Stretch="Uniform">
                                 <VisualBrush.Visual>
                                     <Viewbox Stretch="Uniform">
-                                        <Image Source="{Binding ElementName=Rect, Path=Tag}" />
+                                        <Image Source="{Binding Power, Converter={StaticResource PowerToImage}}" />
                                     </Viewbox>
                                 </VisualBrush.Visual>
                             </VisualBrush>
@@ -150,7 +154,7 @@
 
                                     <Rectangle x:Name="Highlighter"
                                                Margin="0,2"
-                                               Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}"
+                                               Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                                                Fill="{DynamicResource NavBtnForeground}" />
 
                                     <Button FontSize="20"
@@ -171,17 +175,17 @@
                                             <TextBlock Text="{Binding Name}"
                                                        HorizontalAlignment="Left"
                                                        VerticalAlignment="Center"
+                                                       TextWrapping="NoWrap"
                                                        Grid.RowSpan="2"
-                                                       Grid.Column="0"
                                                        FontWeight="SemiBold"
-                                                       Margin="10,5" />
+                                                       Margin="5,3" />
                                             <Rectangle Style="{DynamicResource PowerPlayIcon}"
                                                        Grid.Column="1">
                                                 <Rectangle.OpacityMask>
                                                     <VisualBrush Stretch="Uniform">
                                                         <VisualBrush.Visual>
                                                             <Viewbox Stretch="Uniform">
-                                                                <Image Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Rectangle}}, Path=Tag}" />
+                                                                <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}"/>
                                                             </Viewbox>
                                                         </VisualBrush.Visual>
                                                     </VisualBrush>
@@ -237,9 +241,10 @@
                                             <TextBlock Text="{Binding Name}"
                                                        HorizontalAlignment="Left"
                                                        VerticalAlignment="Center"
+                                                       TextWrapping="NoWrap"
                                                        Grid.RowSpan="2"
                                                        FontWeight="SemiBold"
-                                                       Margin="10,5" />
+                                                       Margin="5,3" />
 
                                             <Rectangle Style="{DynamicResource PowerPlayIcon}"
                                                        Grid.Column="2">
@@ -247,7 +252,7 @@
                                                     <VisualBrush Stretch="Uniform">
                                                         <VisualBrush.Visual>
                                                             <Viewbox Stretch="Uniform">
-                                                                <Image Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Rectangle}}, Path=Tag}" />
+                                                                <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}" />
                                                             </Viewbox>
                                                         </VisualBrush.Visual>
                                                     </VisualBrush>
@@ -370,7 +375,7 @@
                                 <VisualBrush Stretch="Uniform">
                                     <VisualBrush.Visual>
                                         <Viewbox>
-                                            <Image Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Rectangle}, AncestorLevel=1}, Path=Tag}" />
+                                            <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}" />
                                         </Viewbox>
                                     </VisualBrush.Visual>
                                 </VisualBrush>
@@ -388,10 +393,6 @@
                     <Control DataContext="{Binding SelectedSystemData}"
                              Style="{DynamicResource PowerStateContent}" />
                 </Border>
-                <!--<ContentPresenter Grid.Row="1"
-                                      Grid.ColumnSpan="2"
-                                      DataContext="{Binding SelectedSystemData}"
-                                      Style="{DynamicResource PowerStateContent}" />-->
 
                 <Border Background="{DynamicResource CardBackground}"
                         CornerRadius="5"

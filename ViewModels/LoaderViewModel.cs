@@ -25,7 +25,7 @@ namespace ODEliteTracker.ViewModels
             get => statusText;
             set
             {
-                statusText = value;
+                statusText = value.ToUpper();
                 OnPropertyChanged(nameof(StatusText));
             }
         }

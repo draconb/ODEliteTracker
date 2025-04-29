@@ -2,6 +2,7 @@
 using EliteJournalReader;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ODEliteTracker.Database.DTOs;
 using ODJournalDatabase.Database.DTOs;
 using ODJournalDatabase.Database.Interfaces;
 using ODJournalDatabase.JournalManagement;
@@ -341,6 +342,27 @@ namespace ODEliteTracker.Database
                 context.InactiveDepots.Remove(knownDepot);
                 context.SaveChanges();
             }
+        }
+        #endregion
+
+        #region TickData
+        public async Task AddTickData(IEnumerable<BGSTickData> data)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            context.TickData.
+                UpsertRange(data)
+                .Run();
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<List<BGSTickData>> GetTickData(DateTime maxAge)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            return await context.TickData.Where(x => x.Time >= maxAge)
+                                         .OrderByDescending(x => x.Time)
+                                         .ToListAsync();
         }
         #endregion
     }

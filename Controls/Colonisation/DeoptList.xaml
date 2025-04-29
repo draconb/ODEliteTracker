@@ -19,14 +19,23 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <Rectangle x:Name="Highlighter"
+                                   Margin="0,2"
+                                   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}"
+                                   Fill="{DynamicResource NavBtnForeground}" />
                         <Button FontSize="20"
                                 Margin="5,0"
                                 Tag="1"
+                                Grid.Column="1"
                                 Style="{DynamicResource EliteStyleButton}"
                                 HorizontalContentAlignment="Left"
                                 Command="{Binding ElementName=DepotListBox, Path=SelectDepotCommand}"
-                                CommandParameter="{Binding }"
-                                Grid.Column="0">
+                                CommandParameter="{Binding }" >
                             <TextBlock Text="{Binding SystemName}"
                                        FontWeight="SemiBold"
                                        Margin="10,5" />

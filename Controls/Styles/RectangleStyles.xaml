@@ -6,92 +6,66 @@
         <Style.Triggers>
             <DataTrigger Binding="{Binding Power}"
                          Value="Aisling Duval">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/aisling-duval.png" />
                 <Setter Property="Fill"
                         Value="#0099ff" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Archon Delaine">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/archon-delaine.png" />
                 <Setter Property="Fill"
                         Value="#7fff00" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="A. Lavigny-Duval">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/arissa-lavigny-duval.png" />
                 <Setter Property="Fill"
                         Value="#7f00ff" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Denton Patreus">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/denton-patreus.png" />
                 <Setter Property="Fill"
                         Value="#00ffff" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Edmund Mahon">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/edmund-mahon.png" />
                 <Setter Property="Fill"
                         Value="#00ff00" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Felicia Winters">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/felicia-winters.png" />
                 <Setter Property="Fill"
                         Value="#ff7f00" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Li Yong-Rui">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/li-yong-rui.png" />
                 <Setter Property="Fill"
                         Value="#bfff00" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Pranav Antal">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/pranav-antal.png" />
                 <Setter Property="Fill"
                         Value="#ffff00" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Zachary Hudson">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/zachary-hudson.png" />
                 <Setter Property="Fill"
                         Value="#ff0000" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Zemina Torval">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/zemina-torval.png" />
                 <Setter Property="Fill"
                         Value="#0040ff" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Yuri Grom">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/yuri-grom.png" />
                 <Setter Property="Fill"
                         Value="#E4763E" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Nakato Kaine">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/nakato-kaine.png" />
                 <Setter Property="Fill"
                         Value="#A8DC53" />
             </DataTrigger>
             <DataTrigger Binding="{Binding Power}"
                          Value="Jerome Archer">
-                <Setter Property="Tag"
-                        Value="/Assets/PowerPlay/jerome-archer.png" />
                 <Setter Property="Fill"
                         Value="#CF0DCE" />
             </DataTrigger>

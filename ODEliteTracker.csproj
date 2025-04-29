@@ -56,12 +56,12 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="ToastNotifications" Version="2.5.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ODJournalDatabase\ODJournalDatabase.csproj" />
     <ProjectReference Include="..\ODMvvm\ODMVVM.csproj" />
+    <ProjectReference Include="..\ToastNotifications\Src\ToastNotifications\ToastNotifications.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -45,4 +45,15 @@ namespace ODEliteTracker.Models
         Mining,
         Delivery
     }
+
+    public enum VoucherType
+    {
+        Unknown,
+        Bounty,
+        Codex,
+        CombatBond,
+        Scannable,
+        Settlement,
+        Trade,
+    }
 }

@@ -4,9 +4,260 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ODEliteTracker.Views"
+             xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
+             xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels"
+             xmlns:wpfconverters="clr-namespace:ODMVVM.WpfConverters;assembly=ODMVVM"
+             d:DataContext="{d:DesignInstance viewmodels:BGSViewModel}"
              mc:Ignorable="d" 
+             x:Name="Root"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
+    <UserControl.Resources>
+        <wpfconverters:AllegianceToImage x:Key="AllegianceToImage" />
+    </UserControl.Resources>
+    <busyIndicator:BusyMask x:Name="BusyIndicator"
+                            IsBusy="{Binding IsBusy}"
+                            Background="{DynamicResource IndicatorBackground}"
+                            FontFamily="EuroStile"
+                            FontSize="30"
+                            BusyContent="Parsing BGS Data Logs"
+                            IndicatorType="Cupertino"
+                            BusyContentMargin="0,20,0,0">
+        <Grid TextBlock.FontSize="18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Border Background="{DynamicResource CardBackground}"
+                        CornerRadius="5"
+                        Margin="5"
+                        Padding="5">
+                    <Grid Margin="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Tick"
+                                   FontSize="20"
+                                   Margin="0,0,0,10"
+                                   Foreground="{DynamicResource Header}" />
+
+                        <ComboBox ItemsSource="{Binding Ticks}"
+                                  SelectedItem="{Binding SelectedTick}"
+                                  HorizontalAlignment="Left"
+                                  Grid.Row="1"
+                                  Width="250"
+                                  Height="30">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Time}"
+                                               Margin="10,0" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackground}"
+                        CornerRadius="5"
+                        Grid.Row="1"
+                        Margin="5"
+                        Padding="5">
+                    <Grid >
+                        <ListBox ItemsSource="{Binding Systems}"
+                                 SelectedItem="{Binding SelectedSystem, Mode=OneWay}"
+                                 ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                 HorizontalAlignment="Stretch"
+                                 HorizontalContentAlignment="Stretch"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="{DynamicResource PrimaryForeground}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Rectangle x:Name="Highlighter"
+                                                   Margin="0,2"
+                                                   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                                   Fill="{DynamicResource NavBtnForeground}" />
+
+                                        <Button FontSize="20"
+                                                Margin="5,0"
+                                                Tag="1"
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
+                                                CommandParameter="{Binding }"
+                                                Style="{DynamicResource EliteStyleButton}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="40" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center"
+                                                           TextWrapping="NoWrap"
+                                                           Grid.RowSpan="2"
+                                                           FontWeight="SemiBold"
+                                                           Margin="5,3" />
+
+                                                <Image Source="{Binding SystemAllegiance, Converter={StaticResource AllegianceToImage}}"
+                                                       Stretch="Uniform"
+                                                       Grid.Column="1"
+                                                       Height="30"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center" />
+                                            </Grid>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Column="1"
+                  DataContext="{Binding SelectedSystem}">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="320"/>
+                </Grid.RowDefinitions>
+                <Border Background="{DynamicResource CardBackground}"
+                        CornerRadius="5"
+                        Margin="5"
+                        Padding="5">
+                    <DockPanel>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DockPanel>
+                </Border>
+
+                <Border Background="{DynamicResource CardBackground}"
+                        CornerRadius="5"
+                        Grid.Row="1"
+                        Margin="5"
+                        Padding="5">
+                    <DataGrid  ItemsSource="{Binding Factions}"
+                               Style="{DynamicResource BaseDataGridStyle}"
+                               RowStyle="{DynamicResource ConstructionResourcesStyle}"
+                               CellStyle="{DynamicResource RouteCells}"
+                               Foreground="{DynamicResource PrimaryForeground}"
+                               FontSize="18"
+                               ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                               ScrollViewer.VerticalScrollBarVisibility="Visible"
+                               RowHeight="35"
+                               AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                               HeadersVisibility="Column"
+                               HorizontalAlignment="Center">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Faction"
+                                                MinWidth="100"
+                                                Width="*"
+                                                HeaderStyle="{StaticResource DataGridHeaderLeft}"
+                                                ElementStyle="{StaticResource DataGridElementLeftMarginBody}"
+                                                Binding="{Binding Name}" />
+                            <DataGridTemplateColumn Header=""
+                                                    HeaderStyle="{StaticResource DataGridHeaderLeft}"
+                                                    Width="35"
+                                                    IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding Allegiance, Converter={StaticResource AllegianceToImage}}"
+                                               Stretch="Uniform"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Inf"
+                                                MinWidth="80"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementRightMargin}"
+                                                Binding="{Binding Influence}" />
+                            <DataGridTextColumn Header="State"
+                                                MinWidth="100"
+                                                Width="Auto"
+                                                Binding="{Binding FactionState}"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementLeftMarginBody}" />
+                            <DataGridTextColumn Header="Inf +'s"
+                                                MinWidth="50"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                Binding="{Binding InfPluses}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style  TargetType="{x:Type TextBlock}">
+                                        <Setter Property="HorizontalAlignment"
+                                                Value="Center" />
+                                        <Setter Property="VerticalAlignment"
+                                                Value="Center" />
+                                        <Setter Property="Margin"
+                                                Value="10,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Spend"
+                                                MinWidth="90"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementCenter}" />
+                            <DataGridTextColumn Header="Sales"
+                                                MinWidth="90"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementCenter}" />
+                            <DataGridTextColumn Header="Bounties"
+                                                MinWidth="75"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementCenter}"
+                                                Binding="{Binding BountyVouchers}"/>
+                            <DataGridTextColumn Header="Bonds"
+                                                MinWidth="75"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementCenter}"
+                                                Binding="{Binding BondVouchers}"/>
+                            <DataGridTextColumn Header="Failed"
+                                                MinWidth="60"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementCenter}"
+                                                Binding="{Binding MissionsFailed}"/>
+                            <DataGridTextColumn Header="Carto"
+                                                MinWidth="55"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementCenter}"/>
+                            <DataGridTextColumn Header="S&amp;R"
+                                                MinWidth="50"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementCenter}" />
+                            <DataGridTextColumn Header="Murdered"
+                                                MinWidth="90"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementCenter}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                </Border>
+            </Grid>
+        </Grid>
+    </busyIndicator:BusyMask>
 </UserControl>

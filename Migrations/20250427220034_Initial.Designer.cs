@@ -11,14 +11,46 @@ using ODEliteTracker.Database;
 namespace ODEliteTracker.Migrations
 {
     [DbContext(typeof(ODEliteTrackerDbContext))]
-    [Migration("20250414105451_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250427220034_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
+
+            modelBuilder.Entity("ODEliteTracker.Database.DTOs.BGSTickData", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Updated_At")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TickData");
+                });
+
+            modelBuilder.Entity("ODEliteTracker.Database.DTOs.InactiveDepotsDTO", b =>
+                {
+                    b.Property<long>("MarketID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("SystemAddress")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StationName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("MarketID", "SystemAddress", "StationName");
+
+                    b.ToTable("InactiveDepots");
+                });
 
             modelBuilder.Entity("ODJournalDatabase.Database.DTOs.JournalCommanderDTO", b =>
                 {
@@ -77,6 +109,25 @@ namespace ODEliteTracker.Migrations
                     b.HasIndex("TimeStamp", "Offset");
 
                     b.ToTable("JournalEntries");
+                });
+
+            modelBuilder.Entity("ODJournalDatabase.Database.DTOs.SettingsDTO", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double?>("DoubleValue")
+                        .HasColumnType("REAL");
+
+                    b.Property<int?>("IntValue")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StringValue")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Settings");
                 });
 #pragma warning restore 612, 618
         }

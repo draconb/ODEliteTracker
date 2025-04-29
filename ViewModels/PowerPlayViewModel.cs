@@ -10,10 +10,10 @@ namespace ODEliteTracker.ViewModels
 {
     public sealed class PowerPlayViewModel : ODViewModel
     {
-        public PowerPlayViewModel(PowerPlayDataStore dataStore) 
+        public PowerPlayViewModel(PowerPlayDataStore dataStore)
         {
             this.dataStore = dataStore;
-            this.dataStore.OnStoreLive += OnStoreLive;
+            this.dataStore.StoreLive += OnStoreLive;
             this.dataStore.PledgeDataUpdated += OnPledgeDataUpdated;
             this.dataStore.CyclesUpdated += OnCyclesUpdated;
             this.dataStore.SystemAdded += OnSystemAdded;
@@ -66,11 +66,13 @@ namespace ODEliteTracker.ViewModels
             get => selectedSystem;
             set
             {
-                if(selectedSystem != null)
-                    selectedSystem.IsSelected = false;
-                selectedSystem = value;
+
                 if (selectedSystem != null)
-                    selectedSystem.IsSelected = true;
+                    selectedSystem.IsSelected = false;
+                if (value != null)
+                    value.IsSelected = true;
+                selectedSystem = value;
+
                 OnPropertyChanged(nameof(SelectedSystem));
                 OnPropertyChanged(nameof(SelectedSystemData));
             }
@@ -112,7 +114,7 @@ namespace ODEliteTracker.ViewModels
 
         private void OnStoreLive(object? sender, bool e)
         {
-            if(e)
+            if (e)
             {
                 UpdateSystems(null);
 
@@ -121,7 +123,6 @@ namespace ODEliteTracker.ViewModels
                     OnPledgeDataUpdated(null, dataStore.PledgeData);
                 }
             }
-
             OnModelLive(e);
         }
 
@@ -147,29 +148,28 @@ namespace ODEliteTracker.ViewModels
                                                 .OrderBy(x => x.Name)
                                                 .Select(x => new PowerPlaySystemVM(x)).ToList();
 
-            OnPropertyChanged(nameof(LastCycleSystems));
-            OnPropertyChanged(nameof(ThisCycleSystems));
-
-            if(system is not null)
+            if (system != null)
             {
                 SelectedSystem = ThisCycleSystems.FirstOrDefault(x => x.Address == system.Address);
                 tabIndex = 0;
             }
-            if (SelectedSystem is null)
+            if (SelectedSystem == null)
             {
                 SelectedSystem = ThisCycleSystems.FirstOrDefault();
                 tabIndex = 0;
             }
-            if (SelectedSystem is null)
+            if (SelectedSystem == null)
             {
                 SelectedSystem = LastCycleSystems.FirstOrDefault();
                 tabIndex = 1;
             }
 
             OnPropertyChanged(nameof(TabIndex));
+            OnPropertyChanged(nameof(LastCycleSystems));
+            OnPropertyChanged(nameof(ThisCycleSystems));
         }
 
-        
+
         private void OnPledgeDataUpdated(object? sender, PledgeData? e)
         {
             if (e != null)
@@ -188,7 +188,7 @@ namespace ODEliteTracker.ViewModels
                 return;
             }
 
-            if(TabIndex == 0)
+            if (TabIndex == 0)
             {
                 SelectedSystem = ThisCycleSystems?.FirstOrDefault(x => x.Address == SelectedSystem.Address) ?? ThisCycleSystems?.FirstOrDefault();
                 return;
@@ -199,7 +199,7 @@ namespace ODEliteTracker.ViewModels
 
         public override void Dispose()
         {
-            this.dataStore.OnStoreLive -= OnStoreLive;
+            this.dataStore.StoreLive -= OnStoreLive;
             this.dataStore.PledgeDataUpdated -= OnPledgeDataUpdated;
             this.dataStore.CyclesUpdated -= OnCyclesUpdated;
             this.dataStore.SystemAdded -= OnSystemAdded;

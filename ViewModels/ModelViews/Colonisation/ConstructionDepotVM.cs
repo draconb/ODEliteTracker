@@ -29,6 +29,17 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
 
         public IEnumerable<ConstructionResourceVM> FilteredResources => Resources.OrderBy(x => x.Category).ThenBy(x => x.LocalName).Where(x => x.RemainingCount > 0);
 
+        private bool isSelected;
+        public bool IsSelected
+        {
+            get => isSelected;
+            internal set
+            {
+                isSelected = value;
+                OnPropertyChanged(nameof(IsSelected));
+            }
+        }
+
         internal void Update(ConstructionDepot e)
         {
             SystemAddress = e.SystemAddress;

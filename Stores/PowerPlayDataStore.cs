@@ -244,12 +244,14 @@ namespace ODEliteTracker.Stores
             if (systems.TryGetValue(newSystem.Address, out var nSystem))
             {
                 nSystem.Add_UpdateCycle(cycle, newSystem);
-                SystemCycleUpdated?.Invoke(this, newSystem);
+                if (IsLive)
+                    SystemCycleUpdated?.Invoke(this, newSystem);
                 return;
             }
             if (systems.TryAdd(newSystem.Address, newSystem))
             {
-                SystemAdded?.Invoke(this, newSystem);
+                if (IsLive)
+                    SystemAdded?.Invoke(this, newSystem);
                 return;
             }   
         }

@@ -17,6 +17,25 @@ namespace ODEliteTracker.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
+            modelBuilder.Entity("ODEliteTracker.Database.DTOs.BGSTickData", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("ManualTick")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Updated_At")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TickData");
+                });
+
             modelBuilder.Entity("ODEliteTracker.Database.DTOs.InactiveDepotsDTO", b =>
                 {
                     b.Property<long>("MarketID")

@@ -19,32 +19,33 @@ namespace ODEliteTracker.ViewModels
         public MainViewModel(IODNavigationService oDNavigationService,
                                       IManageJournalEvents journalManager,
                                       SharedDataStore sharedDataStore,
-                                      SettingsStore settings)
+                                      SettingsStore settings,
+                                      TickDataStore tickDataStore)
         {
             navigationService = oDNavigationService;
             this.journalManager = journalManager;
             this.sharedData = sharedDataStore;
             this.settings = settings;
-            this.sharedData.OnStoreLive += OnStoreLive;
-            this.sharedData.OnCurrentSystemChanged += OnCurrentSystemChanged;
-            this.sharedData.OnCurrentBody_Station += OnCurrentBody_StationChanged;
+            this.tickDataStore = tickDataStore;
+
+            this.sharedData.StoreLive += OnStoreLive;
+            this.sharedData.CurrentSystemChanged += OnCurrentSystemChanged;
+            this.sharedData.CurrentBody_StationChanged += OnCurrentBody_StationChanged;
+
             this.journalManager.OnCommandersUpdated += OnCommandersUpdated;
+
             navigationService.CurrentViewLive += NavigationService_CurrentViewLive;
 
-            //SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged; ;
         }
-
-        //private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
-        //{
-        //    themeManager.SetTheme(settings.CurrentTheme);
-        //}
 
         public override bool IsLive => true;
         private readonly IODNavigationService navigationService;
         private readonly IManageJournalEvents journalManager;
         private readonly SharedDataStore sharedData;
         private readonly SettingsStore settings;
+        private readonly TickDataStore tickDataStore;
 
+        public string Title => $"Elite Tracker v{App.AppVersion}";
         public ObservableCollection<ODNavigationButton> MenuButtons { get; } =
         [
             new EliteStyleNavigationButton()
@@ -61,6 +62,11 @@ namespace ODEliteTracker.ViewModels
             { 
                 ButtonImage = new BitmapImage(new Uri("/Assets/Icons/ColonisationBtn.png", UriKind.Relative)), 
                 TargetView = typeof(ColonisationViewModel)
+            },
+            new EliteStyleNavigationButton()
+            {
+                ButtonImage = new BitmapImage(new Uri("/Assets/Icons/bgs.png", UriKind.Relative)),
+                TargetView = typeof(BGSViewModel)
             },
             new EliteStyleNavigationButton()
             {
@@ -115,7 +121,7 @@ namespace ODEliteTracker.ViewModels
         {
             get
             {
-                return sharedData.CurrentSystem?.Name ?? string.Empty;
+                return sharedData.CurrentSystem?.Name.ToUpper() ?? string.Empty;
             }
         }
 
@@ -123,7 +129,7 @@ namespace ODEliteTracker.ViewModels
         {
             get
             {
-                return sharedData.CurrentBody_Station ?? string.Empty;
+                return sharedData.CurrentBody_Station?.ToUpper() ?? string.Empty;
             }
         }
 
@@ -135,6 +141,9 @@ namespace ODEliteTracker.ViewModels
         public async Task Initialise()
         {
             UiEnabled = false;
+
+
+            await tickDataStore.Initialise().ConfigureAwait(true);
             navigationService.NavigateTo<LoadingViewModel>();
             if (navigationService.CurrentView is LoadingViewModel loadingViewModel)
             {
@@ -145,9 +154,10 @@ namespace ODEliteTracker.ViewModels
             OnPropertyChanged(nameof(CurrentBody_Station));
         }
 
+       
         public async Task ChangeCommander()
         {
-            UiEnabled = false;
+            UiEnabled = false;           
             navigationService.NavigateTo<LoadingViewModel>();
             if (navigationService.CurrentView is LoadingViewModel loadingViewModel)
             {

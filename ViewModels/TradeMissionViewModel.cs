@@ -15,13 +15,13 @@ namespace ODEliteTracker.ViewModels
         {
             this.missionStore = missionStore;
             this.sharedData = sharedDatastore;
-            this.missionStore.OnStoreLive += OnStoreLive;
+            this.missionStore.StoreLive += OnStoreLive;
             this.missionStore.OnMissionAddedEvent += OnMissionAdded;
             this.missionStore.OnMissionUpdatedEvent += OnMissionUpdated;
             this.missionStore.OnMissionsUpdatedEvent += OnMissionsUpdated;
             this.missionStore.OnCargoDepot += OnCargoDepot;
-            this.sharedData.OnShipChangedEvent += OnShipChanged;
-            this.sharedData.OnShipCargoUpdatedEvent += OnCargoUpdated;
+            this.sharedData.ShipChangedEvent += OnShipChanged;
+            this.sharedData.ShipCargoUpdatedEvent += OnCargoUpdated;
 
             //Timer to update expiry time every minute
             expiryTimeUpdateTimer = new Timer(OnUpdateTimes, null, 0, 60000);
@@ -159,13 +159,13 @@ namespace ODEliteTracker.ViewModels
 
         public override void Dispose()
         {
-            missionStore.OnStoreLive -= OnStoreLive;
+            missionStore.StoreLive -= OnStoreLive;
             missionStore.OnMissionAddedEvent -= OnMissionAdded;
             missionStore.OnMissionUpdatedEvent -= OnMissionUpdated;
             missionStore.OnMissionsUpdatedEvent -= OnMissionsUpdated;
             missionStore.OnCargoDepot -= OnCargoDepot;
-            sharedData.OnShipChangedEvent -= OnShipChanged;
-            sharedData.OnShipCargoUpdatedEvent -= OnCargoUpdated;
+            sharedData.ShipChangedEvent -= OnShipChanged;
+            sharedData.ShipCargoUpdatedEvent -= OnCargoUpdated;
             expiryTimeUpdateTimer.Dispose();
         }
     }

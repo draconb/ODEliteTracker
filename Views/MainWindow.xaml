@@ -13,7 +13,7 @@
                      Background="Black"
                      Foreground="{DynamicResource PrimaryForeground}"
                      x:Name="Root"
-                     Title="OD Elite Tracker"
+                     Title="{Binding Title}"
                      FontFamily="{DynamicResource Eurostile}"
                      FontSize="18"
                      WindowStartupLocation="CenterScreen"

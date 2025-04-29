@@ -42,9 +42,9 @@ namespace ODEliteTracker.Stores
             };
         }
 
-        public EventHandler<MassacreMission>? OnMissionAddedEvent;
-        public EventHandler<MassacreMission>? OnMissionUpdatedEvent;
-        public EventHandler? OnMissionsUpdatedEvent;
+        public EventHandler<MassacreMission>? MissionAddedEvent;
+        public EventHandler<MassacreMission>? MissionUpdatedEvent;
+        public EventHandler? MissionsUpdatedEvent;
 
         public override void ParseJournalEvent(JournalEntry evt)
         {
@@ -90,7 +90,7 @@ namespace ODEliteTracker.Stores
 
                     missions.Add(mission);
                     if (IsLive)
-                        OnMissionAddedEvent?.Invoke(this, mission);
+                        MissionAddedEvent?.Invoke(this, mission);
                     break;
                 case MissionRedirectedEvent.MissionRedirectedEventArgs redirected:
                     var rMission = missions.FirstOrDefault(x => x.MissionID == redirected.MissionID);
@@ -99,7 +99,7 @@ namespace ODEliteTracker.Stores
                         rMission.CurrentState = MissionState.Redirected;
                         rMission.Kills = rMission.KillCount;
                         if (IsLive)
-                            OnMissionUpdatedEvent?.Invoke(this, rMission);
+                            MissionUpdatedEvent?.Invoke(this, rMission);
                     }
                     break;
                 case MissionCompletedEvent.MissionCompletedEventArgs completed:
@@ -111,7 +111,7 @@ namespace ODEliteTracker.Stores
                         cMission.Reward = completed.Reward;
                         cMission.Kills = cMission.KillCount;
                         if (IsLive)
-                            OnMissionUpdatedEvent?.Invoke(this, cMission);
+                            MissionUpdatedEvent?.Invoke(this, cMission);
                     }
                     break;
                 case MissionFailedEvent.MissionFailedEventArgs missionFailed:
@@ -121,7 +121,7 @@ namespace ODEliteTracker.Stores
                         fMission.CurrentState = MissionState.Failed;
                         fMission.Reward = 0;
                         if (IsLive)
-                            OnMissionUpdatedEvent?.Invoke(this, fMission);
+                            MissionUpdatedEvent?.Invoke(this, fMission);
                     }
                     break;
                 case MissionAbandonedEvent.MissionAbandonedEventArgs abandoned:
@@ -131,7 +131,7 @@ namespace ODEliteTracker.Stores
                         aMission.CurrentState = MissionState.Abandoned;
                         aMission.Reward = 0;
                         if(IsLive)
-                            OnMissionUpdatedEvent?.Invoke(this, aMission);
+                            MissionUpdatedEvent?.Invoke(this, aMission);
                     }
                     break;
                 case MissionsEvent.MissionsEventArgs missionsEvt:
@@ -166,7 +166,7 @@ namespace ODEliteTracker.Stores
                         missions.Remove(ms);
                     }
                     if (IsLive)
-                        OnMissionsUpdatedEvent?.Invoke(this, EventArgs.Empty);
+                        MissionsUpdatedEvent?.Invoke(this, EventArgs.Empty);
                     break;
                 case BountyEvent.BountyEventArgs bountyEvt:
                     if(bountyEvt.VictimFaction.Contains("faction_none")
@@ -186,7 +186,7 @@ namespace ODEliteTracker.Stores
                         {
                             activeMission.Kills++;
                             if (IsLive)
-                                OnMissionUpdatedEvent?.Invoke(this, activeMission);
+                                MissionUpdatedEvent?.Invoke(this, activeMission);
                         }
                     }
                     break;

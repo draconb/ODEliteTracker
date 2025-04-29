@@ -1,4 +1,5 @@
 ﻿using EliteJournalReader.Events;
+using ODEliteTracker.Models.BGS;
 
 namespace ODEliteTracker.Models.Missions
 {
@@ -28,6 +29,11 @@ namespace ODEliteTracker.Models.Missions
                 var effect = new FactionEffects(factionEffect);
                 FactionEffects.Add(effect);
             }
+        }
+
+        internal bool CompletedDuringTimeframe(TickData data)
+        {
+            return CompletionTime > data.From && CompletionTime < data.To;
         }
     }
 }

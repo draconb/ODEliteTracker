@@ -5,26 +5,37 @@ namespace ODEliteTracker.Models.Galaxy
 {
     public class StarSystem
     {
-        public StarSystem(LocationEvent.LocationEventArgs location)
+        public StarSystem(LocationEvent.LocationEventArgs evt)
         {
-            Name = location.StarSystem;
-            Address = location.SystemAddress;
-            Position = new(location.StarPos);
-            ControllingPower = location.ControllingPower;
-            PowerState = location.PowerplayState;
-            ControllingFaction = location.SystemFaction?.Name;
-            SystemAllegiance = location.SystemAllegiance;
+            Name = evt.StarSystem;
+            Address = evt.SystemAddress;
+            Position = new(evt.StarPos);
+            ControllingPower = evt.ControllingPower;
+            PowerState = evt.PowerplayState;
+            ControllingFaction = evt.SystemFaction?.Name;
+            SystemAllegiance = evt.SystemAllegiance;
         }
 
-        public StarSystem(FSDJumpEvent.FSDJumpEventArgs fsdJump)
+        public StarSystem(FSDJumpEvent.FSDJumpEventArgs evt)
         {
-            Name = fsdJump.StarSystem;
-            Address = fsdJump.SystemAddress;
-            Position = new(fsdJump.StarPos);
-            ControllingPower = fsdJump.ControllingPower;
-            PowerState = fsdJump.PowerplayState;
-            ControllingFaction = fsdJump.SystemFaction?.Name;
-            SystemAllegiance = fsdJump.SystemAllegiance;
+            Name = evt.StarSystem;
+            Address = evt.SystemAddress;
+            Position = new(evt.StarPos);
+            ControllingPower = evt.ControllingPower;
+            PowerState = evt.PowerplayState;
+            ControllingFaction = evt.SystemFaction?.Name;
+            SystemAllegiance = evt.SystemAllegiance;
+        }
+
+        public StarSystem(CarrierJumpEvent.CarrierJumpEventArgs evt)
+        {
+            Name = evt.StarSystem;
+            Address = evt.SystemAddress;
+            Position = new(evt.StarPos);
+            ControllingPower = evt.ControllingPower;
+            PowerState = evt.PowerplayState;
+            ControllingFaction = evt.SystemFaction?.Name;
+            SystemAllegiance = evt.SystemAllegiance;
         }
 
         public string Name { get; set; }

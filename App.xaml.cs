@@ -82,6 +82,7 @@ namespace ODEliteTracker
                 services.AddSingleton<TradeMissionStore>();
                 services.AddSingleton<BGSDataStore>();
                 services.AddSingleton<PowerPlayDataStore>();
+                services.AddSingleton<TickDataStore>();
                 
             }).Build();
 

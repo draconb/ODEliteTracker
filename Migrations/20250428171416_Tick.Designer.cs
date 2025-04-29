@@ -11,14 +11,33 @@ using ODEliteTracker.Database;
 namespace ODEliteTracker.Migrations
 {
     [DbContext(typeof(ODEliteTrackerDbContext))]
-    [Migration("20250419120822_InactiveDepots")]
-    partial class InactiveDepots
+    [Migration("20250428171416_Tick")]
+    partial class Tick
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
+
+            modelBuilder.Entity("ODEliteTracker.Database.DTOs.BGSTickData", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("ManualTick")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Updated_At")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TickData");
+                });
 
             modelBuilder.Entity("ODEliteTracker.Database.DTOs.InactiveDepotsDTO", b =>
                 {

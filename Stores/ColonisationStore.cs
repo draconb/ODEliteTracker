@@ -50,10 +50,10 @@ namespace ODEliteTracker.Stores
             };
         }
 
-        public EventHandler<ConstructionDepot>? OnNewDepot;
-        public EventHandler<ConstructionDepot>? OnDepotUpdated;
-        public EventHandler<CommanderSystem>? OnNewCommanderSystem;
-        public EventHandler<CommanderSystem>? OnReleaseCommanderSystem;
+        public EventHandler<ConstructionDepot>? NewDepot;
+        public EventHandler<ConstructionDepot>? DepotUpdated;
+        public EventHandler<CommanderSystem>? NewCommanderSystem;
+        public EventHandler<CommanderSystem>? ReleaseCommanderSystem;
 
         public override void ClearData()
         {
@@ -118,7 +118,7 @@ namespace ODEliteTracker.Stores
                     {
                         commanderSystems.Remove(colonisationSystemClaimRelease.SystemAddress);
                         if (IsLive)
-                            OnReleaseCommanderSystem?.Invoke(this, system);
+                            ReleaseCommanderSystem?.Invoke(this, system);
                     }
                     break;
                 case ColonisationConstructionDepotEvent.ColonisationConstructionDepotEventArgs depot:
@@ -144,7 +144,7 @@ namespace ODEliteTracker.Stores
         {
             if (IsLive)
             {
-                OnNewCommanderSystem?.Invoke(this, newClaim);
+                NewCommanderSystem?.Invoke(this, newClaim);
             }
         }
 
@@ -152,7 +152,7 @@ namespace ODEliteTracker.Stores
         {
             if (IsLive)
             {
-                OnDepotUpdated?.Invoke(this, value);
+                DepotUpdated?.Invoke(this, value);
             }
         }
 
@@ -160,7 +160,7 @@ namespace ODEliteTracker.Stores
         {
             if (IsLive)
             {
-                OnNewDepot?.Invoke(this, newDepot);
+                NewDepot?.Invoke(this, newDepot);
             }
         }
 

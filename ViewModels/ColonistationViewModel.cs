@@ -23,15 +23,15 @@ namespace ODEliteTracker.ViewModels
             this.colonisationStore = colonisationStore;
             this.sharedData = sharedDataStore;
             this.settings = settings;
-            this.colonisationStore.OnStoreLive += OnStoreLive;
-            this.colonisationStore.OnDepotUpdated += OnDepotUpdated;
-            this.colonisationStore.OnNewDepot += OnNewDepot;
-            this.colonisationStore.OnNewCommanderSystem += OnNewCommanderSystem;
-            this.colonisationStore.OnReleaseCommanderSystem += OnReleaseCommandSystem;
+            this.colonisationStore.StoreLive += OnStoreLive;
+            this.colonisationStore.DepotUpdated += OnDepotUpdated;
+            this.colonisationStore.NewDepot += OnNewDepot;
+            this.colonisationStore.NewCommanderSystem += OnNewCommanderSystem;
+            this.colonisationStore.ReleaseCommanderSystem += OnReleaseCommandSystem;
 
-            this.sharedData.OnMarketEvent += OnMarketEvent;
-            this.sharedData.OnShipChangedEvent += OnShipChanged;
-            this.sharedData.OnShipCargoUpdatedEvent += OnCargoUpdated;
+            this.sharedData.MarketEvent += OnMarketEvent;
+            this.sharedData.ShipChangedEvent += OnShipChanged;
+            this.sharedData.ShipCargoUpdatedEvent += OnCargoUpdated;
 
             if (this.sharedData.IsLive)
             {
@@ -54,15 +54,15 @@ namespace ODEliteTracker.ViewModels
 
         public override void Dispose()
         {
-            this.colonisationStore.OnStoreLive -= OnStoreLive;
-            this.colonisationStore.OnDepotUpdated -= OnDepotUpdated;
-            this.colonisationStore.OnNewDepot -= OnNewDepot;
-            this.colonisationStore.OnNewCommanderSystem -= OnNewCommanderSystem;
-            this.colonisationStore.OnReleaseCommanderSystem -= OnReleaseCommandSystem;
+            this.colonisationStore.StoreLive -= OnStoreLive;
+            this.colonisationStore.DepotUpdated -= OnDepotUpdated;
+            this.colonisationStore.NewDepot -= OnNewDepot;
+            this.colonisationStore.NewCommanderSystem -= OnNewCommanderSystem;
+            this.colonisationStore.ReleaseCommanderSystem -= OnReleaseCommandSystem;
 
-            this.sharedData.OnMarketEvent -= OnMarketEvent;
-            this.sharedData.OnShipChangedEvent -= OnShipChanged;
-            this.sharedData.OnShipCargoUpdatedEvent -= OnCargoUpdated;
+            this.sharedData.MarketEvent -= OnMarketEvent;
+            this.sharedData.ShipChangedEvent -= OnShipChanged;
+            this.sharedData.ShipCargoUpdatedEvent -= OnCargoUpdated;
         }
 
         #region Private fields
@@ -127,7 +127,11 @@ namespace ODEliteTracker.ViewModels
             {
                 if(selectedDepot == value) 
                     return;
+                if (selectedDepot != null)
+                    selectedDepot.IsSelected = false;
                 selectedDepot = value;
+                if (selectedDepot != null)
+                    selectedDepot.IsSelected = true;
                 CheckMarket();
                 OnPropertyChanged(nameof(SelectedDepot));
                 OnPropertyChanged(nameof(ActiveButtonText));

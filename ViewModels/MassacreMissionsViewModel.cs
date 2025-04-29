@@ -12,10 +12,10 @@ namespace ODEliteTracker.ViewModels
         public MassacreMissionsViewModel(MassacreMissionStore massacreStore)
         {
             this.massacreStore = massacreStore;
-            this.massacreStore.OnStoreLive += OnStoreLive;
-            this.massacreStore.OnMissionAddedEvent += OnMissionAdded;
-            this.massacreStore.OnMissionUpdatedEvent += OnMissionUpdated;
-            this.massacreStore.OnMissionsUpdatedEvent += OnMissionsUpdated;
+            this.massacreStore.StoreLive += OnStoreLive;
+            this.massacreStore.MissionAddedEvent += OnMissionAdded;
+            this.massacreStore.MissionUpdatedEvent += OnMissionUpdated;
+            this.massacreStore.MissionsUpdatedEvent += OnMissionsUpdated;
 
             //Timer to update expiry time every minute
             expiryTimeUpdateTimer = new Timer(OnUpdateTimes, null, 0, 60000);
@@ -38,9 +38,9 @@ namespace ODEliteTracker.ViewModels
         public override bool IsLive { get => massacreStore.IsLive; }
         public override void Dispose()
         {
-            massacreStore.OnStoreLive -= OnStoreLive;
-            massacreStore.OnMissionAddedEvent -= OnMissionAdded;
-            massacreStore.OnMissionUpdatedEvent -= OnMissionUpdated;
+            massacreStore.StoreLive -= OnStoreLive;
+            massacreStore.MissionAddedEvent -= OnMissionAdded;
+            massacreStore.MissionUpdatedEvent -= OnMissionUpdated;
             expiryTimeUpdateTimer.Dispose();
         }
 
