@@ -1,6 +1,7 @@
 ﻿using ODEliteTracker.Models.BGS;
 using ODEliteTracker.Models.Galaxy;
 using ODMVVM.ViewModels;
+using System;
 
 namespace ODEliteTracker.ViewModels.ModelViews.BGS
 {
@@ -8,6 +9,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
     {
         public BGSTickSystemVM(BGSTickSystem system) 
         { 
+   
             this.system = system;
             Factions = [.. system.Factions.OrderByDescending(x => x.Influence).Select(x => new FactionVM(x))];
 
@@ -32,15 +34,77 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
                 }
             }
 
+            if(system.Transactions.Count > 0)
+            {
+                foreach (var transaction in system.Transactions)
+                {
+                    var faction = Factions.FirstOrDefault(x => string.Equals(x.Name, transaction.Faction.Name, StringComparison.OrdinalIgnoreCase));
+
+                    faction?.AddTraction(transaction);
+                }
+            }
+
+            if(system.Crimes.Count > 0)
+            {
+                var crimes = system.Crimes.GroupBy(x => x.TargetFaction.Name).ToDictionary(x => x.Key, x => x);
+
+                foreach(var kvp in crimes)
+                {
+                    var faction = Factions.FirstOrDefault(x => string.Equals(x.Name, kvp.Key, StringComparison.OrdinalIgnoreCase));
+
+                    if(faction == null)
+                        continue;
+
+                    faction.AddMurders(kvp.Value);
+                }
+            }
+
+            if(system.Carto.Count > 0)
+            {
+                var crimes = system.Carto.GroupBy(x => x.Faction.Name).ToDictionary(x => x.Key, x => x);
+
+                foreach (var kvp in crimes)
+                {
+                    var faction = Factions.FirstOrDefault(x => string.Equals(x.Name, kvp.Key, StringComparison.OrdinalIgnoreCase));
+
+                    if (faction == null)
+                        continue;
+
+                    faction.AddCartoData(kvp.Value);
+                }
+            }
+
+            if (system.SearchAndRescueData.Count > 0)
+            {
+                foreach (var item in system.SearchAndRescueData)
+                {
+                    var faction = Factions.FirstOrDefault(x => string.Equals(x.Name, item.Faction.Name, StringComparison.OrdinalIgnoreCase));
+
+                    if (faction == null)
+                        continue;
+
+                    faction.AddSearchAndRescue(item);
+                }
+            }
+
+            if (system.Conflicts.Count > 0)
+            {
+                Conflicts = [.. system.Conflicts.Select(x => new SystemConflictVM(x))];
+            }
         }
+
         private readonly BGSTickSystem system;
 
         public string Name => system.Name.ToUpper();
         public long Address => system.Address;
+        public string Population => $"{system.Population:N0}";
         public Position Position => system.Position;
         public string ControllingFaction => system.ControllingFaction;
+        public string? Security => system.Security;
+        public string? ControllingFactionState => Factions.FirstOrDefault(x => string.Equals(x.Name, ControllingFaction))?.FactionState;
         public string SystemAllegiance => system.SystemAllegiance;
         public List<FactionVM> Factions { get; }
+        public List<SystemConflictVM> Conflicts { get; } = [];
 
         private bool isSelected;
         public bool IsSelected
@@ -52,5 +116,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
                 OnPropertyChanged(nameof(IsSelected));
             }
         }
+
+        public bool HasData => Factions.Any(x => x.HasData());
     }
 }

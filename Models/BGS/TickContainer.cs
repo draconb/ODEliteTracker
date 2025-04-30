@@ -12,13 +12,29 @@ namespace ODEliteTracker.Models.BGS
         {
             return time >= From && time < To;
         }
+
+        public bool TimeWithinTick(IEnumerable<DateTime> times)
+        {
+            foreach (var time in times)
+            {
+                if (time >= From && time < To)
+                    return true;
+            }
+
+            return false;
+        }
     }
 
     public sealed class TickContainer(List<BGSTickData> tickData)
     {
-        private readonly List<BGSTickData> tickData = [.. tickData.OrderBy(x => x.Time)];
+        private List<BGSTickData> tickData = [.. tickData.OrderBy(x => x.Time)];
 
         public List<BGSTickData> TickData => tickData;
+
+        public void UpdateTickData(List<BGSTickData> tickData)
+        {
+            this.tickData = [.. tickData.OrderBy(x => x.Time)];
+        }
 
         public BGSTickData? GetTick(DateTime value)
         {

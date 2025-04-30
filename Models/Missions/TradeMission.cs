@@ -5,7 +5,7 @@ namespace ODEliteTracker.Models.Missions
     public sealed class TradeMission(MissionAcceptedEvent.MissionAcceptedEventArgs args,
                         long originAddress,
                         string originSystemName,
-                        long originMarketID,
+                        ulong originMarketID,
                         string originStationName,
                         bool odyssey) : MissionBase(args, originAddress, originSystemName, originMarketID, originStationName, odyssey)
     {

@@ -32,7 +32,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Massacre
 
         public long OriginSystemAddress { get; private set; }
         public string OriginSystemName { get; private set; }
-        public long OriginMarketID { get; private set; }
+        public ulong OriginMarketID { get; private set; }
         public string OriginStationName { get; private set; }
         public MissionState CurrentState { get; set; }
         public DateTime AcceptedTime { get; private set; }

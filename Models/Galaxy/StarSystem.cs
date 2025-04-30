@@ -14,6 +14,7 @@ namespace ODEliteTracker.Models.Galaxy
             PowerState = evt.PowerplayState;
             ControllingFaction = evt.SystemFaction?.Name;
             SystemAllegiance = evt.SystemAllegiance;
+            Security = string.IsNullOrEmpty(evt.SystemSecurity_Localised) ? evt.SystemSecurity : evt.SystemSecurity;
         }
 
         public StarSystem(FSDJumpEvent.FSDJumpEventArgs evt)
@@ -25,6 +26,7 @@ namespace ODEliteTracker.Models.Galaxy
             PowerState = evt.PowerplayState;
             ControllingFaction = evt.SystemFaction?.Name;
             SystemAllegiance = evt.SystemAllegiance;
+            Security = string.IsNullOrEmpty(evt.SystemSecurity_Localised) ? evt.SystemSecurity : evt.SystemSecurity_Localised;
         }
 
         public StarSystem(CarrierJumpEvent.CarrierJumpEventArgs evt)
@@ -36,6 +38,7 @@ namespace ODEliteTracker.Models.Galaxy
             PowerState = evt.PowerplayState;
             ControllingFaction = evt.SystemFaction?.Name;
             SystemAllegiance = evt.SystemAllegiance;
+            Security = string.IsNullOrEmpty(evt.SystemSecurity_Localised) ? evt.SystemSecurity : evt.SystemSecurity_Localised;
         }
 
         public string Name { get; set; }
@@ -45,5 +48,6 @@ namespace ODEliteTracker.Models.Galaxy
         public PowerplayState PowerState { get; set; }
         public string? ControllingFaction { get; set; }
         public string? SystemAllegiance { get; set; }
+        public string? Security { get; set; }
     }
 }

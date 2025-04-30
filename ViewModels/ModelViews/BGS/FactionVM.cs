@@ -1,6 +1,9 @@
 ﻿using EliteJournalReader;
+using ODEliteTracker.Models.BGS;
 using ODMVVM.Helpers;
 using ODMVVM.ViewModels;
+using System.Security.Policy;
+using System.Windows.Data;
 
 namespace ODEliteTracker.ViewModels.ModelViews.BGS
 {
@@ -61,5 +64,104 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
             }
         }
         public string MissionsFailed => failed == 0 ? string.Empty : $"{failed:N0}";
+
+        private TradeTransactionVM? sales;
+        public TradeTransactionVM? Sales
+        {
+            get => sales;
+            set
+            {
+                sales = value;
+                OnPropertyChanged(nameof(Sales));
+            }
+        }
+
+        private TradeTransactionVM? purchases;
+        public TradeTransactionVM? Purchases
+        {
+            get => purchases;
+            set
+            {
+                purchases = value;
+                OnPropertyChanged(nameof(Purchases));
+            }
+        }
+
+        public int FootMurders { get; private set; }
+        public int ShipMurders { get; private set; }
+
+        public string Murders
+        {
+            get
+            {
+                var total = FootMurders + ShipMurders;
+
+                return total == 0 ? string.Empty : $"{total:N0}";
+            }
+        }
+
+        public long CartoDataValue { get; private set; }
+        public string CartoData
+        {
+            get
+            {
+                return CartoDataValue == 0 ? string.Empty : $"{EliteHelpers.FormatNumber(CartoDataValue)}";
+            }
+        }
+
+        public SearchAndRescueVM? SearchAndRescue { get; private set; } 
+
+        public bool HasData()
+        {
+            return infPlus > 0
+                || bounties > 0
+                || bonds > 0
+                || failed > 0
+                || sales != null && sales.Value > 0
+                || purchases != null && purchases.Value > 0
+                || FootMurders > 0
+                || ShipMurders > 0
+                || CartoDataValue > 0
+                || SearchAndRescue != null && SearchAndRescue.Total > 0;
+        }
+        public void AddTraction(TradeTransaction transaction)
+        {
+            if (transaction.Type == Models.TransactionType.Sale)
+            {
+                Sales ??= new();
+                Sales.AddTransaction(transaction);
+                return;
+            }
+
+            Purchases ??= new();
+            Purchases.AddTransaction(transaction);
+        }
+
+        public void AddMurder(SystemCrime crime)
+        {
+            FootMurders += crime.OnFootMurders;
+            ShipMurders += crime.ShipMurders;
+            OnPropertyChanged(nameof(Murders));
+        }
+
+        public void AddMurders(IEnumerable<SystemCrime> crimes)
+        {
+            FootMurders += crimes.Sum(x => x.OnFootMurders);
+            ShipMurders += crimes.Sum(x => x.ShipMurders);
+            OnPropertyChanged(nameof(Murders));
+        }
+
+        public void AddCartoData(IGrouping<string, ExplorationData> value)
+        {
+            CartoDataValue += value.Sum(x => x.Value);
+            OnPropertyChanged(nameof(CartoData));
+        }
+
+        public void AddSearchAndRescue(SearchAndRescue item)
+        {
+            SearchAndRescue ??= new();
+
+            SearchAndRescue.AddItem(item);
+        }
     }
 }

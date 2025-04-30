@@ -36,11 +36,16 @@ namespace ODEliteTracker.Stores
             }).ConfigureAwait(false);
         }
 
+        public async Task UpdateTickFromDatabase()
+        {
+            tickData = await databaseProvider.GetTickData(settings.JournalAgeDateTime.AddDays(-7));
+        }
+
         private async Task<bool> CheckForNewTicks()
         {
             var min = 0L;
 
-            tickData = await databaseProvider.GetTickData(settings.JournalAgeDateTime.AddDays(-7));
+            await UpdateTickFromDatabase();
 
             if (tickData.Count != 0)
             {
@@ -65,7 +70,7 @@ namespace ODEliteTracker.Stores
             return false;
         }
 
-        private async Task<List<BGSTickData>?> GetLatestTickHistory(long min)
+        private static async Task<List<BGSTickData>?> GetLatestTickHistory(long min)
         {
             if(min == 0)
             {
@@ -77,7 +82,7 @@ namespace ODEliteTracker.Stores
             string baseurl = $"https://elitebgs.app/api/ebgs/v5/";
             string url = $"ticks?timeMin={min}&timeMax={max}";
 
-            var json = await Internet.GetJsonFromUrl(baseurl, url);
+            var json = await Internet.GetJsonFromUrl(baseurl, url).ConfigureAwait(true);
 
             if (string.IsNullOrEmpty(json))
             {

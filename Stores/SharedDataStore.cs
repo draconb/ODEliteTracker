@@ -1,5 +1,7 @@
 ﻿using EliteJournalReader;
 using EliteJournalReader.Events;
+using NetTopologySuite.Geometries;
+using ODEliteTracker.Models.BGS;
 using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Models.Market;
 using ODEliteTracker.Models.Ship;
@@ -18,6 +20,7 @@ namespace ODEliteTracker.Stores
 
         #region Private fields
         private readonly IManageJournalEvents journalManager;
+        private Dictionary<string, FactionData> factions = [];
         #endregion
 
         #region Public Properties
@@ -28,6 +31,7 @@ namespace ODEliteTracker.Stores
             {
                 { JournalTypeEnum.Location, true },
                 { JournalTypeEnum.FSDJump, true},
+                { JournalTypeEnum.CarrierJump, true},
                 { JournalTypeEnum.Docked, true},
                 { JournalTypeEnum.Undocked, true},
                 { JournalTypeEnum.ApproachBody, true},
@@ -36,7 +40,7 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.Cargo, false },
             };
         }
-
+        public Dictionary<string, FactionData> Factions => factions;
         public StarSystem? CurrentSystem { get; private set; }
         public StationMarket? CurrentMarket { get; private set; }
         public string? CurrentBody_Station { get; private set; }
@@ -100,12 +104,26 @@ namespace ODEliteTracker.Stores
                     {
                         bodyStation = location.StationName;
                     }
-
                     UpdateCurrentBody_Station(bodyStation);
+                    AddFactions(location.Factions);
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
                     UpdateCurrentSystem(new(fsdJump));
                     UpdateCurrentBody_Station(null);
+                    AddFactions(fsdJump.Factions);
+                    break;
+                case CarrierJumpEvent.CarrierJumpEventArgs carrierJump:
+                    string? bodyStn = null;
+                    if (string.IsNullOrEmpty(carrierJump.Body) == false)
+                    {
+                        bodyStn = carrierJump.Body;
+                    }
+                    if (string.IsNullOrEmpty(carrierJump.StationName) == false)
+                    {
+                        bodyStn = carrierJump.StationName;
+                    }
+                    UpdateCurrentBody_Station(bodyStn);  
+                    AddFactions(carrierJump.Factions);
                     break;
                 case DockedEvent.DockedEventArgs docked:
                     UpdateCurrentBody_Station(string.IsNullOrEmpty(docked.StationName_Localised) ? docked.StationName : docked.StationName_Localised);
@@ -175,6 +193,17 @@ namespace ODEliteTracker.Stores
             CurrentBody_Station = text;
             if (IsLive)
                 CurrentBody_StationChanged?.Invoke(this, CurrentBody_Station);
+        }
+
+        private void AddFactions(IEnumerable<Faction>? factions)
+        {
+            if (factions != null && factions.Any())
+            {
+                foreach (var faction in factions)
+                {
+                    this.factions.TryAdd(faction.Name, new(faction.Name, faction.Government, faction.Allegiance));
+                }
+            }
         }
 
         public override void RunAfterParsingHistory()

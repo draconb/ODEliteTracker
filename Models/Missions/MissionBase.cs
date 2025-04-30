@@ -17,7 +17,7 @@ namespace ODEliteTracker.Models.Missions
         public MissionBase(MissionAcceptedEvent.MissionAcceptedEventArgs args,
                            long originAddress,
                            string originSystemName,
-                           long originMarketID,
+                           ulong originMarketID,
                            string originStationName,
                            bool odyssey) 
         { 
@@ -44,7 +44,7 @@ namespace ODEliteTracker.Models.Missions
         public bool Odyssey { get; private set; }
         public long OriginSystemAddress { get; private set; }
         public string OriginSystemName { get; private set; }
-        public long OriginMarketID { get; private set; }
+        public ulong OriginMarketID { get; private set; }
         public string OriginStationName { get; private set; }
         public MissionState CurrentState { get; set;}
         public DateTime AcceptedTime { get; private set;}

@@ -6,5 +6,11 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
     {
         public string ID { get; } = data.Id;
         public string Time { get; } = data.Time.AddYears(1286).ToString("dd MMM yyyy HH:mm");
+        public string LocalTime { get; } = $"{data.Time.ToLocalTime():dd MMM yyyy HH:mm} Local";
+
+        public override string ToString()
+        {
+            return Time;
+        }
     }
 }

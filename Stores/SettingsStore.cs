@@ -1,4 +1,5 @@
 ﻿using ODEliteTracker.Models;
+using ODEliteTracker.Models.Settings;
 using ODEliteTracker.Themes;
 using ODEliteTracker.ViewModels;
 using ODJournalDatabase.Database.DTOs;
@@ -56,6 +57,8 @@ namespace ODEliteTracker.Stores
 
         public CommoditySorting ColonisationCommoditySorting { get; internal set; } = CommoditySorting.Category;
 
+        public BGSViewSettings BGSViewSettings { get; internal set; }
+
         public void LoadSettings()
         {
             var settings = databaseProvider.GetAllSettings();
@@ -66,6 +69,8 @@ namespace ODEliteTracker.Stores
                 CurrentTheme = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(CurrentTheme)), Theme.OD);
                 ColonisationCommoditySorting = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(ColonisationCommoditySorting)), CommoditySorting.Category);
                 CurrentViewModel = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(CurrentViewModel)), typeof(ColonisationViewModel));
+                BGSViewSettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(BGSViewSettings)), new BGSViewSettings());
+                JournalAge = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(JournalAge)), JournalLogAge.OneHundredEightyDays);
             }
 
             //Apply Theme
@@ -80,7 +85,9 @@ namespace ODEliteTracker.Stores
                 SettingsDTOHelpers.IntToSettingsDTO(nameof(SelectedCommanderID), SelectedCommanderID > 0 ? SelectedCommanderID : 0),
                 SettingsDTOHelpers.EnumToSettingsDto(nameof(CurrentTheme), CurrentTheme),
                 SettingsDTOHelpers.EnumToSettingsDto(nameof(ColonisationCommoditySorting), ColonisationCommoditySorting),
-                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(CurrentViewModel), CurrentViewModel)
+                SettingsDTOHelpers.EnumToSettingsDto(nameof(JournalAge), JournalAge),
+                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(CurrentViewModel), CurrentViewModel),
+                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(BGSViewSettings), BGSViewSettings)
             };
 
             databaseProvider.AddSettings(settings);

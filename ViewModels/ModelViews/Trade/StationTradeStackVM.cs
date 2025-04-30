@@ -24,7 +24,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Trade
         }
 
         public long SystemAddress { get; }
-        public long MarketID { get; }
+        public ulong MarketID { get; }
         public string OriginSystem { get; }
         public string OriginStation { get; }
 

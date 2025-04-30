@@ -18,7 +18,7 @@ namespace ODEliteTracker.Stores
 
         private long CurrentSystemAddress;
         private string CurrentSystemName = "Unknown";
-        private long CurrentMarketID;
+        private ulong CurrentMarketID;
         private string CurrentStationName = "Unknown";
         private bool odyssey;
         public override string StoreName => "Massacre Mission";

@@ -5,38 +5,43 @@ using ODJournalDatabase.JournalManagement;
 using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Database.DTOs;
 using ODEliteTracker.Models.BGS;
+using System.Windows.Forms;
+using NetTopologySuite.Geometries;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ODEliteTracker.Stores
 {
     public sealed class BGSDataStore : LogProcessorBase
     {
         public BGSDataStore(IManageJournalEvents journalManager,
-            TickDataStore tickData)
+            TickDataStore tickData,
+            SharedDataStore sharedData)
         {
             this.journalManager = journalManager;
             this.tickDataStore = tickData;
-
+            this.sharedData = sharedData;
+            this.tickDataStore.NewTick += OnNewTick;
+            this.tickContainer = new(tickDataStore.BGSTickData);
             this.journalManager.RegisterLogProcessor(this);
 
-            this.tickDataStore.NewTick += OnNewTick;
-
-            this.tickContainer = new(tickDataStore.BGSTickData);
         }
 
         private IManageJournalEvents journalManager;
         private readonly TickDataStore tickDataStore;
+        private readonly SharedDataStore sharedData;
         private long CurrentSystemAddress;
         private string CurrentSystemName = "Unknown";
-        private long CurrentMarketID;
+        private ulong CurrentMarketID;
         private string CurrentStationName = "Unknown";
         private bool odyssey;
 
-        private Dictionary<string, FactionData> factions = [];
+
         private TickContainer tickContainer;
         private readonly List<BGSMission> missions = [];
         private readonly Dictionary<long, BGSStarSystem> systems = [];
         private TickData? selectedTick;
         private BGSStarSystem? currentSystem;
+        private Station? currentStation;
 
         public TickData? SelectedTick => selectedTick;
         public List<BGSTickData> TickData => tickContainer.TickData;
@@ -48,6 +53,9 @@ namespace ODEliteTracker.Stores
         public EventHandler<BGSMission>? CargoDepotEvent;
         public EventHandler? MissionsUpdatedEvent;
         public EventHandler<BGSStarSystem>? VouchersClaimedEvent;
+        public EventHandler<Station>? CurrentStationUpdated;
+        public EventHandler<BGSStarSystem>? SystemUpdated;
+        public EventHandler<BGSStarSystem>? SystemAdded;
         #endregion
 
         #region LogProcessor Implementation
@@ -69,6 +77,12 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.Docked, true},
                 { JournalTypeEnum.Undocked, true},
                 { JournalTypeEnum.RedeemVoucher, true},
+                { JournalTypeEnum.MarketBuy, true},
+                { JournalTypeEnum.MarketSell, true},
+                { JournalTypeEnum.CommitCrime, true},
+                { JournalTypeEnum.SellExplorationData, true},
+                { JournalTypeEnum.MultiSellExplorationData, true},
+                { JournalTypeEnum.SearchAndRescue, true},
             };
         }
         public override void ParseJournalEvent(JournalEntry evt)
@@ -95,28 +109,27 @@ namespace ODEliteTracker.Stores
                     if (location.Factions is null || location.Factions.Count < 2)
                         break;
 
-                    var system = new BGSStarSystem(location);
-
-                    TryAddSystem(system);
+                    TryAddSystem(new BGSStarSystem(location), location.Timestamp);
+   
+                    if (string.IsNullOrEmpty(location.StationName)
+                        || location.StationFaction is null
+                        || !sharedData.Factions.TryGetValue(location.StationFaction.Name, out var faction))
+                    {
+                        break;
+                    }
+                    
+                    currentStation = new Station(location, faction); 
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
                     CurrentSystemAddress = fsdJump.SystemAddress;
                     CurrentSystemName = fsdJump.StarSystem;
-
-                    if (fsdJump.Factions != null)
-                    {
-                        foreach (var faction in fsdJump.Factions)
-                        {
-                            factions.TryAdd(faction.Name, new(faction.Name, faction.Government, faction.Allegiance));
-                        }
-                    }
 
                     //Ignore systems with less than 2 factions
                     if (fsdJump.Factions is null || fsdJump.Factions.Count < 2)
                         break;
                     var nSystem = new BGSStarSystem(fsdJump);
 
-                    TryAddSystem(nSystem);
+                    TryAddSystem(nSystem, fsdJump.Timestamp);
                     break;
                 case CarrierJumpEvent.CarrierJumpEventArgs carrierJump:
                     CurrentSystemAddress = carrierJump.SystemAddress;
@@ -133,8 +146,16 @@ namespace ODEliteTracker.Stores
                         break;
 
                     var cSystem = new BGSStarSystem(carrierJump);
+                    TryAddSystem(cSystem, carrierJump.Timestamp);
 
-                    TryAddSystem(cSystem);
+                    if (string.IsNullOrEmpty(carrierJump.StationName)
+                        || carrierJump.StationFaction is null
+                        || !sharedData.Factions.TryGetValue(carrierJump.StationFaction.Name, out var fctn))
+                    {
+                        break;
+                    }
+
+                    currentStation = new Station(carrierJump, fctn);
                     break;
                 case MissionAcceptedEvent.MissionAcceptedEventArgs accepted:
                     if (string.IsNullOrEmpty(CurrentStationName))
@@ -150,16 +171,14 @@ namespace ODEliteTracker.Stores
                                                       odyssey);
 
                     missions.Add(mission);
-                    if (IsLive)
-                        MissionAddedEvent?.Invoke(this, mission);
+                    UpdateMissionIfLive(mission);
                     break;
                 case MissionRedirectedEvent.MissionRedirectedEventArgs redirected:
                     var rMission = missions.FirstOrDefault(x => x.MissionID == redirected.MissionID);
                     if (rMission != null)
                     {
                         rMission.CurrentState = MissionState.Redirected;
-                        if (IsLive)
-                            MissionUpdatedEvent?.Invoke(this, rMission);
+                        UpdateMissionIfLive(rMission);
                     }
                     break;
                 case MissionCompletedEvent.MissionCompletedEventArgs completed:
@@ -171,8 +190,7 @@ namespace ODEliteTracker.Stores
                         cMission.Reward = completed.Reward == 0 ? -completed.Donated : completed.Reward;
                         cMission.ApplyFactionEffects(completed.FactionEffects);
 
-                        if (IsLive)
-                            MissionUpdatedEvent?.Invoke(this, cMission);
+                        UpdateMissionIfLive(cMission);
                     }
                     break;
                 case MissionFailedEvent.MissionFailedEventArgs missionFailed:
@@ -182,8 +200,7 @@ namespace ODEliteTracker.Stores
                         fMission.CurrentState = MissionState.Failed;
                         fMission.CompletionTime = missionFailed.Timestamp;
                         fMission.Reward = 0;
-                        if (IsLive)
-                            MissionUpdatedEvent?.Invoke(this, fMission);
+                        UpdateMissionIfLive(fMission);
                     }
                     break;
                 case MissionAbandonedEvent.MissionAbandonedEventArgs abandoned:
@@ -193,8 +210,7 @@ namespace ODEliteTracker.Stores
                         aMission.CurrentState = MissionState.Abandoned;
                         aMission.CompletionTime = abandoned.Timestamp;
                         aMission.Reward = 0;
-                        if (IsLive)
-                            MissionUpdatedEvent?.Invoke(this, aMission);
+                        UpdateMissionIfLive(aMission);
                     }
                     break;
                 case MissionsEvent.MissionsEventArgs missionsEvt:
@@ -236,10 +252,22 @@ namespace ODEliteTracker.Stores
                     CurrentSystemAddress = docked.SystemAddress;
                     CurrentSystemName = docked.StarSystem;
                     CurrentMarketID = docked.MarketID;
+
+                    if (string.IsNullOrEmpty(docked.StationName)
+                        || docked.StationFaction is null
+                        || !sharedData.Factions.TryGetValue(docked.StationFaction.Name, out var statinFaction))
+                    {
+                        break;
+                    }
+
+                    currentStation = new Station(docked, statinFaction);
+                    UpdateStationIfLive(currentStation);
                     break;
                 case UndockedEvent.UndockedEventArgs undocked:
                     CurrentStationName = string.Empty;
                     CurrentMarketID = 0;
+                    currentStation = null;
+                    UpdateStationIfLive(currentStation);
                     break;
                 case RedeemVoucherEvent.RedeemVoucherEventArgs redeemVoucher:
                     if (currentSystem == null)
@@ -258,34 +286,94 @@ namespace ODEliteTracker.Stores
                         break;
                     }
 
-                    foreach (var faction in redeemVoucher.Factions)
+                    foreach (var fct1 in redeemVoucher.Factions)
                     {
-                        if (string.IsNullOrEmpty(faction.Faction))
+                        if (string.IsNullOrEmpty(fct1.Faction))
                             continue;
                         currentSystem
                             .VoucherClaims
-                            .Add(new VoucherClaim(redeemVoucher.Type, faction, redeemVoucher.Timestamp));
+                            .Add(new VoucherClaim(redeemVoucher.Type, fct1, redeemVoucher.Timestamp));
                     }
 
                     if (IsLive)
                         VouchersClaimedEvent?.Invoke(this, currentSystem);
                     break;
+                case MarketBuyEvent.MarketBuyEventArgs marketBuy:
+                    if(currentSystem == null || currentStation == null || currentStation.MarketID != marketBuy.MarketID)
+                        break;
 
+                    currentSystem.Transactions.Add(new(marketBuy, currentStation.StationFaction));
+                    UpdateSystemIfLive(currentSystem);
+                    break;
+                case MarketSellEvent.MarketSellEventArgs marketSell:
+                    if (currentSystem == null || currentStation == null || currentStation.MarketID != marketSell.MarketID)
+                        break;
+
+                    currentSystem.Transactions.Add(new(marketSell, currentStation.StationFaction));
+                    UpdateSystemIfLive(currentSystem);
+                    break;
+                case CommitCrimeEvent.CommitCrimeEventArgs commitCrime:
+                    if (currentSystem == null || commitCrime.CrimeType.Contains("murder") == false)
+                        return;
+
+                    if(sharedData.Factions.TryGetValue(commitCrime.Faction, out var value))
+                    {
+                        var crime = new SystemCrime(commitCrime, value);
+
+                        currentSystem.Crimes.Add(crime);
+                        UpdateSystemIfLive(currentSystem);
+                    }
+                    break;
+                case SellExplorationDataEvent.SellExplorationDataEventArgs sellData:
+                    if (currentSystem == null || currentStation == null)
+                        return;
+
+                    if (sharedData.Factions.TryGetValue(currentStation.StationFaction.Name, out var fct))
+                    {
+                       
+                        currentSystem.CartoData.Add(new(sellData, fct));
+                        UpdateSystemIfLive(currentSystem);
+                    }
+                    break;
+                case MultiSellExplorationDataEvent.MultiSellExplorationDataEventArgs m_sellData:
+                    if (currentSystem == null || currentStation == null)
+                        return;
+
+                    if (sharedData.Factions.TryGetValue(currentStation.StationFaction.Name, out var factn))
+                    {
+
+                        currentSystem.CartoData.Add(new(m_sellData, factn));
+                        UpdateSystemIfLive(currentSystem);
+                    }
+                    break;
+                case SearchAndRescueEvent.SearchAndRescueEventArgs searchAndRescueData:
+                    if (currentSystem == null || currentStation == null || currentStation.MarketID != searchAndRescueData.MarketID)
+                        return;
+
+                    if (sharedData.Factions.TryGetValue(currentStation.StationFaction.Name, out var _factn))
+                    {
+                        currentSystem.SearchAndRescueData.Add(new(searchAndRescueData, _factn));
+                        UpdateSystemIfLive(currentSystem);
+                    }
+                    break;
 
             }
         }
 
-        private void TryAddSystem(BGSStarSystem system)
+        private void UpdateMissionIfLive(BGSMission mission)
+        {
+            if (IsLive)
+                MissionAddedEvent?.Invoke(this, mission);
+        }
+
+        private void TryAddSystem(BGSStarSystem system, DateTime eventTime)
         {
             
             if (systems.TryGetValue(system.Address, out var bgsSystem))
             {
-                bgsSystem.AddTickData(system);
+                bgsSystem.AddTickData(system, eventTime);
                 currentSystem = bgsSystem;
-                if (IsLive)
-                {
-                    //TODO fire event
-                }
+                UpdateSystemIfLive(currentSystem);
                 return;
             }
            
@@ -294,15 +382,37 @@ namespace ODEliteTracker.Stores
                 currentSystem = system;
                 if (IsLive)
                 {
-                    //TODO fire event
+                    SystemAdded?.Invoke(this, system);
                 }
             }
+        }
+
+        private void UpdateSystemIfLive(BGSStarSystem system)
+        {
+            if (IsLive)
+            {
+                SystemUpdated?.Invoke(this, system);
+            }
+        }
+
+        private void UpdateStationIfLive(Station? currentStation)
+        {
+            if (IsLive)
+            {
+                //TODO fire event
+            }
+        }
+
+        public override void RunBeforeParsingHistory(int currentCmdrId)
+        {
+            var task = Task.Run(async () => { await tickDataStore.UpdateTickFromDatabase(); });
+            task.Wait();
+            this.tickContainer.UpdateTickData(tickDataStore.BGSTickData);
         }
 
         public override void ClearData()
         {
             missions.Clear();
-            factions.Clear();
             systems.Clear();
             IsLive = false;
         }

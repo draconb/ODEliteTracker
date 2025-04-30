@@ -110,7 +110,7 @@
                             </Grid>
                         </Popup>
                     </Grid>
-                    <ControlTemplate.Triggers>
+                    <ControlTemplate.Triggers>          
                         <Trigger Property="HasItems"
                                  Value="false">
                             <Setter TargetName="DropDownBorder"
@@ -178,7 +178,13 @@
                                  Value="true">
                             <Setter TargetName="Border"
                                     Property="Background"
-                                    Value="{DynamicResource PrimaryControlMouseOver}" />
+                                    Value="{DynamicResource EliteBtnBGMouseOver}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource EliteBtnFGMouseOver}" />
+                            <Setter Property="FontWeight"
+                                    Value="Bold" />
+                            <Setter Property="FontSize"
+                                    Value="20" />
                         </Trigger>
                         <Trigger Property="IsEnabled"
                                  Value="false">

@@ -56,4 +56,10 @@ namespace ODEliteTracker.Models
         Settlement,
         Trade,
     }
+
+    public enum TransactionType
+    {
+        Purchase,
+        Sale
+    }
 }

@@ -19,7 +19,7 @@ namespace ODEliteTracker.Stores
         private readonly string[] validMissionNames = ["Mission_Collect", "Mission_Delivery", "Mission_Mining", "Mission_Altruism"];
         private long CurrentSystemAddress;
         private string CurrentSystemName = "Unknown";
-        private long CurrentMarketID;
+        private ulong CurrentMarketID;
         private string CurrentStationName = "Unknown";
         private bool odyssey;
         public override string StoreName => "Trade Mission";

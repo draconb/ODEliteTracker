@@ -141,10 +141,8 @@ namespace ODEliteTracker.ViewModels
         public async Task Initialise()
         {
             UiEnabled = false;
-
-
-            await tickDataStore.Initialise().ConfigureAwait(true);
             navigationService.NavigateTo<LoadingViewModel>();
+            await tickDataStore.Initialise().ConfigureAwait(true);
             if (navigationService.CurrentView is LoadingViewModel loadingViewModel)
             {
                 await Task.Run(journalManager.Initialise).ConfigureAwait(true);

@@ -25,9 +25,6 @@ namespace ODEliteTracker.Stores
         private DateTime nextCycle;
 
         private long CurrentSystemAddress;
-        private string CurrentSystemName = "Unknown";
-        private long CurrentMarketID;
-        private string CurrentStationName = "Unknown";
         private bool odyssey;
 
         private Dictionary<long, PowerPlaySystem> systems = [];
@@ -44,6 +41,7 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.PowerplayMerits,true },
                 { JournalTypeEnum.PowerplayCollect,true },
                 { JournalTypeEnum.PowerplayDeliver,true },
+                { JournalTypeEnum.PowerplayRank,true },
             };
         }
         public DateTime PreviousCycle => previousCycle;
@@ -115,15 +113,6 @@ namespace ODEliteTracker.Stores
                     }
                     break;
                 case LocationEvent.LocationEventArgs location:
-                    CurrentSystemAddress = location.SystemAddress;
-                    CurrentSystemName = location.StarSystem;
-
-                    if (string.IsNullOrEmpty(location.StationName) == false)
-                    {
-                        CurrentStationName = location.StationName;
-                        CurrentMarketID = location.MarketID;
-                    }
-
                     if (location.Powers is null || location.Powers.Count == 0)
                     {
                         break;
@@ -132,9 +121,6 @@ namespace ODEliteTracker.Stores
                     Add_UpdateSystem(system, cycle);
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
-                    CurrentSystemAddress = fsdJump.SystemAddress;
-                    CurrentSystemName = fsdJump.StarSystem;
-
                     if (fsdJump.Powers is null || fsdJump.Powers.Count == 0)
                     {
                         break;
@@ -145,15 +131,21 @@ namespace ODEliteTracker.Stores
                 case PowerplayEvent.PowerplayEventArgs powerplay:
                     PledgeData = new(powerplay);
                     break;
+                case PowerplayRankEvent.PowerplayRankEventArgs rank:
+                    if (PledgeData == null)
+                        break;
+                    PledgeData.Rank = rank.Rank;
+                    if (IsLive)
+                        PledgeDataUpdated?.Invoke(this, PledgeData);
+                    break;
                 case PowerplayMeritsEvent.PowerplayMeritsEventArgs merits:
                     if(systems.TryGetValue(CurrentSystemAddress, out system))
                     {
+                        UpdatePledgeData(merits);
+
                         if (system.CycleData.TryGetValue(cycle, out var ppData))
                         {
-                            ppData.MeritsEarned += merits.MeritsGained;
-
-                            if (PledgeData != null)
-                                PledgeData.Merits = merits.TotalMerits;
+                            ppData.MeritsEarned += merits.MeritsGained;                            
                             UpdateSystemIfLive(system);
                             break;
                         }
@@ -214,6 +206,16 @@ namespace ODEliteTracker.Stores
                     }
                     break;
 
+            }
+        }
+
+        private void UpdatePledgeData(PowerplayMeritsEvent.PowerplayMeritsEventArgs merits)
+        {
+            if (PledgeData != null)
+            {
+                PledgeData.Merits = merits.TotalMerits;
+                if (IsLive)
+                    PledgeDataUpdated?.Invoke(this, PledgeData);
             }
         }
 

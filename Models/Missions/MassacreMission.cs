@@ -7,7 +7,7 @@ namespace ODEliteTracker.Models.Missions
         public MassacreMission(MissionAcceptedEvent.MissionAcceptedEventArgs args,
                                long originAddress,
                                string originSystemName,
-                               long originMarketID,
+                               ulong originMarketID,
                                string originStationName,
                                bool odyssey) : base(args,
                                                                 originAddress,

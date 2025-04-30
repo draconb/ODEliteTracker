@@ -1,4 +1,6 @@
-﻿using EliteJournalReader.Events;
+﻿using EliteJournalReader;
+using EliteJournalReader.Events;
+using NetTopologySuite.Geometries;
 using ODEliteTracker.Models.Galaxy;
 
 namespace ODEliteTracker.Models.BGS
@@ -8,27 +10,41 @@ namespace ODEliteTracker.Models.BGS
         public BGSStarSystem(LocationEvent.LocationEventArgs evt) : base(evt)
         {
             TickData = [new(evt)];
+            if (evt.Conflicts != null && evt.Conflicts.Any())
+                AddConflicts(evt.Conflicts, evt.Timestamp);
         }
 
         public BGSStarSystem(FSDJumpEvent.FSDJumpEventArgs evt) : base(evt)
         {
             TickData = [new(evt)];
             VisitCount = 1;
+            if (evt.Conflicts != null && evt.Conflicts.Any())
+                AddConflicts(evt.Conflicts, evt.Timestamp);
         }
 
         public BGSStarSystem(CarrierJumpEvent.CarrierJumpEventArgs evt) : base(evt)
         {
             TickData = [new(evt)];
             VisitCount = 1;
+            if (evt.Conflicts != null && evt.Conflicts.Any())
+                AddConflicts(evt.Conflicts, evt.Timestamp);
         }
 
         public int VisitCount { get; private set; }
         public List<SystemTickData> TickData { get; }
         public List<VoucherClaim> VoucherClaims { get; set; } = [];
+        public List<TradeTransaction> Transactions { get; set; } = [];
+        public List<SystemCrime> Crimes { get; set; } = [];
+        public List<ExplorationData> CartoData { get; set; } = [];
+        public List<SearchAndRescue> SearchAndRescueData { get; set; } = [];
+        public List<SystemConflict> Conflicts { get; set; } = [];
 
-        public void AddTickData(BGSStarSystem sys)
+        public void AddTickData(BGSStarSystem sys, DateTime eventTime)
         {
             VisitCount += sys.VisitCount;
+
+            if (sys.Conflicts.Any())
+                AddConflicts(sys.Conflicts, eventTime);
 
             var data = sys.TickData.First();
 
@@ -40,6 +56,38 @@ namespace ODEliteTracker.Models.BGS
             TickData.Add(data);
         }
 
+        public void AddConflicts(IEnumerable<Conflict> conflicts, DateTime eventTime)
+        {
+            foreach(var conflict in conflicts)
+            {
+                var known = Conflicts.FirstOrDefault(x => x.Conflict.Equals(conflict));
+
+                if(known != null)
+                {
+                    known.EventTimes.Add(eventTime);
+                    continue;
+                }
+
+                Conflicts.Add(new(conflict, eventTime));
+            }
+        }
+
+        public void AddConflicts(IEnumerable<SystemConflict> conflicts, DateTime eventTime)
+        {
+            foreach (var conflict in conflicts)
+            {
+                var known = Conflicts.FirstOrDefault(x => x.Conflict.Equals(conflict));
+
+                if (known != null)
+                {
+                    known.EventTimes.Add(eventTime);
+                    continue;
+                }
+
+                Conflicts.Add(conflict);
+            }
+        }
+
         public BGSTickSystem? GetBGSTickSystem(TickData data)
         {
             var tickData = TickData.Where(x => x.VisitedDuringPeriod(data.From, data.To)).LastOrDefault();
@@ -48,8 +96,13 @@ namespace ODEliteTracker.Models.BGS
                 return null;
 
             var claims = VoucherClaims.Where(x => data.TimeWithinTick(x.TimeClaimed));
+            var transactions = Transactions.Where(x => data.TimeWithinTick(x.TransactionTime));
+            var crimes = Crimes.Where(x => data.TimeWithinTick(x.EventTime));
+            var carto = CartoData.Where(x => data.TimeWithinTick(x.EventTime));
+            var s_r = SearchAndRescueData.Where(x => data.TimeWithinTick(x.EventTime));
+            var conflicts = Conflicts.Where(x => data.TimeWithinTick(x.EventTimes));
 
-            return new BGSTickSystem(this,  tickData, claims);
+            return new BGSTickSystem(this,  tickData, claims, transactions, crimes, carto, s_r, conflicts);
         }
     }
 }
