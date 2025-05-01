@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace ODEliteTracker.Database.DTOs
 {
     [PrimaryKey(nameof(Id))]
     public class BGSTickData(string id, DateTime time, DateTime updated_At, bool manualTick = false)
     {
-        [JsonProperty("_id")]
+        [JsonPropertyName("_id")]
         public string Id { get; set; } = id;
         public DateTime Time { get; set; } = time;
         public DateTime Updated_At { get; set; } = updated_At;

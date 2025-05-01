@@ -12,6 +12,8 @@ using ODJournalDatabase.JournalManagement;
 using ODMVVM.Navigation;
 using ODMVVM.ViewModels;
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -24,11 +26,11 @@ namespace ODEliteTracker
     {
         public static Version AppVersion { get; internal set; } = new Version(1, 0);
 
-        //#if INSTALL
-        //        public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OD Explorer");
-        //#else
+#if INSTALL
+        public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OD Explorer");
+#else
         public readonly static string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-//#endif
+#endif
         private const string database = "ODEliteTracker.db";
         private static readonly string connectionString = $"DataSource={Path.Combine(BaseDirectory, database)};";
 
@@ -71,7 +73,6 @@ namespace ODEliteTracker
                 services.AddSingleton<ThemeManager>();
                 services.AddSingleton<JournalEventParser>();
                 services.AddSingleton<IManageJournalEvents, JournalManager>();
-                //services.AddTransient<IODDialogService, ODDialogService>();
 
                 //Store
                 services.AddSingleton<SettingsStore>();
@@ -82,7 +83,24 @@ namespace ODEliteTracker
                 services.AddSingleton<BGSDataStore>();
                 services.AddSingleton<PowerPlayDataStore>();
                 services.AddSingleton<TickDataStore>();
-                
+
+                //http clients
+                services.AddHttpClient<EliteBGSApiService>((httpClient) =>
+                {
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    httpClient.BaseAddress = new Uri("https://elitebgs.app/api/ebgs/v5/");
+                    httpClient.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/json"));
+                })
+               .ConfigurePrimaryHttpMessageHandler(() =>
+               {
+                   return new SocketsHttpHandler
+                   {
+                       PooledConnectionLifetime = TimeSpan.FromSeconds(5),
+                       ConnectTimeout = TimeSpan.FromSeconds(10),
+                   };
+               });
+
             }).Build();
 
         /// <summary>
@@ -100,10 +118,6 @@ namespace ODEliteTracker
         {
             await _host.StartAsync();
 
-            //var date = new DateTimeSelector();
-            //date.DataContext = new ODDateTimeSelectorViewModel("Select Tick", DateTime.UtcNow.AddYears(1286));
-            //date.Show();
-            //return;
             //Disable shutdown when the dialog closes
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var updateWindow = _host.Services.GetRequiredService<LoaderWindow>();
@@ -140,6 +154,7 @@ namespace ODEliteTracker
         private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
+            
         }
     }
 }

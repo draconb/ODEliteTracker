@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using ODEliteTracker.Database;
 using ODEliteTracker.Database.DTOs;
+using ODEliteTracker.Services;
 using ODJournalDatabase.Database.Interfaces;
 using ODMVVM.Helpers.IO;
 
@@ -8,15 +9,17 @@ namespace ODEliteTracker.Stores
 {
     public sealed class TickDataStore
     {
-        public TickDataStore(IODDatabaseProvider databaseProvider, SettingsStore settings) 
+        public TickDataStore(IODDatabaseProvider databaseProvider, SettingsStore settings, EliteBGSApiService eliteBGS) 
         {
             this.databaseProvider = (ODEliteTrackerDatabaseProvider)databaseProvider;
             this.settings = settings;
+            this.eliteBGS = eliteBGS;
         }
 
         private List<BGSTickData> tickData = [];
         private readonly ODEliteTrackerDatabaseProvider databaseProvider;
         private readonly SettingsStore settings;
+        private readonly EliteBGSApiService eliteBGS;
 
         public List<BGSTickData> BGSTickData => tickData;
 
@@ -70,7 +73,7 @@ namespace ODEliteTracker.Stores
             return false;
         }
 
-        private static async Task<List<BGSTickData>?> GetLatestTickHistory(long min)
+        private async Task<List<BGSTickData>?> GetLatestTickHistory(long min)
         {
             if(min == 0)
             {
@@ -79,17 +82,7 @@ namespace ODEliteTracker.Stores
 
             long max = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-            string baseurl = $"https://elitebgs.app/api/ebgs/v5/";
-            string url = $"ticks?timeMin={min}&timeMax={max}";
-
-            var json = await Internet.GetJsonFromUrl(baseurl, url).ConfigureAwait(true);
-
-            if (string.IsNullOrEmpty(json))
-            {
-                return null;
-            }
-
-            List<BGSTickData>? data = JsonConvert.DeserializeObject<List<BGSTickData>>(json);
+            var data = await eliteBGS.GetTicks(min, max);
 
             return data;
         }

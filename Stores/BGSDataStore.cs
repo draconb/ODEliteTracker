@@ -529,6 +529,10 @@ namespace ODEliteTracker.Stores
 
         public void CheckForNewTick()
         {
+            if (IsLive == false)
+            {
+                return;
+            }
             _ = Task.Factory.StartNew(tickDataStore.CheckForNewTick);
         }
     }
