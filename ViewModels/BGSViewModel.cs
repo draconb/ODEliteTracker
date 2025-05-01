@@ -4,10 +4,9 @@ using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews.BGS;
 using ODMVVM.Commands;
 using ODMVVM.Extensions;
+using ODMVVM.Services.MessageBox;
 using ODMVVM.ViewModels;
 using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ODEliteTracker.ViewModels
@@ -15,11 +14,9 @@ namespace ODEliteTracker.ViewModels
     public sealed class BGSViewModel : ODViewModel
     {
         public BGSViewModel(BGSDataStore dataStore,
-                            SharedDataStore sharedData,
                             SettingsStore settings)
         {
             this.dataStore = dataStore;
-            this.sharedData = sharedData;
             this.settings = settings;
             this.dataStore.StoreLive += OnStoreLive;
             this.dataStore.MissionAddedEvent += OnMissionAdded;
@@ -28,8 +25,15 @@ namespace ODEliteTracker.ViewModels
             this.dataStore.SystemAdded += OnSystemAdded;
             this.dataStore.SystemUpdated += OnSystemUpdated;
             this.dataStore.VouchersClaimedEvent += OnVoucherClaimed;
+            this.dataStore.OnNewTickDetected += OnNewTick;
 
             SetSelectedSystemCommand = new ODRelayCommand<BGSTickSystemVM>(OnSetSelectedSystem);
+            AddNewTickCommand = new ODAsyncRelayCommand(OnAddNewTick);
+            DeletedTickCommand = new ODAsyncRelayCommand(OnDeleteTick, () => SelectedTick?.ManualTick == true);
+            CreateDiscordPostCommand = new ODRelayCommand(OnCreateDiscordPost);
+
+
+            missionExpiryUpdateTimer = new Timer(OnUpdateExpiry, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             if (dataStore.IsLive)
                 OnStoreLive(null, true);
         }
@@ -43,6 +47,8 @@ namespace ODEliteTracker.ViewModels
             this.dataStore.SystemAdded -= OnSystemAdded;
             this.dataStore.SystemUpdated -= OnSystemUpdated;
             this.dataStore.VouchersClaimedEvent -= OnVoucherClaimed;
+            this.dataStore.OnNewTickDetected -= OnNewTick;
+            missionExpiryUpdateTimer.Dispose();
         }
 
         private void OnSetSelectedSystem(BGSTickSystemVM vM)
@@ -50,14 +56,67 @@ namespace ODEliteTracker.ViewModels
             SelectedSystem = vM;
         }
 
+        private void OnNewTick(object? sender, EventArgs e)
+        {
+            var ticks = dataStore.TickData.OrderByDescending(x => x.Time).Select(x => new TickDataVM(x));
+            Ticks.ClearCollection();
+            Ticks.AddRange(ticks);
+
+            SelectedTick = Ticks.FirstOrDefault();
+
+            PopulateSystems();
+            PopulateMissions();
+            OnPropertyChanged(nameof(Ticks));
+        }
+
+        private async Task OnDeleteTick()
+        {
+            if (SelectedTick == null)
+                return;
+
+            await dataStore.DeleteTick(SelectedTick.ID);
+
+            var ticks = dataStore.TickData.OrderByDescending(x => x.Time).Select(x => new TickDataVM(x));
+            Ticks.ClearCollection();
+            Ticks.AddRange(ticks);
+
+            SelectedTick = Ticks.FirstOrDefault();
+
+            PopulateSystems();
+            PopulateMissions();
+            OnPropertyChanged(nameof(Ticks));
+        }
+
+        private async Task OnAddNewTick()
+        {
+            var time = ODDialogService.ShowDateTimeSelector(null, "Add Tick", DateTime.UtcNow.AddYears(1286));
+
+            if (time.Result == true)
+            {
+                var tick = await dataStore.AddTick(time.Time.AddYears(-1286));
+
+                var ticks = dataStore.TickData.OrderByDescending(x => x.Time).Select(x => new TickDataVM(x));
+                Ticks.ClearCollection();
+                Ticks.AddRange(ticks);
+
+                SelectedTick = Ticks.FirstOrDefault(x => string.Equals(x.ID, tick.Id)) ?? Ticks.FirstOrDefault();
+
+                PopulateSystems();
+                PopulateMissions();
+                OnPropertyChanged(nameof(Ticks));
+            }
+        }
+
+        private readonly Timer missionExpiryUpdateTimer;
         private readonly BGSDataStore dataStore;
-        private readonly SharedDataStore sharedData;
         private readonly SettingsStore settings;
 
         public override bool IsLive => dataStore.IsLive;
 
         public ICommand SetSelectedSystemCommand { get; }
-
+        public ICommand AddNewTickCommand { get; }
+        public ICommand DeletedTickCommand { get; }
+        public ICommand CreateDiscordPostCommand { get; }
         public bool HideSystemsWithoutBGSData
         {
             get => settings.BGSViewSettings.HideSystemsWithoutData;
@@ -69,6 +128,15 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
+        public int SelectedTab
+        {
+            get => settings.BGSViewSettings.SelectedTab;
+            set
+            {
+                settings.BGSViewSettings.SelectedTab = value;
+                OnPropertyChanged(nameof(SelectedTab));
+            }
+        }
         private BGSTickSystemVM? selectedSystem;
         public BGSTickSystemVM? SelectedSystem
         {
@@ -94,12 +162,15 @@ namespace ODEliteTracker.ViewModels
             get
             {
                 if (HideSystemsWithoutBGSData)
-                    return systems.Where(x => x.Address == sharedData.CurrentSystem?.Address || x.HasData).OrderBy(x => x.Name);
+                    return systems.Where(x => x.Address == dataStore.CurrentSystem?.Address || x.HasData).OrderBy(x => x.Name);
                 return systems;
             }
         }
+        public IEnumerable<MegaShipScanVM> MegaShipScans { get; private set; } = [];
 
         public ObservableCollection<TickDataVM> Ticks { get; set; } = [];
+
+        public ObservableCollection<BGSMissionVM> Missions { get; set; } = [];
 
         private TickDataVM? selectedTick;
         public TickDataVM? SelectedTick
@@ -113,6 +184,16 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
+        private string discordButtonText = "Create Post";
+        public string DiscordButtonText
+        {
+            get => discordButtonText;
+            set
+            {
+                discordButtonText = value;
+                OnPropertyChanged(nameof(DiscordButtonText));
+            }
+        }
         private void OnStoreLive(object? sender, bool e)
         {
             if (e)
@@ -123,9 +204,25 @@ namespace ODEliteTracker.ViewModels
 
                 SelectedTick = Ticks.FirstOrDefault(x => string.Equals(x.ID, dataStore.SelectedTick?.ID)) ?? Ticks.FirstOrDefault();
                 PopulateSystems();
-
+                PopulateMegaships();
+                PopulateMissions();
                 OnPropertyChanged(nameof(Ticks));
+                missionExpiryUpdateTimer.Change(new TimeSpan(0, 1, 0), new TimeSpan(0, 1, 0));
                 OnModelLive(true);
+            }
+        }
+
+        private void OnCreateDiscordPost(object? obj)
+        {
+            if (selectedTick is null)
+            {
+                return;
+            }
+
+            if(Helpers.DiscordPostCreator.CreateBGSPost(systems, selectedTick))
+            {
+                DiscordButtonText = "Post Created";
+                Task.Delay(4000).ContinueWith(e => { DiscordButtonText = "Create Post"; });
             }
         }
 
@@ -151,69 +248,99 @@ namespace ODEliteTracker.ViewModels
         {
             //TODO Implement updating properties
             PopulateSystems();
+            PopulateMissions();
         }
 
         private void OnMissionUpdated(object? sender, BGSMission e)
         {
             //TODO Implement updating properties
             PopulateSystems();
+            PopulateMissions();
         }
 
         private void OnMissionAdded(object? sender, BGSMission e)
         {
             //TODO Implement updating properties
             PopulateSystems();
+            PopulateMissions();
+        }
+
+        private void OnUpdateExpiry(object? state)
+        {
+            if (Missions.Count == 0)
+                return;
+
+            lock (Missions)
+            {
+                foreach (var mission in Missions)
+                {
+                    mission.UpdateExpiry();
+                }
+            }
         }
 
         private void PopulateSystems(BGSStarSystem? system = null)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            var tickData = dataStore.GetTickInfo(SelectedTick?.ID);
+
+            var systems = tickData.Item1.OrderBy(x => x.Name).Select(x => new BGSTickSystemVM(x));
+
+            this.systems.ClearCollection();
+            this.systems.AddRange(systems);
+
+            var address = SelectedSystem == null ? dataStore.CurrentSystem?.Address ?? 0 : SelectedSystem.Address;
+
+            SelectedSystem = system == null ? this.systems.FirstOrDefault(x => x.Address == address) : this.systems.FirstOrDefault(x => x.Address == system.Address);
+            foreach (var mission in tickData.Item2)
             {
-                var tickData = dataStore.GetTickInfo(SelectedTick?.ID);
-
-                var systems = tickData.Item1.OrderBy(x => x.Name).Select(x => new BGSTickSystemVM(x));
-
-                this.systems.ClearCollection();
-                this.systems.AddRange(systems);
-                SelectedSystem = system == null ? this.systems.FirstOrDefault() : this.systems.FirstOrDefault(x => x.Address == system.Address);
-                foreach (var mission in tickData.Item2)
+                switch (mission.CurrentState)
                 {
-                    switch (mission.CurrentState)
-                    {
-                        case Models.Missions.MissionState.Completed:
-                            if (mission.FactionEffects is null || mission.FactionEffects.Count == 0)
-                            {
-                                continue;
-                            }
+                    case MissionState.Completed:
+                        if (mission.FactionEffects is null || mission.FactionEffects.Count == 0)
+                        {
+                            continue;
+                        }
 
-                            foreach (var effect in mission.FactionEffects)
+                        foreach (var effect in mission.FactionEffects)
+                        {
+                            foreach (var inf in effect.Influence)
                             {
-                                foreach (var inf in effect.Influence)
+                                var faction = Systems.FirstOrDefault(x => x.Address == inf.SystemAddress)?
+                                    .Factions.FirstOrDefault(x => string.Equals(x.Name, effect.FactionName));
+
+                                if (faction != null)
                                 {
-                                    var faction = Systems.FirstOrDefault(x => x.Address == inf.SystemAddress)?
-                                        .Factions.FirstOrDefault(x => string.Equals(x.Name, effect.FactionName));
-
-                                    if (faction != null)
-                                    {
-                                        faction.InfPlus += inf.Influence;
-                                    }
+                                    faction.InfPlus += inf.Influence;
                                 }
                             }
-                            break;
-                        case Models.Missions.MissionState.Failed:
-                            var fction = Systems.FirstOrDefault(x => x.Address == mission.OriginSystemAddress)?
-                                       .Factions.FirstOrDefault(x => string.Equals(x.Name, mission.IssuingFaction));
+                        }
+                        break;
+                    case MissionState.Failed:
+                        var fction = Systems.FirstOrDefault(x => x.Address == mission.OriginSystemAddress)?
+                                   .Factions.FirstOrDefault(x => string.Equals(x.Name, mission.IssuingFaction));
 
-                            if (fction != null)
-                            {
-                                fction.Failed++;
-                            }
-                            break;
-                    }
+                        if (fction != null)
+                        {
+                            fction.Failed++;
+                        }
+                        break;
                 }
+            }
 
-                OnPropertyChanged(nameof(Systems));
-            });
+            OnPropertyChanged(nameof(Systems));
+        }
+
+        private void PopulateMissions()
+        {
+            var missions = dataStore.Missions.Where(x => x.CurrentState < MissionState.Completed).Select(x => new BGSMissionVM(x));
+
+            Missions.ClearCollection();
+            Missions.AddRange(missions);
+        }
+        private void PopulateMegaships()
+        {
+            MegaShipScans = dataStore.MegaShipScans.Select(x => new MegaShipScanVM(x));
+            OnPropertyChanged(nameof(MegaShipScans));
         }
     }
 }

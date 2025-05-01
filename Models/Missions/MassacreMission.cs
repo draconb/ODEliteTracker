@@ -24,7 +24,6 @@ namespace ODEliteTracker.Models.Missions
 
         public string Target { get; set; }
         public string TargetType { get; set; }
-        public string TargetFaction { get; set; }
         public int KillCount { get; set; }
         public int Kills { get; set; }  
     }

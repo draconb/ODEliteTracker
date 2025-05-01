@@ -40,6 +40,7 @@ namespace ODEliteTracker.Stores
             {
                 { JournalTypeEnum.Location,true},
                 { JournalTypeEnum.FSDJump, true},
+                { JournalTypeEnum.CarrierJump, true},
                 { JournalTypeEnum.ColonisationBeaconDeployed, true},
                 { JournalTypeEnum.ColonisationConstructionDepot, true},
                 { JournalTypeEnum.ColonisationSystemClaim, true},
@@ -96,6 +97,10 @@ namespace ODEliteTracker.Stores
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
                     CurrentSystemAddress = fsdJump.SystemAddress;
                     CurrentSystemName = fsdJump.StarSystem;
+                    break;
+                case CarrierJumpEvent.CarrierJumpEventArgs carrierJump:
+                    CurrentSystemAddress = carrierJump.SystemAddress;
+                    CurrentSystemName = carrierJump.StarSystem;
                     break;
                 case ColonisationBeaconDeployedEvent.ColonisationBeaconDeployedEventArgs:
                     if (commanderSystems.ContainsKey(CurrentSystemAddress) == false)

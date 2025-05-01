@@ -46,6 +46,11 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
                         <TextBlock Text="Tick"
                                    FontSize="20"
                                    Margin="0,0,0,10"
@@ -57,11 +62,6 @@
                                   Grid.Row="1"
                                   Width="250"
                                   Height="30">
-                            <ComboBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel IsItemsHost="True" />
-                                </ItemsPanelTemplate>
-                            </ComboBox.ItemsPanel>
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Time}"
@@ -73,6 +73,23 @@
                         <TextBlock Text="{Binding SelectedTick.LocalTime}"
                                    Grid.Row="2"
                                    Margin="12,5,0,0" />
+
+                        <Button Content="Add"
+                                Style="{DynamicResource EliteStyleButton}"
+                                Command="{Binding AddNewTickCommand}"
+                                Margin="10"
+                                Width="35"
+                                Grid.Column="1"
+                                Grid.Row="1"/>
+
+
+                        <Button Content="Del"
+                                Style="{DynamicResource EliteStyleButton}"
+                                Command="{Binding DeletedTickCommand}"
+                                Width="35"
+                                Margin="10"
+                                Grid.Row="1"
+                                Grid.Column="2" />
                     </Grid>
                 </Border>
 
@@ -144,17 +161,70 @@
                         Grid.Row="2"
                         Margin="5"
                         Padding="5">
-                    <CheckBox Grid.Row="1"
-                              Content="Hide Systems Without Data"
-                              HorizontalAlignment="Left"
-                              Margin="10"
-                              FontSize="16"
-                              Style="{StaticResource EliteStyleCheckBox}"
-                              IsChecked="{Binding HideSystemsWithoutBGSData, Mode=TwoWay}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0"
+                                  Content="Hide Systems Without Data"
+                                  HorizontalAlignment="Left"
+                                  Margin="10"
+                                  FontSize="16"
+                                  Style="{StaticResource EliteStyleCheckBox}"
+                                  IsChecked="{Binding HideSystemsWithoutBGSData, Mode=TwoWay}" />
+
+                        <Button BorderThickness="2"
+                                Height="30"
+                                Margin="5,0"
+                                Grid.Column="1"
+                                Width="120"
+                                FontSize="12"
+                                Command="{Binding CreateDiscordPostCommand}"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Content="{Binding DiscordButtonText}"
+                                FontFamily="Unispace"
+                                BorderBrush="#FF707BF3">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius"
+                                            Value="5" />                        
+                                </Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver"
+                                                 Value="False">
+                                            <Setter Property="Foreground"
+                                                    Value="White" />
+                                            <Setter Property="Background"
+                                                    Value="#FF5865F2" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver"
+                                                 Value="True">
+                                            <Setter Property="Background"
+                                                    Value="White" />
+                                            <Setter Property="Foreground"
+                                                    Value="#FF5865F2" />
+                                        </Trigger>
+                                        <Trigger Property="IsPressed"
+                                                 Value="True">
+                                            <Setter Property="Background"
+                                                    Value="White" />
+                                            <Setter Property="Foreground"
+                                                    Value="#FF5865F2" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                                       
+                            </Button.Resources>                      
+                                <!--<TextBlock VerticalAlignment="Center"
+                                           Text="{Binding DiscordButtonText}" />-->
+                        </Button>
+                    </Grid>
                 </Border>
             </Grid>
-            <Grid DataContext="{Binding SelectedSystem}"
-                  Grid.Column="1">
+            <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition />
                     <RowDefinition Height="320" />
@@ -163,10 +233,11 @@
                 <TabControl BorderThickness="0"
                             FontSize="18"
                             Margin="5"
+                            SelectedIndex="{Binding SelectedTab}"
                             Background="{DynamicResource CardBackground}">
                     <TabItem Header="System Information">
 
-                        <Grid>
+                        <Grid DataContext="{Binding SelectedSystem}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
@@ -264,7 +335,8 @@
                                                 <ColumnDefinition />
                                             </Grid.ColumnDefinitions>
 
-                                            <Border Background="#FF4A2D2D"
+                                            <Border Style="{DynamicResource ConflictBorder}"
+                                                    DataContext="{Binding Faction1}"
                                                     CornerRadius="5,30,30,5"
                                                     Margin="5"
                                                     Padding="5">
@@ -275,7 +347,7 @@
                                                         <RowDefinition  Height="Auto" />
                                                     </Grid.RowDefinitions>
 
-                                                    <TextBlock Text="{Binding Faction1Name}"
+                                                    <TextBlock Text="{Binding Name}"
                                                                Margin="5,0"
                                                                Foreground="{DynamicResource PrimaryForeground}" />
 
@@ -286,7 +358,7 @@
                                                                FontWeight="ExtraLight"
                                                                Foreground="{DynamicResource Header}" />
 
-                                                    <TextBlock Text="{Binding Faction1Stake}"
+                                                    <TextBlock Text="{Binding Stake}"
                                                                Margin="5,0"
                                                                Foreground="{DynamicResource PrimaryForeground}"
                                                                Grid.Row="2" />
@@ -311,7 +383,7 @@
                                                                FontSize="14"
                                                                FontWeight="ExtraLight"
                                                                Text="{Binding Status}" />
-                                                    
+
                                                     <TextBlock HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"
                                                                FontSize="18"
@@ -329,7 +401,8 @@
                                                 </Grid>
                                             </Border>
 
-                                            <Border Background="#FF384858"
+                                            <Border Style="{DynamicResource ConflictBorder}"
+                                                    DataContext="{Binding Faction2}"
                                                     CornerRadius="30,5,5,30"
                                                     TextBlock.FontSize="16"
                                                     Margin="5"
@@ -342,7 +415,7 @@
                                                         <RowDefinition  Height="Auto" />
                                                     </Grid.RowDefinitions>
 
-                                                    <TextBlock Text="{Binding Faction2Name}"
+                                                    <TextBlock Text="{Binding Name}"
                                                                Margin="5,0"
                                                                HorizontalAlignment="Right"
                                                                Foreground="{DynamicResource PrimaryForeground}" />
@@ -354,7 +427,7 @@
                                                                HorizontalAlignment="Right"
                                                                Foreground="{DynamicResource Header}" />
 
-                                                    <TextBlock Text="{Binding Faction2Stake}"
+                                                    <TextBlock Text="{Binding Stake}"
                                                                Margin="5,0"
                                                                HorizontalAlignment="Right"
                                                                Foreground="{DynamicResource PrimaryForeground}"
@@ -367,9 +440,93 @@
                             </ListBox>
                         </Grid>
                     </TabItem>
+                    <TabItem Header="Missions">
+                        <DataGrid ItemsSource="{Binding Missions}"
+                                  HeadersVisibility="Column"
+                                  Grid.Row="1"
+                                  MinRowHeight="30"
+                                  BorderThickness="0"
+                                  AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                                  Style="{StaticResource BaseDataGridStyle}"
+                                  RowStyle="{StaticResource ConstructionResourcesStyle}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Origin"
+                                                    MinWidth="95"
+                                                    Width="Auto"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                    Binding="{Binding Origin}" />
+                                <DataGridTextColumn Header="Destination"
+                                                    MinWidth="95"
+                                                    Width="Auto"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                    Binding="{Binding Destination}" />
+                                <DataGridTextColumn Header="Issuing Faction"
+                                                    MinWidth="125"
+                                                    Width="Auto"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                    Binding="{Binding IssuingFaction}" />
+                                <DataGridTextColumn Header="Target Faction"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                    Binding="{Binding TargetFaction}" />
+                                <DataGridTextColumn Header="Description"
+                                                    MinWidth="130"
+                                                    Width="*"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                    Binding="{Binding LocalisedName}" />
+                                <DataGridTextColumn Header="Expiry"
+                                                    MinWidth="100"
+                                                    Width="Auto"
+                                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                    ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                    Binding="{Binding Expiry}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="Megaship Scans">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Label Content="A List of megaships scanned since last powerplay tick"
+                                   Foreground="{DynamicResource Header}"
+                                   Grid.Row="0" />
+                            <DataGrid ItemsSource="{Binding MegaShipScans}"
+                                      HeadersVisibility="Column"
+                                      Grid.Row="1"
+                                      MinRowHeight="30"
+                                      BorderThickness="0"
+                                      Style="{StaticResource BaseDataGridStyle}"
+                                      RowStyle="{StaticResource ConstructionResourcesStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Scan Date"
+                                                        MinWidth="120"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                        ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                        Binding="{Binding ScanDate, StringFormat=\{0:ddd HH:mm\}}" />
+                                    <DataGridTextColumn Header="System Name"
+                                                        MinWidth="120"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                        ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                        Binding="{Binding SystemName}" />
+                                    <DataGridTextColumn Header="MegaShip Name"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                        ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                        Binding="{Binding MegaShipName}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </TabItem>
                 </TabControl>
 
                 <Border Background="{DynamicResource CardBackground}"
+                        DataContext="{Binding SelectedSystem}"
                         CornerRadius="5"
                         Grid.Row="1"
                         Margin="5"

@@ -364,6 +364,19 @@ namespace ODEliteTracker.Database
                                          .OrderByDescending(x => x.Time)
                                          .ToListAsync();
         }
+
+        internal async Task DeleteTickData(string iD)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var data = context.TickData.FirstOrDefault(x => string.Equals(iD, x.Id));
+
+            if (data is null)
+                return;
+
+            context.TickData.Remove(data);
+            await context.SaveChangesAsync();
+        }
         #endregion
     }
 }

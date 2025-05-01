@@ -1,6 +1,6 @@
 ﻿using EliteJournalReader;
 using EliteJournalReader.Events;
-using NetTopologySuite.Geometries;
+using ODEliteTracker.Extensions;
 using ODEliteTracker.Models.Galaxy;
 
 namespace ODEliteTracker.Models.BGS
@@ -76,7 +76,7 @@ namespace ODEliteTracker.Models.BGS
         {
             foreach (var conflict in conflicts)
             {
-                var known = Conflicts.FirstOrDefault(x => x.Conflict.Equals(conflict));
+                var known = Conflicts.FirstOrDefault(x => x.Conflict.Equals(conflict.Conflict));
 
                 if (known != null)
                 {
@@ -90,7 +90,8 @@ namespace ODEliteTracker.Models.BGS
 
         public BGSTickSystem? GetBGSTickSystem(TickData data)
         {
-            var tickData = TickData.Where(x => x.VisitedDuringPeriod(data.From, data.To)).LastOrDefault();
+            var tickData = TickData.Where(x => x.VisitedDuringPeriod(data.From, data.To))
+                .OrderBy(x => x.VisitedTimes.LatestTime()).LastOrDefault();
 
             if (tickData == null) 
                 return null;
@@ -100,9 +101,21 @@ namespace ODEliteTracker.Models.BGS
             var crimes = Crimes.Where(x => data.TimeWithinTick(x.EventTime));
             var carto = CartoData.Where(x => data.TimeWithinTick(x.EventTime));
             var s_r = SearchAndRescueData.Where(x => data.TimeWithinTick(x.EventTime));
-            var conflicts = Conflicts.Where(x => data.TimeWithinTick(x.EventTimes));
+            var conflicts = Conflicts
+                .Where(x => data.TimeWithinTick(x.EventTimes))
+                .GroupBy(x => x.Hash)
+                .ToDictionary(x => x.Key, x => x)
+                .Select(x => x.Value.OrderBy(x => x.EventTimes.LatestTime()).Last());
 
             return new BGSTickSystem(this,  tickData, claims, transactions, crimes, carto, s_r, conflicts);
+        }
+
+        private IEnumerable<SystemConflict> LatestConflicts(IEnumerable<SystemConflict> conflicts)
+        {
+            var ret = conflicts.GroupBy(x => x.Hash)
+                .ToDictionary(x => x.Key, x => x.ToList())
+                .Select(x => x.Value.Last());
+            return ret;
         }
     }
 }

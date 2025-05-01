@@ -21,15 +21,13 @@ namespace ODEliteTracker.ViewModels
                                  SettingsStore setting,
                                  IODNavigationService navigationService,
                                  IODDatabaseProvider databaseProvider,
-                                 IManageJournalEvents journalManager,
-                                 IODDialogService messageBoxService)
+                                 IManageJournalEvents journalManager)
         {
             this.themeManager = themeManager;
             this.setting = setting;
             this.navigationService = navigationService;
             this.databaseProvider = databaseProvider;
             this.journalManager = journalManager;
-            this.dialogService = messageBoxService;
             SetTheme = new ODRelayCommand<Theme>(OnChangeTheme);
             OpenUrlCommand = new ODRelayCommand<string>(OpenUrl);
 
@@ -50,7 +48,6 @@ namespace ODEliteTracker.ViewModels
         private readonly IODNavigationService navigationService;
         private readonly IODDatabaseProvider databaseProvider;
         private readonly IManageJournalEvents journalManager;
-        private readonly IODDialogService dialogService;
 
         public override bool IsLive => true;
         public Theme CurrentTheme => setting.CurrentTheme;
@@ -124,7 +121,7 @@ namespace ODEliteTracker.ViewModels
             {
                 return;
             }
-            var directory = dialogService.DirectorySelectDialog(SelectedCommander.JournalPath);
+            var directory = ODDialogService.DirectorySelectDialog(SelectedCommander.JournalPath);
 
             if (string.IsNullOrEmpty(directory) == false && SelectedCommander != null)
             {
@@ -145,7 +142,7 @@ namespace ODEliteTracker.ViewModels
             if (SelectedCommander is null)
                 return;
 
-            var result = dialogService.ShowWithOwner(null, "Delete CMDR?", $"Delete CMDR {SelectedCommander.Name}?", MessageBoxButton.OKCancel);
+            var result = ODDialogService.ShowWithOwner(null, "Delete CMDR?", $"Delete CMDR {SelectedCommander.Name}?", MessageBoxButton.OKCancel);
 
             if (result == MessageBoxResult.OK)
             {
@@ -158,7 +155,7 @@ namespace ODEliteTracker.ViewModels
 
         private async Task OnReadNewDirectory()
         {
-            var directory = dialogService.DirectorySelectDialog();
+            var directory = ODDialogService.DirectorySelectDialog();
 
             if (string.IsNullOrEmpty(directory) == false)
             {
@@ -182,7 +179,7 @@ namespace ODEliteTracker.ViewModels
 
         private async Task OnResetDataBase()
         {
-            var dialog = dialogService.ShowWithOwner(null, "Reset Database?", "This will delete all commanders and their records.\nAre you sure?", MessageBoxButton.YesNo);
+            var dialog = ODDialogService.ShowWithOwner(null, "Reset Database?", "This will delete all commanders and their records.\nAre you sure?", MessageBoxButton.YesNo);
 
             if (dialog == MessageBoxResult.No)
                 return;

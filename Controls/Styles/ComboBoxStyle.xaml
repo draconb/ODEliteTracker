@@ -104,7 +104,7 @@
                                         BorderBrush="{DynamicResource PrimaryControlBorder}" />
                                 <ScrollViewer Margin="4,6,4,6"
                                               SnapsToDevicePixels="True">
-                                    <StackPanel IsItemsHost="True"
+                                    <VirtualizingStackPanel IsItemsHost="True"
                                                 KeyboardNavigation.DirectionalNavigation="Contained" />
                                 </ScrollViewer>
                             </Grid>

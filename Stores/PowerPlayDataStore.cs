@@ -15,7 +15,7 @@ namespace ODEliteTracker.Stores
 
             previousCycle = EliteHelpers.PreviousThursday(1);
             currentCycle = EliteHelpers.PreviousThursday();
-            nextCycle = EliteHelpers.PreviousThursday(-1);
+            nextCycle = EliteHelpers.NextThursday();
         }
 
 
@@ -37,6 +37,7 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.LoadGame,true},
                 { JournalTypeEnum.Location,true},
                 { JournalTypeEnum.FSDJump, true},
+                { JournalTypeEnum.CarrierJump, true},
                 { JournalTypeEnum.Powerplay,true},
                 { JournalTypeEnum.PowerplayMerits,true },
                 { JournalTypeEnum.PowerplayCollect,true },
@@ -85,29 +86,29 @@ namespace ODEliteTracker.Stores
             {
                 case LoadGameEvent.LoadGameEventArgs load:
                     odyssey = load.Odyssey;
-                    if(IsLive)
+                    if (IsLive)
                     {
                         var currentCycle = EliteHelpers.PreviousThursday();
                         if (currentCycle == this.currentCycle)
                             break;
 
                         var systemsToRemove = new List<long>();
-                        foreach(var powerSystem in systems)
+                        foreach (var powerSystem in systems)
                         {
-                            if(powerSystem.Value.CycleData.ContainsKey(this.currentCycle) == false)
+                            if (powerSystem.Value.CycleData.ContainsKey(this.currentCycle) == false)
                             {
                                 systemsToRemove.Add(powerSystem.Key);
                             }
                         }
 
-                        foreach(var sys in systemsToRemove)
+                        foreach (var sys in systemsToRemove)
                         {
                             systems.Remove(sys);
                         }
 
                         previousCycle = EliteHelpers.PreviousThursday(1);
                         this.currentCycle = currentCycle;
-                        nextCycle = EliteHelpers.PreviousThursday(-1);
+                        nextCycle = EliteHelpers.NextThursday();
 
                         CyclesUpdated?.Invoke(this, EventArgs.Empty);
                     }
@@ -127,6 +128,14 @@ namespace ODEliteTracker.Stores
                     }
                     var ppSystem = new PowerPlaySystem(fsdJump, cycle);
                     Add_UpdateSystem(ppSystem, cycle);
+                    break;
+                case CarrierJumpEvent.CarrierJumpEventArgs cJump:
+                    if (cJump.Powers is null || cJump.Powers.Count == 0)
+                    {
+                        break;
+                    }
+                    var pSystem = new PowerPlaySystem(cJump, cycle);
+                    Add_UpdateSystem(pSystem, cycle);
                     break;
                 case PowerplayEvent.PowerplayEventArgs powerplay:
                     PledgeData = new(powerplay);
@@ -243,6 +252,7 @@ namespace ODEliteTracker.Stores
 
         private void Add_UpdateSystem(PowerPlaySystem newSystem, DateTime cycle)
         {
+            CurrentSystemAddress = newSystem.Address;
             if (systems.TryGetValue(newSystem.Address, out var nSystem))
             {
                 nSystem.Add_UpdateCycle(cycle, newSystem);

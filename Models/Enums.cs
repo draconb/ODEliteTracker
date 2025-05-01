@@ -62,4 +62,29 @@ namespace ODEliteTracker.Models
         Purchase,
         Sale
     }
+
+    public enum  ConflictStatus
+    {
+        Active,
+        Pending,
+        Concluded
+    }
+
+    public enum FactionConflictStatus
+    {
+        Winning,
+        Losing,
+        Draw
+    }
+
+    public enum ConflictType
+    {
+        None,
+        LowSpaceCZ,
+        MediumSpaceCZ,
+        HighSpaceCZ,
+        LowGroundCZ,
+        MediumGroundCZ,
+        HighGroundCZ            
+    }
 }

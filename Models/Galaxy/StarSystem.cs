@@ -14,7 +14,7 @@ namespace ODEliteTracker.Models.Galaxy
             PowerState = evt.PowerplayState;
             ControllingFaction = evt.SystemFaction?.Name;
             SystemAllegiance = evt.SystemAllegiance;
-            Security = string.IsNullOrEmpty(evt.SystemSecurity_Localised) ? evt.SystemSecurity : evt.SystemSecurity;
+            Security = string.IsNullOrEmpty(evt.SystemSecurity_Localised) ? evt.SystemSecurity : evt.SystemSecurity_Localised;
         }
 
         public StarSystem(FSDJumpEvent.FSDJumpEventArgs evt)

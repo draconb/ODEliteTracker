@@ -45,6 +45,7 @@ namespace ODEliteTracker.Models.BGS
         }
 
         public List<DateTime> VisitedTimes { get; }
+
         public string ControllingFaction { get;  }
         public string SystemAllegiance { get;  }
         public long Population { get; }

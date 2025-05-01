@@ -45,7 +45,7 @@ namespace ODEliteTracker.Stores
             {
                 return JournalAge switch
                 {
-                    JournalLogAge.All => DateTime.MinValue,
+                    JournalLogAge.All => new DateTime(2014,12,16),
                     JournalLogAge.SevenDays => DateTime.UtcNow.AddDays(-7),
                     JournalLogAge.ThirtyDays => DateTime.UtcNow.AddDays(-30),
                     JournalLogAge.SixtyDays => DateTime.UtcNow.AddDays(-60),
@@ -57,7 +57,7 @@ namespace ODEliteTracker.Stores
 
         public CommoditySorting ColonisationCommoditySorting { get; internal set; } = CommoditySorting.Category;
 
-        public BGSViewSettings BGSViewSettings { get; internal set; }
+        public BGSViewSettings BGSViewSettings { get; internal set; } = new();
 
         public void LoadSettings()
         {

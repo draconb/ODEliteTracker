@@ -2,11 +2,7 @@
 {
     public class BGSViewSettings
     {
-        public BGSViewSettings()
-        {
-            HideSystemsWithoutData = true;
-        }
-
-        public bool HideSystemsWithoutData { get; set; } 
+        public bool HideSystemsWithoutData { get; set; } = true;
+        public int SelectedTab { get; set; } 
     }
 }

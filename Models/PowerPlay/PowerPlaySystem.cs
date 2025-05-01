@@ -33,6 +33,20 @@ namespace ODEliteTracker.Models.PowerPlay
             });
         }
 
+        public PowerPlaySystem(CarrierJumpEvent.CarrierJumpEventArgs evt, DateTime cycle) : base(evt)
+        {
+            CycleData.Add(cycle, new()
+            {
+                ControllingPower = evt.ControllingPower,
+                PowerState = evt.PowerplayState,
+                PowerplayStateControlProgress = evt.PowerplayStateControlProgress,
+                PowerplayStateReinforcement = evt.PowerplayStateReinforcement,
+                PowerplayStateUndermining = evt.PowerplayStateUndermining,
+                PowerConflict = evt.PowerplayConflictProgress?.Select(x => x.Copy()).ToList(),
+                Powers = evt.Powers?.ToList()
+            });
+        }
+
         public Dictionary<DateTime, PowerplayCycleData> CycleData = [];
 
         public void Add_UpdateCycle(DateTime cycle, PowerPlaySystem newSystem)

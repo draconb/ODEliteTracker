@@ -1,7 +1,5 @@
 ﻿using EliteJournalReader;
 using EliteJournalReader.Events;
-using NetTopologySuite.Geometries;
-using ODEliteTracker.Models.BGS;
 using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Models.Market;
 using ODEliteTracker.Models.Ship;
@@ -113,6 +111,7 @@ namespace ODEliteTracker.Stores
                     AddFactions(fsdJump.Factions);
                     break;
                 case CarrierJumpEvent.CarrierJumpEventArgs carrierJump:
+                    UpdateCurrentSystem(new(carrierJump));
                     string? bodyStn = null;
                     if (string.IsNullOrEmpty(carrierJump.Body) == false)
                     {
@@ -121,7 +120,7 @@ namespace ODEliteTracker.Stores
                     if (string.IsNullOrEmpty(carrierJump.StationName) == false)
                     {
                         bodyStn = carrierJump.StationName;
-                    }
+                    }                    
                     UpdateCurrentBody_Station(bodyStn);  
                     AddFactions(carrierJump.Factions);
                     break;

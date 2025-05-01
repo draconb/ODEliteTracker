@@ -140,7 +140,7 @@ namespace ODEliteTracker.ViewModels
 
         private void UpdateSystems(PowerPlaySystem? system)
         {
-            LastCycleSystems = dataStore.Systems.Where(x => x.CycleData.ContainsKey(dataStore.PreviousCycle)/* && x.MeritsEarned > 0*/)
+            LastCycleSystems = dataStore.Systems.Where(x => x.CycleData.ContainsKey(dataStore.PreviousCycle) /* && x.MeritsEarned > 0*/)
                                                 .OrderBy(x => x.Name)
                                                 .Select(x => new PowerPlaySystemVM(x)).ToList();
 

@@ -2,8 +2,6 @@
 using ODEliteTracker.Models.BGS;
 using ODMVVM.Helpers;
 using ODMVVM.ViewModels;
-using System.Security.Policy;
-using System.Windows.Data;
 
 namespace ODEliteTracker.ViewModels.ModelViews.BGS
 {
@@ -90,13 +88,12 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
         public int FootMurders { get; private set; }
         public int ShipMurders { get; private set; }
 
+        public int TotalMurders => FootMurders + ShipMurders;
         public string Murders
         {
             get
             {
-                var total = FootMurders + ShipMurders;
-
-                return total == 0 ? string.Empty : $"{total:N0}";
+                return TotalMurders == 0 ? string.Empty : $"{TotalMurders:N0}";
             }
         }
 

@@ -30,6 +30,7 @@ namespace ODEliteTracker.Models.Missions
             Name = args.Name;
             LocalisedName = args.LocalisedName;
             IssuingFaction = args.Faction;
+            TargetFaction = args.TargetFaction;
             Influence = args.Influence.MissionPlusCount();
             Reputation = args.Reputation.MissionPlusCount();
             Reward = args.Reward;
@@ -41,26 +42,27 @@ namespace ODEliteTracker.Models.Missions
             DestinationSettlement = args.DestinationSettlement;
             DestinationSystem = args.DestinationSystem;
         }
-        public bool Odyssey { get; private set; }
-        public long OriginSystemAddress { get; private set; }
-        public string OriginSystemName { get; private set; }
-        public ulong OriginMarketID { get; private set; }
-        public string OriginStationName { get; private set; }
-        public MissionState CurrentState { get; set;}
-        public DateTime AcceptedTime { get; private set;}
-        public ulong MissionID { get; set; }
-        public string Name { get; set; }
-        public string LocalisedName { get; set; }
-        public string IssuingFaction { get; set; }
-        public int Influence { get; set; }
-        public int Reputation { get; set; }
+        public bool Odyssey { get; protected set; }
+        public long OriginSystemAddress { get; protected set; }
+        public string OriginSystemName { get; protected set; }
+        public ulong OriginMarketID { get; protected set; }
+        public string OriginStationName { get; protected set; }
+        public MissionState CurrentState { get; set; }
+        public DateTime AcceptedTime { get; protected set;}
+        public ulong MissionID { get; protected set; }
+        public string Name { get; protected set; }
+        public string LocalisedName { get; protected set; }
+        public string IssuingFaction { get; protected set; }
+        public string TargetFaction { get; protected set; }
+        public int Influence { get; protected set; }
+        public int Reputation { get; protected set; }
         public int Reward { get; set; }
-        public bool Wing { get; set; }
-        public DateTime Expiry { get; set; }
+        public bool Wing { get; protected set; }
+        public DateTime Expiry { get; protected set; }
         public DateTime CompletionTime { get; set; }
-        public string DestinationSystem { get; set; }
-        public string? DestinationStation { get; set; }
-        public string? DestinationSettlement { get; set; }
+        public string DestinationSystem { get; protected set; }
+        public string? DestinationStation { get; protected set; }
+        public string? DestinationSettlement { get; protected set; }
 
         public void UpdateState(MissionState state, DateTime updateTime)
         {

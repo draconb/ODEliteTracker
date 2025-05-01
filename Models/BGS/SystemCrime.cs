@@ -1,5 +1,4 @@
-﻿using EliteJournalReader;
-using EliteJournalReader.Events;
+﻿using EliteJournalReader.Events;
 using ODEliteTracker.Models.Galaxy;
 
 namespace ODEliteTracker.Models.BGS

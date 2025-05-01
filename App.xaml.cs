@@ -10,7 +10,6 @@ using ODEliteTracker.Views;
 using ODJournalDatabase.Database.Interfaces;
 using ODJournalDatabase.JournalManagement;
 using ODMVVM.Navigation;
-using ODMVVM.Services.MessageBox;
 using ODMVVM.ViewModels;
 using System.IO;
 using System.Windows;
@@ -72,7 +71,7 @@ namespace ODEliteTracker
                 services.AddSingleton<ThemeManager>();
                 services.AddSingleton<JournalEventParser>();
                 services.AddSingleton<IManageJournalEvents, JournalManager>();
-                services.AddTransient<IODDialogService, ODDialogService>();
+                //services.AddTransient<IODDialogService, ODDialogService>();
 
                 //Store
                 services.AddSingleton<SettingsStore>();
@@ -101,6 +100,10 @@ namespace ODEliteTracker
         {
             await _host.StartAsync();
 
+            //var date = new DateTimeSelector();
+            //date.DataContext = new ODDateTimeSelectorViewModel("Select Tick", DateTime.UtcNow.AddYears(1286));
+            //date.Show();
+            //return;
             //Disable shutdown when the dialog closes
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var updateWindow = _host.Services.GetRequiredService<LoaderWindow>();

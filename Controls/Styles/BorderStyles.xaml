@@ -1,0 +1,22 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:models="clr-namespace:ODEliteTracker.Models">
+
+    <Style x:Key="ConflictBorder"
+           TargetType="{x:Type Border}">
+        <Setter Property="Background"
+                Value="#BF4D4949" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Status}"
+                         Value="{x:Static models:FactionConflictStatus.Winning}">
+                <Setter Property="Background"
+                        Value="#FF384858" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}"
+                         Value="{x:Static models:FactionConflictStatus.Losing}">
+                <Setter Property="Background"
+                        Value="#FF4A2D2D" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

@@ -9,16 +9,13 @@ namespace ODEliteTracker.ViewModels
 {
     public sealed class LoaderViewModel : ODObservableObject
     {
-        public LoaderViewModel(ODEliteTrackerDbContextFactory contextFactory,
-                               IODDialogService dialogService)
+        public LoaderViewModel(ODEliteTrackerDbContextFactory contextFactory)
         {
             this.contextFactory = contextFactory;
-            this.dialogService = dialogService;
             _ = Initialise();
         }
 
         private readonly ODEliteTrackerDbContextFactory contextFactory;
-        private readonly IODDialogService dialogService;
         private string statusText = "Loading";
         public string StatusText
         {
@@ -44,7 +41,7 @@ namespace ODEliteTracker.ViewModels
 
                 if (updateInfo.Version > App.AppVersion)
                 {
-                    var update = dialogService.ShowWithOwner(null, $"Version {updateInfo.Version} is available", "Would you like to download?", System.Windows.MessageBoxButton.YesNo);
+                    var update = ODDialogService.ShowWithOwner(null, $"Version {updateInfo.Version} is available", "Would you like to download?", System.Windows.MessageBoxButton.YesNo);
 
                     if(update == System.Windows.MessageBoxResult.OK)
                     {

@@ -54,6 +54,7 @@
                 <ResourceDictionary Source="/Controls/Trade/DeliveryMissionTemplate.xaml" />                
                 <ResourceDictionary Source="/Controls/Styles/RectangleStyles.xaml" />                
                 <ResourceDictionary Source="/Controls/Styles/PowerPlayStyles.xaml" />                
+                <ResourceDictionary Source="/Controls/Styles/BorderStyles.xaml" />                
                 <themes:ThemeDictionary DefaultSource="pack://application:,,,/ODEliteTracker;component/Themes/DefaultTheme.xaml" 
                                         Source="/Themes/DefaultTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>            

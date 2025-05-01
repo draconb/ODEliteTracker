@@ -18,7 +18,7 @@ namespace ODEliteTracker.ViewModels
             this.massacreStore.MissionsUpdatedEvent += OnMissionsUpdated;
 
             //Timer to update expiry time every minute
-            expiryTimeUpdateTimer = new Timer(OnUpdateTimes, null, 0, 60000);
+            expiryTimeUpdateTimer = new Timer(OnUpdateExpiry, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
             if (this.massacreStore.IsLive)
             {
@@ -49,6 +49,7 @@ namespace ODEliteTracker.ViewModels
             if (e)
             {
                 BuildStacks();
+                expiryTimeUpdateTimer.Change(new TimeSpan(0, 5, 0), new TimeSpan(0, 5, 0));
                 OnModelLive(true);
             }
         }
@@ -162,14 +163,17 @@ namespace ODEliteTracker.ViewModels
             return stack.AddMission(mission);
         }
 
-        private void OnUpdateTimes(object? state)
+        private void OnUpdateExpiry(object? state)
         {
             if (ActiveMissions.Any() == false)
                 return;
 
-            foreach (var mission in ActiveMissions)
+            lock (ActiveMissions)
             {
-                mission.UpdateExpiryTime();
+                foreach (var mission in ActiveMissions)
+                {
+                    mission.UpdateExpiryTime();
+                }
             }
         }
     }

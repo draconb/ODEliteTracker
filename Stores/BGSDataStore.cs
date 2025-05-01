@@ -5,9 +5,7 @@ using ODJournalDatabase.JournalManagement;
 using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Database.DTOs;
 using ODEliteTracker.Models.BGS;
-using System.Windows.Forms;
-using NetTopologySuite.Geometries;
-using static System.Net.Mime.MediaTypeNames;
+using ODMVVM.Helpers;
 
 namespace ODEliteTracker.Stores
 {
@@ -22,8 +20,9 @@ namespace ODEliteTracker.Stores
             this.sharedData = sharedData;
             this.tickDataStore.NewTick += OnNewTick;
             this.tickContainer = new(tickDataStore.BGSTickData);
-            this.journalManager.RegisterLogProcessor(this);
+            lastThursday = EliteHelpers.PreviousThursday();
 
+            this.journalManager.RegisterLogProcessor(this);
         }
 
         private IManageJournalEvents journalManager;
@@ -33,19 +32,24 @@ namespace ODEliteTracker.Stores
         private string CurrentSystemName = "Unknown";
         private ulong CurrentMarketID;
         private string CurrentStationName = "Unknown";
+        private string? currentSuperCruiseDestination;
         private bool odyssey;
-
+        private DateTime lastThursday;
 
         private TickContainer tickContainer;
         private readonly List<BGSMission> missions = [];
         private readonly Dictionary<long, BGSStarSystem> systems = [];
+        private readonly List<MegaShipScan> megaShipScans = [];
         private TickData? selectedTick;
         private BGSStarSystem? currentSystem;
         private Station? currentStation;
 
+        public BGSStarSystem? CurrentSystem => currentSystem;
         public TickData? SelectedTick => selectedTick;
         public List<BGSTickData> TickData => tickContainer.TickData;
         public IEnumerable<BGSStarSystem> Systems => systems.Values;
+        public IEnumerable<MegaShipScan> MegaShipScans => megaShipScans;
+        public IEnumerable<BGSMission> Missions => missions;
 
         #region Events
         public EventHandler<BGSMission>? MissionAddedEvent;
@@ -56,6 +60,8 @@ namespace ODEliteTracker.Stores
         public EventHandler<Station>? CurrentStationUpdated;
         public EventHandler<BGSStarSystem>? SystemUpdated;
         public EventHandler<BGSStarSystem>? SystemAdded;
+        public EventHandler? MegaShipScansUpdated;
+        public EventHandler? OnNewTickDetected;
         #endregion
 
         #region LogProcessor Implementation
@@ -83,6 +89,9 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.SellExplorationData, true},
                 { JournalTypeEnum.MultiSellExplorationData, true},
                 { JournalTypeEnum.SearchAndRescue, true},
+                { JournalTypeEnum.SupercruiseDestinationDrop, true},
+                { JournalTypeEnum.SupercruiseEntry, true},
+                { JournalTypeEnum.DataScanned, true},
             };
         }
         public override void ParseJournalEvent(JournalEntry evt)
@@ -94,6 +103,9 @@ namespace ODEliteTracker.Stores
             {
                 case LoadGameEvent.LoadGameEventArgs load:
                     odyssey = load.Odyssey;
+
+                    if (IsLive)
+                        UpdatePreviousThursday();
                     break;
                 case LocationEvent.LocationEventArgs location:
                     CurrentSystemAddress = location.SystemAddress;
@@ -226,7 +238,7 @@ namespace ODEliteTracker.Stores
 
                     foreach (var m in missions)
                     {
-                        if (m.CurrentState > MissionState.Active || m.Odyssey != odyssey)
+                        if (m.CurrentState > MissionState.Redirected || m.Odyssey != odyssey)
                             continue;
 
                         var mis = evtMissions.FirstOrDefault(x => x.MissionID == m.MissionID);
@@ -252,6 +264,7 @@ namespace ODEliteTracker.Stores
                     CurrentSystemAddress = docked.SystemAddress;
                     CurrentSystemName = docked.StarSystem;
                     CurrentMarketID = docked.MarketID;
+                    CheckForNewTick();
 
                     if (string.IsNullOrEmpty(docked.StationName)
                         || docked.StationFaction is null
@@ -356,8 +369,57 @@ namespace ODEliteTracker.Stores
                         UpdateSystemIfLive(currentSystem);
                     }
                     break;
+                case SupercruiseDestinationDropEvent.SupercruiseDestinationDropEventArgs scDestDrop:
+                    currentSuperCruiseDestination = scDestDrop.Type;
+                    break;
+                case SupercruiseEntryEvent.SupercruiseEntryEventArgs scEntry:
+                    currentSuperCruiseDestination = null;
+                    break;
+                case DataScannedEvent.DataScannedEventArgs scannedData:
+                    if (currentSystem is null || string.IsNullOrEmpty(currentSuperCruiseDestination))
+                        break;
+
+                    if (string.Equals(scannedData.Type, "$Datascan_ShipUplink;") && scannedData.Timestamp >= lastThursday)
+                    {
+                        var known = megaShipScans.FirstOrDefault(x => string.Equals(x.MegaShipName, currentSuperCruiseDestination) 
+                                                    && x.SystemAddress == currentSystem.Address);
+
+                        if (known != null)
+                        {
+                            break;
+                        }
+
+                        var megaship = new MegaShipScan(scannedData.Timestamp, currentSystem.Name, currentSystem.Address, currentSuperCruiseDestination);
+                        megaShipScans.Add(megaship);
+
+                        if (IsLive)
+                            MegaShipScansUpdated?.Invoke(this, EventArgs.Empty);
+                    }
+                    break;
 
             }
+        }
+
+        private void UpdatePreviousThursday()
+        {
+            var previous = EliteHelpers.PreviousThursday();
+
+            if (previous == lastThursday)
+                return;
+
+            lastThursday = previous;
+
+            var outdatedMegaships = megaShipScans.Where(x => x.ScanDate < lastThursday);
+
+            if(outdatedMegaships.Any() == false)
+                return;
+
+            foreach (var ms in outdatedMegaships)
+            {
+                megaShipScans.Remove(ms);
+            }
+
+            MegaShipScansUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         private void UpdateMissionIfLive(BGSMission mission)
@@ -425,6 +487,7 @@ namespace ODEliteTracker.Stores
         private void OnNewTick(object? sender, EventArgs e)
         {
             tickContainer = new(tickDataStore.BGSTickData);
+            OnNewTickDetected?.Invoke(this, EventArgs.Empty);
         }
 
         public Tuple<IEnumerable<BGSTickSystem>, IEnumerable<BGSMission>> GetTickInfo(string? id)
@@ -449,6 +512,24 @@ namespace ODEliteTracker.Stores
             }
 
             return Tuple.Create<IEnumerable<BGSTickSystem>, IEnumerable<BGSMission>>(systems, missions); 
+        }
+
+        internal async Task<BGSTickData> AddTick(DateTime dateTime)
+        {
+            var tick = await tickDataStore.AddTick(dateTime);
+            tickContainer.UpdateTickData(tickDataStore.BGSTickData);
+            return tick;
+        }
+
+        internal async Task DeleteTick(string iD)
+        {
+            await tickDataStore.DeleteTick(iD);
+            tickContainer.UpdateTickData(tickDataStore.BGSTickData);
+        }
+
+        public void CheckForNewTick()
+        {
+            _ = Task.Factory.StartNew(tickDataStore.CheckForNewTick);
         }
     }
 }

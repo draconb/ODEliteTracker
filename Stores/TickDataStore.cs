@@ -93,5 +93,21 @@ namespace ODEliteTracker.Stores
 
             return data;
         }
+
+        internal async Task<BGSTickData> AddTick(DateTime dateTime)
+        {
+            var newTick = new BGSTickData(DateTime.UtcNow.Ticks.ToString(), dateTime, dateTime, true);
+
+            await databaseProvider.AddTickData([newTick]).ConfigureAwait(true);
+            tickData = await databaseProvider.GetTickData(settings.JournalAgeDateTime.AddDays(-7)).ConfigureAwait(true);
+
+            return newTick;
+        }
+
+        internal async Task DeleteTick(string iD)
+        {
+            await databaseProvider.DeleteTickData(iD).ConfigureAwait(true);
+            await UpdateTickFromDatabase();
+        }
     }
 }

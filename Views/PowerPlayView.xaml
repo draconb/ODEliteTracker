@@ -245,7 +245,6 @@
                                                        Grid.RowSpan="2"
                                                        FontWeight="SemiBold"
                                                        Margin="5,3" />
-
                                             <Rectangle Style="{DynamicResource PowerPlayIcon}"
                                                        Grid.Column="2">
                                                 <Rectangle.OpacityMask>

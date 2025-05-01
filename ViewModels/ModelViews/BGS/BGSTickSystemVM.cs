@@ -1,7 +1,7 @@
-﻿using ODEliteTracker.Models.BGS;
+﻿using EliteJournalReader;
+using ODEliteTracker.Models.BGS;
 using ODEliteTracker.Models.Galaxy;
 using ODMVVM.ViewModels;
-using System;
 
 namespace ODEliteTracker.ViewModels.ModelViews.BGS
 {
@@ -89,12 +89,12 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
 
             if (system.Conflicts.Count > 0)
             {
-                Conflicts = [.. system.Conflicts.Select(x => new SystemConflictVM(x))];
+                Conflicts = [.. system.Conflicts.Select(x => new SystemConflictVM(x)).OrderBy(x => x.Status)];
             }
         }
 
         private readonly BGSTickSystem system;
-
+        public string NonUpperName => system.Name;
         public string Name => system.Name.ToUpper();
         public long Address => system.Address;
         public string Population => $"{system.Population:N0}";

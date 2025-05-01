@@ -1,14 +1,15 @@
-﻿using ODEliteTracker.Models.BGS;
+﻿using ODEliteTracker.Models;
+using ODEliteTracker.Models.BGS;
 
 namespace ODEliteTracker.ViewModels.ModelViews.BGS
 {
-    public sealed class SystemConflictVM(SystemConflict conflict)
+    public sealed class SystemConflictVM(SystemConflict data)
     {
         public string WarType
         {
             get
             {
-                return conflict.Conflict.WarType switch
+                return data.Conflict.WarType switch
                 {
                     "civilwar" => "Civil War",
                     "election" => "Election",
@@ -18,25 +19,38 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
             }
         }
 
-        public string Status
+        public ConflictStatus Status
         {
             get
             {
-                return conflict.Conflict.Status switch
+                return data.Conflict.Status switch
                 {
-                    "pending" => "Pending",
-                    "active" => "Active",
-                    _ => "Concluded",
+                    "pending" => ConflictStatus.Pending,
+                    "active" => ConflictStatus.Active,
+                    _ => ConflictStatus.Concluded,
                 };
             }
         }
 
-        public string Faction1Name { get; } = conflict.Conflict.Faction1.Name;
-        public string Faction1Stake { get; } = string.IsNullOrEmpty(conflict.Conflict.Faction1.Stake) ? "No assets at risk" : conflict.Conflict.Faction1.Stake;
+        public FactionConflict Faction1 => new(data.Conflict.Faction1, FactionWarStatus(data.Conflict.Faction1.WonDays, data.Conflict.Faction2.WonDays));
 
-        public string Score { get; } = $"{conflict.Conflict.Faction1.WonDays} vs {conflict.Conflict.Faction2.WonDays}";
+        public string Score { get; } = $"{data.Conflict.Faction1.WonDays} vs {data.Conflict.Faction2.WonDays}";
 
-        public string Faction2Name { get; } = conflict.Conflict.Faction2.Name;
-        public string Faction2Stake { get; } = string.IsNullOrEmpty(conflict.Conflict.Faction2.Stake) ? "No assets at risk" : conflict.Conflict.Faction2.Stake;
+        public FactionConflict Faction2 => new(data.Conflict.Faction2, FactionWarStatus(data.Conflict.Faction2.WonDays, data.Conflict.Faction1.WonDays));
+
+        private static FactionConflictStatus FactionWarStatus(int wonDays, int lostDays)
+        {
+            var score = wonDays - lostDays;
+
+            switch (score)
+            {
+                case var sc when sc > 0:
+                    return FactionConflictStatus.Winning;
+                case var sc when sc < 0:
+                    return FactionConflictStatus.Losing;
+                default:
+                    return FactionConflictStatus.Draw;
+            }
+        }
     }
 }
