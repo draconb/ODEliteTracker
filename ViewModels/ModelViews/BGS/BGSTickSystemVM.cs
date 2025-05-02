@@ -91,6 +91,45 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
             {
                 Conflicts = [.. system.Conflicts.Select(x => new SystemConflictVM(x)).OrderBy(x => x.Status)];
             }
+
+            if(system.Wars.Count > 0)
+            {
+                foreach (var item in system.Wars)
+                {
+                    var faction = Factions.FirstOrDefault(x => string.Equals(item.SupportingFaction, x.Name, StringComparison.OrdinalIgnoreCase));
+
+                    if(faction == null)
+                        continue;
+
+                    faction.Wars ??= new();
+
+                    switch (item.Type)
+                    {
+                        case Models.ConflictType.None:
+                            continue;
+                        case Models.ConflictType.LowSpaceCZ:
+                            faction.Wars.LowSpaceCZ++;
+                            continue;
+                        case Models.ConflictType.MediumSpaceCZ:
+                            faction.Wars.MediumSpaceCZ++;
+                            continue;
+                        case Models.ConflictType.HighSpaceCZ:
+                            faction.Wars.HighSpaceCZ++;
+                            continue;
+                        case Models.ConflictType.LowGroundCZ:
+                            faction.Wars.LowGroundCZ++;
+                            continue;
+                        case Models.ConflictType.MediumGroundCZ:
+                            faction.Wars.MediumGroundCZ++;
+                            continue;
+                        case Models.ConflictType.HighGroundCZ:
+                            faction.Wars.HighGroundCZ++;
+                            continue;
+                        default:
+                            continue;
+                    }
+                }
+            }
         }
 
         private readonly BGSTickSystem system;
@@ -104,7 +143,8 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
         public string? ControllingFactionState => Factions.FirstOrDefault(x => string.Equals(x.Name, ControllingFaction))?.FactionState;
         public string SystemAllegiance => system.SystemAllegiance;
         public List<FactionVM> Factions { get; }
-        public List<SystemConflictVM> Conflicts { get; } = [];
+        public List<SystemConflictVM> Conflicts { get; } = [];      
+
 
         private bool isSelected;
         public bool IsSelected

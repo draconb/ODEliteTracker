@@ -17,6 +17,7 @@
     <None Remove="Assets\Icons\ColonisationBtn.png" />
     <None Remove="Assets\Icons\edassets_larger.png" />
     <None Remove="Assets\Icons\GitHub_Logo_White.png" />
+    <None Remove="Assets\Icons\inaramenulogo.png" />
     <None Remove="Assets\Icons\OD.png" />
     <None Remove="Assets\Icons\paypal-donate-button.png" />
     <None Remove="Assets\Icons\powerplay.png" />
@@ -73,6 +74,7 @@
     <Resource Include="Assets\Icons\ColonisationBtn.png" />
     <Resource Include="Assets\Icons\edassets_larger.png" />
     <Resource Include="Assets\Icons\GitHub_Logo_White.png" />
+    <Resource Include="Assets\Icons\inaramenulogo.png" />
     <Resource Include="Assets\Icons\OD.png" />
     <Resource Include="Assets\Icons\paypal-donate-button.png" />
     <Resource Include="Assets\Icons\powerplay.png" />

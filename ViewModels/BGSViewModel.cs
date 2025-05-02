@@ -7,6 +7,7 @@ using ODMVVM.Extensions;
 using ODMVVM.Services.MessageBox;
 using ODMVVM.ViewModels;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ODEliteTracker.ViewModels
@@ -28,14 +29,23 @@ namespace ODEliteTracker.ViewModels
             this.dataStore.OnNewTickDetected += OnNewTick;
 
             SetSelectedSystemCommand = new ODRelayCommand<BGSTickSystemVM>(OnSetSelectedSystem);
-            AddNewTickCommand = new ODAsyncRelayCommand(OnAddNewTick);
+            AddNewTickCommand = new ODAsyncRelayCommand<Window?>(OnAddNewTick);
             DeletedTickCommand = new ODAsyncRelayCommand(OnDeleteTick, () => SelectedTick?.ManualTick == true);
             CreateDiscordPostCommand = new ODRelayCommand(OnCreateDiscordPost);
+            OpenInaraCommand = new ODRelayCommand(OnOpenInara);
 
 
             missionExpiryUpdateTimer = new Timer(OnUpdateExpiry, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             if (dataStore.IsLive)
                 OnStoreLive(null, true);
+        }
+
+        private void OnOpenInara(object? obj)
+        {
+            if (selectedSystem == null)
+                return;
+
+            ODMVVM.Helpers.OperatingSystem.OpenUrl($"https://inara.cz/galaxy-starsystem/?search={selectedSystem.NonUpperName.Replace(' ', '+')}");
         }
 
         public override void Dispose()
@@ -87,9 +97,9 @@ namespace ODEliteTracker.ViewModels
             OnPropertyChanged(nameof(Ticks));
         }
 
-        private async Task OnAddNewTick()
+        private async Task OnAddNewTick(Window? window)
         {
-            var time = ODDialogService.ShowDateTimeSelector(null, "Add Tick", DateTime.UtcNow.AddYears(1286));
+            var time = ODDialogService.ShowDateTimeSelector(window, "Add Tick", DateTime.UtcNow.AddYears(1286));
 
             if (time.Result == true)
             {
@@ -117,6 +127,7 @@ namespace ODEliteTracker.ViewModels
         public ICommand AddNewTickCommand { get; }
         public ICommand DeletedTickCommand { get; }
         public ICommand CreateDiscordPostCommand { get; }
+        public ICommand OpenInaraCommand { get; }
         public bool HideSystemsWithoutBGSData
         {
             get => settings.BGSViewSettings.HideSystemsWithoutData;

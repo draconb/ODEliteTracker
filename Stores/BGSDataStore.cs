@@ -43,7 +43,7 @@ namespace ODEliteTracker.Stores
         private TickData? selectedTick;
         private BGSStarSystem? currentSystem;
         private Station? currentStation;
-
+        private SystemWarManager czManager = new();
         public BGSStarSystem? CurrentSystem => currentSystem;
         public TickData? SelectedTick => selectedTick;
         public List<BGSTickData> TickData => tickContainer.TickData;
@@ -82,6 +82,7 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.Missions, true},
                 { JournalTypeEnum.Docked, true},
                 { JournalTypeEnum.Undocked, true},
+                { JournalTypeEnum.FactionKillBond, true},
                 { JournalTypeEnum.RedeemVoucher, true},
                 { JournalTypeEnum.MarketBuy, true},
                 { JournalTypeEnum.MarketSell, true},
@@ -92,6 +93,11 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.SupercruiseDestinationDrop, true},
                 { JournalTypeEnum.SupercruiseEntry, true},
                 { JournalTypeEnum.DataScanned, true},
+                { JournalTypeEnum.Shutdown, true},
+                { JournalTypeEnum.Music, true},
+                { JournalTypeEnum.Fileheader, true},
+                { JournalTypeEnum.ApproachSettlement, true},
+                { JournalTypeEnum.Died, true},
             };
         }
         public override void ParseJournalEvent(JournalEntry evt)
@@ -101,9 +107,12 @@ namespace ODEliteTracker.Stores
 
             switch (evt.EventData)
             {
+                case FileheaderEvent.FileheaderEventArgs file:
+                    CheckForCZ(file.Timestamp);
+                    break;
                 case LoadGameEvent.LoadGameEventArgs load:
                     odyssey = load.Odyssey;
-
+                    CheckForCZ(load.Timestamp);
                     if (IsLive)
                         UpdatePreviousThursday();
                     break;
@@ -122,20 +131,20 @@ namespace ODEliteTracker.Stores
                         break;
 
                     TryAddSystem(new BGSStarSystem(location), location.Timestamp);
-   
+
                     if (string.IsNullOrEmpty(location.StationName)
                         || location.StationFaction is null
                         || !sharedData.Factions.TryGetValue(location.StationFaction.Name, out var faction))
                     {
                         break;
                     }
-                    
-                    currentStation = new Station(location, faction); 
+
+                    currentStation = new Station(location, faction);
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
                     CurrentSystemAddress = fsdJump.SystemAddress;
                     CurrentSystemName = fsdJump.StarSystem;
-
+                    CheckForCZ(fsdJump.Timestamp);
                     //Ignore systems with less than 2 factions
                     if (fsdJump.Factions is null || fsdJump.Factions.Count < 2)
                         break;
@@ -282,6 +291,9 @@ namespace ODEliteTracker.Stores
                     currentStation = null;
                     UpdateStationIfLive(currentStation);
                     break;
+                case FactionKillBondEvent.FactionKillBondEventArgs factionKillBond:
+                    czManager.OnEarnedBonds(factionKillBond.Reward, factionKillBond.AwardingFaction);
+                    break;
                 case RedeemVoucherEvent.RedeemVoucherEventArgs redeemVoucher:
                     if (currentSystem == null)
                         break;
@@ -312,7 +324,7 @@ namespace ODEliteTracker.Stores
                         VouchersClaimedEvent?.Invoke(this, currentSystem);
                     break;
                 case MarketBuyEvent.MarketBuyEventArgs marketBuy:
-                    if(currentSystem == null || currentStation == null || currentStation.MarketID != marketBuy.MarketID)
+                    if (currentSystem == null || currentStation == null || currentStation.MarketID != marketBuy.MarketID)
                         break;
 
                     currentSystem.Transactions.Add(new(marketBuy, currentStation.StationFaction));
@@ -329,7 +341,7 @@ namespace ODEliteTracker.Stores
                     if (currentSystem == null || commitCrime.CrimeType.Contains("murder") == false)
                         return;
 
-                    if(sharedData.Factions.TryGetValue(commitCrime.Faction, out var value))
+                    if (sharedData.Factions.TryGetValue(commitCrime.Faction, out var value))
                     {
                         var crime = new SystemCrime(commitCrime, value);
 
@@ -343,7 +355,7 @@ namespace ODEliteTracker.Stores
 
                     if (sharedData.Factions.TryGetValue(currentStation.StationFaction.Name, out var fct))
                     {
-                       
+
                         currentSystem.CartoData.Add(new(sellData, fct));
                         UpdateSystemIfLive(currentSystem);
                     }
@@ -371,9 +383,24 @@ namespace ODEliteTracker.Stores
                     break;
                 case SupercruiseDestinationDropEvent.SupercruiseDestinationDropEventArgs scDestDrop:
                     currentSuperCruiseDestination = scDestDrop.Type;
+                    czManager.OnDestinationDrop(scDestDrop.Type);
                     break;
                 case SupercruiseEntryEvent.SupercruiseEntryEventArgs scEntry:
                     currentSuperCruiseDestination = null;
+                    CheckForCZ(scEntry.Timestamp);
+                    break;
+                case MusicEvent.MusicEventArgs music:
+                    if (string.Equals(music.MusicTrack, "MainMenu") == false)
+                    {
+                        break;
+                    }
+                    CheckForCZ(music.Timestamp);
+                    break;
+                case ShutdownEvent.ShutdownEventArgs shutdown:
+                    CheckForCZ(shutdown.Timestamp);
+                    break;
+                case ApproachSettlementEvent.ApproachSettlementEventArgs approachSettlement:
+                    czManager.OnApproachSettlement(approachSettlement.Name);
                     break;
                 case DataScannedEvent.DataScannedEventArgs scannedData:
                     if (currentSystem is null || string.IsNullOrEmpty(currentSuperCruiseDestination))
@@ -381,7 +408,7 @@ namespace ODEliteTracker.Stores
 
                     if (string.Equals(scannedData.Type, "$Datascan_ShipUplink;") && scannedData.Timestamp >= lastThursday)
                     {
-                        var known = megaShipScans.FirstOrDefault(x => string.Equals(x.MegaShipName, currentSuperCruiseDestination) 
+                        var known = megaShipScans.FirstOrDefault(x => string.Equals(x.MegaShipName, currentSuperCruiseDestination)
                                                     && x.SystemAddress == currentSystem.Address);
 
                         if (known != null)
@@ -396,8 +423,24 @@ namespace ODEliteTracker.Stores
                             MegaShipScansUpdated?.Invoke(this, EventArgs.Empty);
                     }
                     break;
+                case DiedEvent.DiedEventArgs died:
+                    czManager.Reset();
+                    break;
 
             }
+        }
+
+        private void CheckForCZ(DateTime timestamp)
+        {
+            if (currentSystem == null)
+                return;
+
+            if (czManager.HasConflict())
+            {
+                currentSystem.AddWar(czManager.GetConflictZone(timestamp));
+                return;
+            }
+            czManager.Reset();
         }
 
         private void UpdatePreviousThursday()
@@ -411,7 +454,7 @@ namespace ODEliteTracker.Stores
 
             var outdatedMegaships = megaShipScans.Where(x => x.ScanDate < lastThursday);
 
-            if(outdatedMegaships.Any() == false)
+            if (outdatedMegaships.Any() == false)
                 return;
 
             foreach (var ms in outdatedMegaships)
@@ -430,7 +473,7 @@ namespace ODEliteTracker.Stores
 
         private void TryAddSystem(BGSStarSystem system, DateTime eventTime)
         {
-            
+
             if (systems.TryGetValue(system.Address, out var bgsSystem))
             {
                 bgsSystem.AddTickData(system, eventTime);
@@ -438,7 +481,7 @@ namespace ODEliteTracker.Stores
                 UpdateSystemIfLive(currentSystem);
                 return;
             }
-           
+
             if (systems.TryAdd(system.Address, system))
             {
                 currentSystem = system;
@@ -492,7 +535,7 @@ namespace ODEliteTracker.Stores
 
         public Tuple<IEnumerable<BGSTickSystem>, IEnumerable<BGSMission>> GetTickInfo(string? id)
         {
-            if(id == null)
+            if (id == null)
                 return Tuple.Create<IEnumerable<BGSTickSystem>, IEnumerable<BGSMission>>([], []);
 
             selectedTick = tickContainer.GetTickFromTo(id);
@@ -511,7 +554,7 @@ namespace ODEliteTracker.Stores
                 }
             }
 
-            return Tuple.Create<IEnumerable<BGSTickSystem>, IEnumerable<BGSMission>>(systems, missions); 
+            return Tuple.Create<IEnumerable<BGSTickSystem>, IEnumerable<BGSMission>>(systems, missions);
         }
 
         internal async Task<BGSTickData> AddTick(DateTime dateTime)

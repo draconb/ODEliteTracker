@@ -106,8 +106,9 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
             }
         }
 
-        public SearchAndRescueVM? SearchAndRescue { get; private set; } 
+        public SearchAndRescueVM? SearchAndRescue { get; private set; }
 
+        public FactionWarVM? Wars { get; set; }
         public bool HasData()
         {
             return infPlus > 0

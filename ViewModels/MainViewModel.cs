@@ -150,6 +150,7 @@ namespace ODEliteTracker.ViewModels
             navigationService.NavigateTo(settings.CurrentViewModel);
             OnPropertyChanged(nameof(CurrentSystemName));
             OnPropertyChanged(nameof(CurrentBody_Station));
+            UiEnabled = true;
         }
 
        

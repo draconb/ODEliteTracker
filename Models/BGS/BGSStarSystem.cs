@@ -32,12 +32,13 @@ namespace ODEliteTracker.Models.BGS
 
         public int VisitCount { get; private set; }
         public List<SystemTickData> TickData { get; }
-        public List<VoucherClaim> VoucherClaims { get; set; } = [];
-        public List<TradeTransaction> Transactions { get; set; } = [];
-        public List<SystemCrime> Crimes { get; set; } = [];
-        public List<ExplorationData> CartoData { get; set; } = [];
-        public List<SearchAndRescue> SearchAndRescueData { get; set; } = [];
-        public List<SystemConflict> Conflicts { get; set; } = [];
+        public List<VoucherClaim> VoucherClaims { get; } = [];
+        public List<TradeTransaction> Transactions { get; } = [];
+        public List<SystemCrime> Crimes { get; } = [];
+        public List<ExplorationData> CartoData { get; } = [];
+        public List<SearchAndRescue> SearchAndRescueData { get; } = [];
+        public List<SystemConflict> Conflicts { get;} = [];
+        public List<SystemWarZone> Wars { get; } = [];
 
         public void AddTickData(BGSStarSystem sys, DateTime eventTime)
         {
@@ -88,6 +89,11 @@ namespace ODEliteTracker.Models.BGS
             }
         }
 
+        public void AddWar(SystemWarZone war)
+        {
+            Wars.Add(war);
+        }
+
         public BGSTickSystem? GetBGSTickSystem(TickData data)
         {
             var tickData = TickData.Where(x => x.VisitedDuringPeriod(data.From, data.To))
@@ -106,16 +112,9 @@ namespace ODEliteTracker.Models.BGS
                 .GroupBy(x => x.Hash)
                 .ToDictionary(x => x.Key, x => x)
                 .Select(x => x.Value.OrderBy(x => x.EventTimes.LatestTime()).Last());
+            var wars = Wars.Where(x => data.TimeWithinTick(x.TimeCompleted));
 
-            return new BGSTickSystem(this,  tickData, claims, transactions, crimes, carto, s_r, conflicts);
-        }
-
-        private IEnumerable<SystemConflict> LatestConflicts(IEnumerable<SystemConflict> conflicts)
-        {
-            var ret = conflicts.GroupBy(x => x.Hash)
-                .ToDictionary(x => x.Key, x => x.ToList())
-                .Select(x => x.Value.Last());
-            return ret;
+            return new BGSTickSystem(this,  tickData, claims, transactions, crimes, carto, s_r, conflicts, wars);
         }
     }
 }

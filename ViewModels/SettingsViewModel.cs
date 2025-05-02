@@ -36,8 +36,8 @@ namespace ODEliteTracker.ViewModels
             ChangeJourneyDirectoryCommand = new ODAsyncRelayCommand(OnChangeJournalDirectory, () => SelectedCommander != null && SelectedCommander?.Id != setting.SelectedCommanderID);
             SaveCommanderChanges = new ODAsyncRelayCommand(OnSaveCommanderChanges, () => SelectedCommander != null);
             ReadNewDirectoryCommand = new ODAsyncRelayCommand(OnReadNewDirectory);
-            DeleteCommander = new ODAsyncRelayCommand(OnDeleteCommander, () => SelectedCommander?.Id != setting.SelectedCommanderID);
-            ResetDataBaseCommand = new ODAsyncRelayCommand(OnResetDataBase);
+            DeleteCommander = new ODAsyncRelayCommand<Window?>(OnDeleteCommander, (_) => SelectedCommander?.Id != setting.SelectedCommanderID);
+            ResetDataBaseCommand = new ODAsyncRelayCommand<Window?>(OnResetDataBase);
 
             _ = LoadCommanders();
             OnModelLive(true);
@@ -137,12 +137,12 @@ namespace ODEliteTracker.ViewModels
                 SelectedCommander.LastFile = string.Empty;
         }
 
-        private async Task OnDeleteCommander()
+        private async Task OnDeleteCommander(Window? window)
         {
             if (SelectedCommander is null)
                 return;
 
-            var result = ODDialogService.ShowWithOwner(null, "Delete CMDR?", $"Delete CMDR {SelectedCommander.Name}?", MessageBoxButton.OKCancel);
+            var result = ODDialogService.ShowWithOwner(window, "Delete CMDR?", $"Delete CMDR {SelectedCommander.Name}?", MessageBoxButton.OKCancel);
 
             if (result == MessageBoxResult.OK)
             {
@@ -177,9 +177,9 @@ namespace ODEliteTracker.ViewModels
             await journalManager.UpdateCommanders();
         }
 
-        private async Task OnResetDataBase()
+        private async Task OnResetDataBase(Window? window)
         {
-            var dialog = ODDialogService.ShowWithOwner(null, "Reset Database?", "This will delete all commanders and their records.\nAre you sure?", MessageBoxButton.YesNo);
+            var dialog = ODDialogService.ShowWithOwner(window, "Reset Database?", "This will delete all commanders and their records.\nAre you sure?", MessageBoxButton.YesNo);
 
             if (dialog == MessageBoxResult.No)
                 return;

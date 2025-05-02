@@ -37,6 +37,7 @@ namespace ODEliteTracker.Themes
                     uri = "pack://application:,,,/ODEliteTracker;component/Themes/DarkTheme.xaml";
                     break;
                 case Theme.Light:
+                    uri = "pack://application:,,,/ODEliteTracker;component/Themes/LightTheme.xaml";
                     break;
                 case Theme.OD:
                 default:

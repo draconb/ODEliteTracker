@@ -6,7 +6,7 @@ namespace ODEliteTracker.Models.BGS
 {
     public sealed class BGSTickSystem
     {
-        public BGSTickSystem(BGSStarSystem starSystem, SystemTickData tickData, IEnumerable<VoucherClaim> claims, IEnumerable<TradeTransaction> transactions, IEnumerable<SystemCrime> crimes, IEnumerable<ExplorationData> carto, IEnumerable<SearchAndRescue> s_r, IEnumerable<SystemConflict> conflicts) 
+        public BGSTickSystem(BGSStarSystem starSystem, SystemTickData tickData, IEnumerable<VoucherClaim> claims, IEnumerable<TradeTransaction> transactions, IEnumerable<SystemCrime> crimes, IEnumerable<ExplorationData> carto, IEnumerable<SearchAndRescue> s_r, IEnumerable<SystemConflict> conflicts, IEnumerable<SystemWarZone> wars) 
         { 
             Name = starSystem.Name;
             Address = starSystem.Address;
@@ -21,6 +21,7 @@ namespace ODEliteTracker.Models.BGS
             Carto = [.. carto];
             SearchAndRescueData = [.. s_r];
             Conflicts = [.. conflicts];
+            Wars = [.. wars];
             Security = starSystem.Security;
         }
 
@@ -38,6 +39,7 @@ namespace ODEliteTracker.Models.BGS
         public List<ExplorationData> Carto { get; }
         public List<SearchAndRescue> SearchAndRescueData { get; }
         public List<SystemConflict> Conflicts { get; }
+        public List<SystemWarZone> Wars { get; }
 
     }
 }

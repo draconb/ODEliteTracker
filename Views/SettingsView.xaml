@@ -10,7 +10,6 @@
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:models="clr-namespace:ODEliteTracker.Models"
              mc:Ignorable="d"
-             FontFamily="Eurostile"
              x:Name="Root"
              Foreground="{DynamicResource PrimaryForeground}"
              FontSize="18"
@@ -174,7 +173,8 @@
                             Grid.Row="0"
                             Grid.Column="2"
                             Style="{DynamicResource EliteStyleButton}"
-                            Command="{Binding DeleteCommander}" />
+                            Command="{Binding DeleteCommander}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
 
                     <Button Content="Change Logs Folder"
                             HorizontalAlignment="Center"
@@ -300,6 +300,7 @@
                 <Button Content="Reset DataBase"
                         Style="{DynamicResource EliteStyleButton}"
                         Command="{Binding ResetDataBaseCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Grid.RowSpan="2"

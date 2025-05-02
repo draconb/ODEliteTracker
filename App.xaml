@@ -6,6 +6,7 @@
              xmlns:views="clr-namespace:ODEliteTracker.Views"
              xmlns:themes="clr-namespace:ODEliteTracker.Themes"
              xmlns:converters="clr-namespace:ODMVVM.WpfConverters;assembly=ODMVVM"
+             xmlns:wpfconverters="clr-namespace:ODEliteTracker.WPFConverters"
              DispatcherUnhandledException="OnDispatcherUnhandledException"
              Exit="OnExit"
              Startup="OnStartup">
@@ -35,6 +36,7 @@
             
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
             <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
+            <wpfconverters:NullToVisibilityConverter x:Key="NullToVis" />
             
             <FontFamily x:Key="Eurostile">pack://application:,,,/Assets/Fonts/#Eurostile</FontFamily>
             

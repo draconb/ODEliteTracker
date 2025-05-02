@@ -1,21 +1,23 @@
 ﻿using ODEliteTracker.Database;
 using ODJournalDatabase.JournalManagement;
+using ODMVVM.Commands;
 using ODMVVM.ViewModels;
+using System.Windows.Input;
 
 namespace ODEliteTracker.ViewModels
 {
     public sealed class LoadingViewModel : ODViewModel
     {
-        public LoadingViewModel(ODEliteTrackerDbContextFactory contextFactory,
-                                         JournalEventParser eventParser)
+        public LoadingViewModel(JournalEventParser eventParser)
         {
-            this.contextFactory = contextFactory;
             this.eventParser = eventParser;
 
             this.eventParser.OnReadingNewFile += EventParser_OnReadingNewFile;
+
+            OpenUrlCommand = new ODRelayCommand<string>(OpenUrl);
         }
+
         public override bool IsLive => false;
-        private readonly ODEliteTrackerDbContextFactory contextFactory;
         private readonly JournalEventParser eventParser;
 
         private string statusText = "Reading History";
@@ -27,6 +29,14 @@ namespace ODEliteTracker.ViewModels
                 statusText = value;
                 OnPropertyChanged(nameof(StatusText));
             }
+        }
+        public ICommand OpenUrlCommand { get; }
+
+        private void OpenUrl(string? url)
+        {
+            if (string.IsNullOrEmpty(url))
+                return;
+            ODMVVM.Helpers.OperatingSystem.OpenUrl(url);
         }
 
         private void EventParser_OnReadingNewFile(object? sender, string e)

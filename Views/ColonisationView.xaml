@@ -16,9 +16,6 @@
              d:DesignHeight="450"
              d:DesignWidth="800">
     <UserControl.Resources>
-
-        <wpfconverters:NullToVisibilityConverter x:Key="NullToVis" />
-
         <ObjectDataProvider x:Key="CommodityEnum"
                             MethodName="GetValues"
                             ObjectType="{x:Type System:Enum}">
@@ -29,8 +26,7 @@
     </UserControl.Resources>
     <busyIndicator:BusyMask x:Name="BusyIndicator"
                             IsBusy="{Binding IsBusy}"
-                            Background="{DynamicResource IndicatorBackground}"
-                            FontFamily="EuroStile"
+                            Background="{DynamicResource IndicatorBackground}"                           
                             FontSize="30"
                             BusyContent="Parsing Colonisation Logs"
                             IndicatorType="Cupertino"
@@ -419,6 +415,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
@@ -426,15 +423,23 @@
                                     <RowDefinition />
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
+
+                                <TextBlock Text="Station Market"
+                                           FontSize="20"
+                                           Grid.Row="0"
+                                           Foreground="{DynamicResource Header}"
+                                           Grid.ColumnSpan="2" />
+                                
                                 <TextBlock Text="{Binding CurrentMarket.StationName}"
                                            FontSize="30"
+                                           Grid.Row="1"
                                            Foreground="{DynamicResource Header}"
                                            Grid.ColumnSpan="2" />
 
                                 <TextBlock Text="{Binding CurrentMarket.StarSystem}"
                                            Grid.ColumnSpan="2"
                                            FontSize="20"
-                                           Grid.Row="1" />
+                                           Grid.Row="2" />
                             </Grid>
                             <DataGrid ItemsSource="{Binding CurrentMarketItems}"
                                       Visibility="{Binding CurrentMarket, Converter={StaticResource NullToVis}, ConverterParameter=Hidden}"

@@ -18,7 +18,6 @@
     <busyIndicator:BusyMask x:Name="BusyIndicator"
                             IsBusy="{Binding IsBusy}"
                             Background="{DynamicResource IndicatorBackground}"
-                            FontFamily="EuroStile"
                             FontSize="30"
                             BusyContent="Parsing BGS Data Logs"
                             IndicatorType="Cupertino"
@@ -77,10 +76,11 @@
                         <Button Content="Add"
                                 Style="{DynamicResource EliteStyleButton}"
                                 Command="{Binding AddNewTickCommand}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
                                 Margin="10"
                                 Width="35"
                                 Grid.Column="1"
-                                Grid.Row="1"/>
+                                Grid.Row="1" />
 
 
                         <Button Content="Del"
@@ -189,7 +189,7 @@
                             <Button.Resources>
                                 <Style TargetType="Border">
                                     <Setter Property="CornerRadius"
-                                            Value="5" />                        
+                                            Value="5" />
                                 </Style>
                                 <Style TargetType="{x:Type Button}">
                                     <Style.Triggers>
@@ -216,10 +216,7 @@
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
-                                       
-                            </Button.Resources>                      
-                                <!--<TextBlock VerticalAlignment="Center"
-                                           Text="{Binding DiscordButtonText}" />-->
+                            </Button.Resources>
                         </Button>
                     </Grid>
                 </Border>
@@ -237,7 +234,7 @@
                             Background="{DynamicResource CardBackground}">
                     <TabItem Header="System Information">
 
-                        <Grid DataContext="{Binding SelectedSystem}">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
@@ -253,17 +250,32 @@
                                 <RowDefinition Height="40" />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding Name}"
-                                       FontSize="35"
-                                       Margin="0,5"
-                                       Grid.ColumnSpan="2"
-                                       Foreground="{StaticResource Header}" />
-
+                            <StackPanel Margin="0,5"
+                                        Grid.ColumnSpan="3"
+                                        Orientation="Horizontal">
+                                <TextBlock Text="{Binding SelectedSystem.NonUpperName}"
+                                           FontSize="35"
+                                           Foreground="{StaticResource Header}" />
+                                <Button Command="{Binding OpenInaraCommand}"
+                                        Height="30"
+                                        Margin="10,0"
+                                        Cursor="Hand"
+                                        Visibility="{Binding SelectedSystem, Converter={StaticResource NullToVis}, ConverterParameter=Hidden}"
+                                        Grid.Column="1">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="{x:Type Button}">
+                                            <Image Stretch="Uniform"
+                                                   SnapsToDevicePixels="True"
+                                                   Source="/Assets/Icons/inaramenulogo.png" />
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
                             <TextBlock Text="Controlling Faction"
                                        Grid.Row="1"
                                        Grid.Column="0"
                                        Margin="5" />
-                            <TextBlock Text="{Binding ControllingFaction}"
+                            <TextBlock Text="{Binding SelectedSystem.ControllingFaction}"
                                        Grid.Row="1"
                                        Grid.Column="1"
                                        Margin="5" />
@@ -272,7 +284,7 @@
                                        Grid.Row="2"
                                        Grid.Column="0"
                                        Margin="5" />
-                            <TextBlock Text="{Binding ControllingFactionState}"
+                            <TextBlock Text="{Binding SelectedSystem.ControllingFactionState}"
                                        Grid.Row="2"
                                        Grid.Column="1"
                                        Margin="5" />
@@ -281,7 +293,7 @@
                                        Grid.Row="3"
                                        Grid.Column="0"
                                        Margin="5" />
-                            <TextBlock Text="{Binding Population}"
+                            <TextBlock Text="{Binding SelectedSystem.Population}"
                                        Grid.Row="3"
                                        Grid.Column="1"
                                        Margin="5" />
@@ -290,7 +302,7 @@
                                        Grid.Row="4"
                                        Grid.Column="0"
                                        Margin="5" />
-                            <TextBlock Text="{Binding SystemAllegiance}"
+                            <TextBlock Text="{Binding SelectedSystem.SystemAllegiance}"
                                        Grid.Row="4"
                                        Grid.Column="1"
                                        Margin="5" />
@@ -299,12 +311,12 @@
                                        Grid.Row="5"
                                        Grid.Column="0"
                                        Margin="5" />
-                            <TextBlock Text="{Binding Security}"
+                            <TextBlock Text="{Binding SelectedSystem.Security}"
                                        Grid.Row="5"
                                        Grid.Column="1"
                                        Margin="5" />
 
-                            <Image Source="{Binding SystemAllegiance, Converter={StaticResource AllegianceToImage}}"
+                            <Image Source="{Binding SelectedSystem.SystemAllegiance, Converter={StaticResource AllegianceToImage}}"
                                    HorizontalAlignment="Right"
                                    Margin="10"
                                    Width="100"
@@ -317,7 +329,7 @@
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource Header}"
                                        FontSize="18" />
-                            <ListBox ItemsSource="{Binding Conflicts}"
+                            <ListBox ItemsSource="{Binding SelectedSystem.Conflicts}"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Stretch"
                                      BorderThickness="0"
@@ -639,6 +651,12 @@
                                                 HeaderStyle="{StaticResource DataGridHeaderCenter}"
                                                 ElementStyle="{StaticResource DataGridElementCenter}"
                                                 Binding="{Binding Murders}" />
+                            <DataGridTextColumn Header="Conflicts"
+                                                MinWidth="90"
+                                                Width="Auto"
+                                                HeaderStyle="{StaticResource DataGridHeaderCenter}"
+                                                ElementStyle="{StaticResource DataGridElementCenter}"
+                                                Binding="{Binding Wars}" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Border>

@@ -30,7 +30,6 @@
     <busyIndicator:BusyMask x:Name="BusyIndicator"
                             IsBusy="{Binding IsBusy}"
                             Background="{DynamicResource IndicatorBackground}"
-                            FontFamily="EuroStile"
                             FontSize="30"
                             BusyContent="Parsing Trade Mission Logs"
                             IndicatorType="Cupertino"
