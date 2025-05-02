@@ -18,6 +18,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.PowerPlay
             }
         }
         public long Address => system.Address;
+        public string NonUpperName => system.Name;
         public string Name => system.Name.ToUpper();
         public string Power => system.ControllingPower ?? string.Empty;
         public Dictionary<DateTime, PowerPlayCycleDataVM> Data { get; set; } = [];
@@ -38,6 +39,15 @@ namespace ODEliteTracker.ViewModels.ModelViews.PowerPlay
                 isSelected = value;
                 OnPropertyChanged(nameof(IsSelected));
             }
+        }
+
+        public bool MeritsEarned(DateTime cycle)
+        {
+            if (Data.TryGetValue(cycle, out var data))
+            {
+                return data.MeritsEarnedValue > 0;
+            }
+            return false;
         }
     }
 }

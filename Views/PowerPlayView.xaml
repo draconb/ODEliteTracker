@@ -126,151 +126,221 @@
                 </Grid>
             </Border>
 
-            <TabControl BorderThickness="0"
-                        FontSize="18"
-                        Grid.Row="1"
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TabControl BorderThickness="0"
+                            FontSize="18"
+                            Margin="5"
+                            Width="400"
+                            SelectedIndex="{Binding TabIndex, Mode=TwoWay}"
+                            Background="{DynamicResource CardBackground}">
+                    <TabItem Header="This Cycle">
+                        <ListBox ItemsSource="{Binding ThisCycleSystems}"
+                                 x:Name="ThisCycleList"
+                                 SelectedItem="{Binding SelectedSystem, Mode=OneWay}"
+                                 ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                 HorizontalAlignment="Stretch"
+                                 HorizontalContentAlignment="Stretch"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="{DynamicResource PrimaryForeground}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Rectangle x:Name="Highlighter"
+                                                   Margin="0,2"
+                                                   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                                   Fill="{DynamicResource NavBtnForeground}" />
+
+                                        <Button FontSize="20"
+                                                Margin="5,0"
+                                                Tag="1"
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
+                                                CommandParameter="{Binding }"
+                                                Style="{DynamicResource EliteStyleButton}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="40" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Text="{Binding Name}"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center"
+                                                           TextWrapping="NoWrap"
+                                                           Grid.RowSpan="2"
+                                                           FontWeight="SemiBold"
+                                                           Margin="5,3" />
+                                                <Rectangle Style="{DynamicResource PowerPlayIcon}"
+                                                           Grid.Column="1">
+                                                    <Rectangle.OpacityMask>
+                                                        <VisualBrush Stretch="Uniform">
+                                                            <VisualBrush.Visual>
+                                                                <Viewbox Stretch="Uniform">
+                                                                    <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}" />
+                                                                </Viewbox>
+                                                            </VisualBrush.Visual>
+                                                        </VisualBrush>
+                                                    </Rectangle.OpacityMask>
+                                                </Rectangle>
+                                            </Grid>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </TabItem>
+
+                    <TabItem Header="Last Cycle">
+                        <ListBox ItemsSource="{Binding LastCycleSystems}"
+                                 x:Name="PreviousCycleList"
+                                 ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                 SelectedItem="{Binding SelectedSystem, Mode=OneWay}"
+                                 HorizontalAlignment="Stretch"
+                                 HorizontalContentAlignment="Stretch"
+                                 Background="Transparent"
+                                 Grid.Row="1"
+                                 BorderThickness="0"
+                                 Foreground="{DynamicResource PrimaryForeground}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Rectangle x:Name="Highlighter"
+                                                   Margin="0,2"
+                                                   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}"
+                                                   Fill="{DynamicResource NavBtnForeground}" />
+
+                                        <Button FontSize="20"
+                                                Margin="5,0"
+                                                Tag="1"
+                                                Grid.Column="1"
+                                                Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
+                                                CommandParameter="{Binding }"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Style="{DynamicResource EliteStyleButton}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="40" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center"
+                                                           TextWrapping="NoWrap"
+                                                           Grid.RowSpan="2"
+                                                           FontWeight="SemiBold"
+                                                           Margin="5,3" />
+                                                <Rectangle Style="{DynamicResource PowerPlayIcon}"
+                                                           Grid.Column="2">
+                                                    <Rectangle.OpacityMask>
+                                                        <VisualBrush Stretch="Uniform">
+                                                            <VisualBrush.Visual>
+                                                                <Viewbox Stretch="Uniform">
+                                                                    <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}" />
+                                                                </Viewbox>
+                                                            </VisualBrush.Visual>
+                                                        </VisualBrush>
+                                                    </Rectangle.OpacityMask>
+                                                </Rectangle>
+                                            </Grid>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </TabItem>
+                </TabControl>
+
+                <Border Background="{DynamicResource CardBackground}"
+                        CornerRadius="5"
+                        Grid.Row="2"
                         Margin="5"
-                        Width="400"
-                        SelectedIndex="{Binding TabIndex, Mode=TwoWay}"
-                        Background="{DynamicResource CardBackground}">
-                <TabItem Header="This Cycle">
-                    <ListBox ItemsSource="{Binding ThisCycleSystems}"
-                             x:Name="ThisCycleList"
-                             SelectedItem="{Binding SelectedSystem, Mode=OneWay}"
-                             ScrollViewer.VerticalScrollBarVisibility="Visible"
-                             ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                             HorizontalAlignment="Stretch"
-                             HorizontalContentAlignment="Stretch"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             Foreground="{DynamicResource PrimaryForeground}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="5" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
+                        Padding="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0"
+                                  Content="Hide Systems Without Merits"
+                                  HorizontalAlignment="Left"
+                                  Margin="10"
+                                  FontSize="16"
+                                  Style="{StaticResource EliteStyleCheckBox}"
+                                  IsChecked="{Binding HideSystemsWithoutMerits, Mode=TwoWay}" />
 
-                                    <Rectangle x:Name="Highlighter"
-                                               Margin="0,2"
-                                               Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                               Fill="{DynamicResource NavBtnForeground}" />
-
-                                    <Button FontSize="20"
-                                            Margin="5,0"
-                                            Tag="1"
-                                            Grid.Column="1"
-                                            HorizontalAlignment="Stretch"
-                                            HorizontalContentAlignment="Stretch"
-                                            Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
-                                            CommandParameter="{Binding }"
-                                            Style="{DynamicResource EliteStyleButton}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="40" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <TextBlock Text="{Binding Name}"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center"
-                                                       TextWrapping="NoWrap"
-                                                       Grid.RowSpan="2"
-                                                       FontWeight="SemiBold"
-                                                       Margin="5,3" />
-                                            <Rectangle Style="{DynamicResource PowerPlayIcon}"
-                                                       Grid.Column="1">
-                                                <Rectangle.OpacityMask>
-                                                    <VisualBrush Stretch="Uniform">
-                                                        <VisualBrush.Visual>
-                                                            <Viewbox Stretch="Uniform">
-                                                                <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}"/>
-                                                            </Viewbox>
-                                                        </VisualBrush.Visual>
-                                                    </VisualBrush>
-                                                </Rectangle.OpacityMask>
-                                            </Rectangle>
-                                        </Grid>
-                                    </Button>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </TabItem>
-
-                <TabItem Header="Last Cycle">
-                    <ListBox ItemsSource="{Binding LastCycleSystems}"
-                             x:Name="PreviousCycleList"
-                             ScrollViewer.VerticalScrollBarVisibility="Visible"
-                             ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                             SelectedItem="{Binding SelectedSystem, Mode=OneWay}"
-                             HorizontalAlignment="Stretch"
-                             HorizontalContentAlignment="Stretch"
-                             Background="Transparent"
-                             Grid.Row="1"
-                             BorderThickness="0"
-                             Foreground="{DynamicResource PrimaryForeground}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="5" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-
-                                    <Rectangle x:Name="Highlighter"
-                                               Margin="0,2"
-                                               Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}"
-                                               Fill="{DynamicResource NavBtnForeground}" />
-
-                                    <Button FontSize="20"
-                                            Margin="5,0"
-                                            Tag="1"
-                                            Grid.Column="1"
-                                            Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
-                                            CommandParameter="{Binding }"
-                                            HorizontalAlignment="Stretch"
-                                            HorizontalContentAlignment="Stretch"
-                                            Style="{DynamicResource EliteStyleButton}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="40" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Name}"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center"
-                                                       TextWrapping="NoWrap"
-                                                       Grid.RowSpan="2"
-                                                       FontWeight="SemiBold"
-                                                       Margin="5,3" />
-                                            <Rectangle Style="{DynamicResource PowerPlayIcon}"
-                                                       Grid.Column="2">
-                                                <Rectangle.OpacityMask>
-                                                    <VisualBrush Stretch="Uniform">
-                                                        <VisualBrush.Visual>
-                                                            <Viewbox Stretch="Uniform">
-                                                                <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}" />
-                                                            </Viewbox>
-                                                        </VisualBrush.Visual>
-                                                    </VisualBrush>
-                                                </Rectangle.OpacityMask>
-                                            </Rectangle>
-                                        </Grid>
-                                    </Button>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </TabItem>
-            </TabControl>
-
+                        <Button BorderThickness="2"
+                                Height="30"
+                                Margin="5,0"
+                                Grid.Column="1"
+                                Width="120"
+                                FontSize="12"
+                                Command="{Binding CreateDiscordPostCommand}"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Content="{Binding DiscordButtonText}"
+                                FontFamily="Unispace"
+                                BorderBrush="#FF707BF3">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius"
+                                            Value="5" />
+                                </Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver"
+                                                 Value="False">
+                                            <Setter Property="Foreground"
+                                                    Value="White" />
+                                            <Setter Property="Background"
+                                                    Value="#FF5865F2" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver"
+                                                 Value="True">
+                                            <Setter Property="Background"
+                                                    Value="White" />
+                                            <Setter Property="Foreground"
+                                                    Value="#FF5865F2" />
+                                        </Trigger>
+                                        <Trigger Property="IsPressed"
+                                                 Value="True">
+                                            <Setter Property="Background"
+                                                    Value="White" />
+                                            <Setter Property="Foreground"
+                                                    Value="#FF5865F2" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                </Border>
+            </Grid>
             <Grid Grid.Column="1"
                   Grid.RowSpan="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <Border Background="{DynamicResource CardBackground}"
@@ -306,11 +376,27 @@
                                 <RowDefinition />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <TextBlock Text="{Binding SelectedSystem.Name}"
-                                       FontSize="35"
-                                       Margin="0,5"
-                                       Grid.ColumnSpan="2"
-                                       Foreground="{StaticResource Header}" />
+                            <StackPanel Margin="0,5"
+                                        Grid.ColumnSpan="3"
+                                        Orientation="Horizontal">
+                                <TextBlock Text="{Binding SelectedSystem.NonUpperName}"
+                                           FontSize="35"
+                                           Foreground="{StaticResource Header}" />
+                                <Button Command="{Binding OpenInaraCommand}"
+                                        Height="30"
+                                        Margin="10,0"
+                                        Cursor="Hand"
+                                        Visibility="{Binding SelectedSystem, Converter={StaticResource NullToVis}, ConverterParameter=Hidden}"
+                                        Grid.Column="1">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="{x:Type Button}">
+                                            <Image Stretch="Uniform"
+                                                   SnapsToDevicePixels="True"
+                                                   Source="/Assets/Icons/inaramenulogo.png" />
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
 
                             <TextBlock Text="Controlling Power"
                                        Grid.Row="1"
@@ -393,74 +479,140 @@
                              Style="{DynamicResource PowerStateContent}" />
                 </Border>
 
-                <Border Background="{DynamicResource CardBackground}"
-                        CornerRadius="5"
-                        Grid.Row="2"
-                        HorizontalAlignment="Stretch"
-                        Margin="5"
-                        Padding="5">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Border Background="{DynamicResource CardBackground}"
+                            CornerRadius="5"
+                            Grid.Row="2"
+                            HorizontalAlignment="Stretch"
+                            Margin="5"
+                            Padding="5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Merits Breakdown"
+                                       Foreground="{DynamicResource Header}"
+                                       FontSize="24"
+                                       Margin="5,5" />
+                            <DataGrid ItemsSource="{Binding SelectedSystemData.Merits}"
+                                      Style="{DynamicResource BaseDataGridStyle}"
+                                      RowStyle="{DynamicResource ConstructionResourcesStyle}"
+                                      HeadersVisibility="Column"
+                                      Margin="5"
+                                      Grid.Column="0"
+                                      Grid.Row="1">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Activity"
+                                                        Width="*"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                        ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                        Binding="{Binding Activity}" />
+                                    <DataGridTextColumn Header="Count"
+                                                        MinWidth="100"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                        ElementStyle="{DynamicResource DataGridElementCenter}"
+                                                        Binding="{Binding Count}" />
+                                    <DataGridTextColumn Header="Merits"
+                                                        MinWidth="100"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                        ElementStyle="{DynamicResource DataGridElementCenter}"
+                                                        Binding="{Binding Merits}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
                             <RowDefinition />
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Items Collected"
-                                   Foreground="{DynamicResource Header}"
-                                   FontSize="24"
-                                   Margin="5,5"/>
-                        <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsCollected}"
-                                  Style="{DynamicResource BaseDataGridStyle}"
-                                  RowStyle="{DynamicResource ConstructionResourcesStyle}"
-                                  HeadersVisibility="Column"
-                                  Margin="5"
-                                  Grid.Column="0"
-                                  Grid.Row="1" >
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Item"
-                                                    Width="*"
-                                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
-                                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
-                                                    Binding="{Binding Name}" />
-                                <DataGridTextColumn Header="Count"
-                                                    MinWidth="100"
-                                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
-                                                    ElementStyle="{DynamicResource DataGridElementCenter}"
-                                                    Binding="{Binding Count}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <Border Background="{DynamicResource CardBackground}"
+                                CornerRadius="5"
+                                Grid.Row="0"
+                                HorizontalAlignment="Stretch"
+                                Margin="5"
+                                Padding="5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Items Collected"
+                                           Foreground="{DynamicResource Header}"
+                                           FontSize="24"
+                                           Margin="5,5"
+                                           Grid.Column="1" />
+                                <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsCollected}"
+                                          Style="{DynamicResource BaseDataGridStyle}"
+                                          RowStyle="{DynamicResource ConstructionResourcesStyle}"
+                                          HeadersVisibility="Column"
+                                          Margin="5"
+                                          Grid.Column="1"
+                                          Grid.Row="1">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Item"
+                                                            Width="*"
+                                                            HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                            ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                            Binding="{Binding Name}" />
+                                        <DataGridTextColumn Header="Count"
+                                                            MinWidth="100"
+                                                            HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                            ElementStyle="{DynamicResource DataGridElementCenter}"
+                                                            Binding="{Binding Count}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
 
-                        <TextBlock Text="Items Delivered"
-                                   Foreground="{DynamicResource Header}"
-                                   FontSize="24"
-                                   Margin="5,5"
-                                   Grid.Column="1"/>
-                        <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsDelivered}"
-                                  Style="{DynamicResource BaseDataGridStyle}"
-                                  RowStyle="{DynamicResource ConstructionResourcesStyle}"
-                                  HeadersVisibility="Column"
-                                  Margin="5"
-                                  Grid.Column="1"
-                                  Grid.Row="1">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Item"
-                                                    Width="*"
-                                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
-                                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
-                                                    Binding="{Binding Name}" />
-                                <DataGridTextColumn Header="Count"
-                                                    MinWidth="100"
-                                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
-                                                    ElementStyle="{DynamicResource DataGridElementCenter}"
-                                                    Binding="{Binding Count}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <Border Background="{DynamicResource CardBackground}"
+                                CornerRadius="5"
+                                Grid.Row="1"
+                                HorizontalAlignment="Stretch"
+                                Margin="5"
+                                Padding="5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Items Delivered"
+                                           Foreground="{DynamicResource Header}"
+                                           FontSize="24"
+                                           Margin="5,5"
+                                           Grid.Column="1" />
+                                <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsDelivered}"
+                                          Style="{DynamicResource BaseDataGridStyle}"
+                                          RowStyle="{DynamicResource ConstructionResourcesStyle}"
+                                          HeadersVisibility="Column"
+                                          Margin="5"
+                                          Grid.Column="1"
+                                          Grid.Row="1">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Item"
+                                                            Width="*"
+                                                            HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                            ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                            Binding="{Binding Name}" />
+                                        <DataGridTextColumn Header="Count"
+                                                            MinWidth="100"
+                                                            HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                            ElementStyle="{DynamicResource DataGridElementCenter}"
+                                                            Binding="{Binding Count}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
                     </Grid>
-                </Border>
+                </Grid>
             </Grid>
         </Grid>
     </busyIndicator:BusyMask>

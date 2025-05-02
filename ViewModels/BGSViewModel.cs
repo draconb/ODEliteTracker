@@ -205,6 +205,7 @@ namespace ODEliteTracker.ViewModels
                 OnPropertyChanged(nameof(DiscordButtonText));
             }
         }
+
         private void OnStoreLive(object? sender, bool e)
         {
             if (e)

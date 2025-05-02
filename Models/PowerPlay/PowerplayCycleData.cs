@@ -5,7 +5,8 @@ namespace ODEliteTracker.Models.PowerPlay
 {
     public sealed class PowerplayCycleData
     {
-        public int MeritsEarned { get; set; }
+        public List<PowerPlayMerit> MeritList { get; set; } = [];
+        public int MeritsEarned => MeritList.Sum(x => x.Value);
         public Dictionary<string, int> GoodsCollected { get; set; } = [];
         public Dictionary<string, int> GoodsDelivered { get; set; } = [];
         public string? ControllingPower { get; set; }

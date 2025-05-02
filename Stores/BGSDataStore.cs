@@ -97,7 +97,6 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.Music, true},
                 { JournalTypeEnum.Fileheader, true},
                 { JournalTypeEnum.ApproachSettlement, true},
-                { JournalTypeEnum.Died, true},
             };
         }
         public override void ParseJournalEvent(JournalEntry evt)

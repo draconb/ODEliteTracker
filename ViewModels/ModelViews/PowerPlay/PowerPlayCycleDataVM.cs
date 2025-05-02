@@ -1,4 +1,5 @@
 ﻿using EliteJournalReader;
+using Microsoft.VisualBasic;
 using ODEliteTracker.Models.PowerPlay;
 using ODMVVM.Helpers;
 using ODMVVM.ViewModels;
@@ -45,8 +46,25 @@ namespace ODEliteTracker.ViewModels.ModelViews.PowerPlay
                 PowerPlayConflictData.LosingPowers = [.. ordered.Select(x => new PowerPlayConflictVM(x))];
                 PowerPlayConflictData.ConflictState = "Contested";
             }
+
+            if (data.MeritList.Count > 0)
+            {
+                var dict = data.MeritList.GroupBy(x => x.Activity).ToDictionary(x => x.Key, x => x.ToList());
+
+                foreach (var kvp in dict)
+                {
+                    var merits = kvp.Value.Sum(x => x.Value);
+                    var count = kvp.Value.Count;
+
+                    Merits.Add(new PPMeritsVM(kvp.Key, merits, count));
+                }
+
+                Merits.Sort((x, y) => x.Activity.CompareTo(y.Activity));
+            }
         }
 
+        public List<PPMeritsVM> Merits { get; } = [];
+        public int MeritsEarnedValue => data.MeritsEarned;
         public string MeritsEarned => $"{data.MeritsEarned:N0}";
         public string ControllingPower => data.ControllingPower ?? "";
         public PowerplayState PowerState => data.PowerState;

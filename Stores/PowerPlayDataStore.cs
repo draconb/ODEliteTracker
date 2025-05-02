@@ -23,13 +23,14 @@ namespace ODEliteTracker.Stores
         private DateTime previousCycle;
         private DateTime currentCycle;
         private DateTime nextCycle;
+        private string currentActivity = "Unknown";
 
-        private long CurrentSystemAddress;
+        private long currentSystemAddress;
         private bool odyssey;
-
+        private int storedMerits;
         private Dictionary<long, PowerPlaySystem> systems = [];
         public override string StoreName => "PowerPlay";
-
+        public PowerPlaySystem? CurrentSystem => systems.Values.FirstOrDefault(x => x.Address == currentSystemAddress);
         public override Dictionary<JournalTypeEnum, bool> EventsToParse
         {
             get => new()
@@ -43,6 +44,17 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.PowerplayCollect,true },
                 { JournalTypeEnum.PowerplayDeliver,true },
                 { JournalTypeEnum.PowerplayRank,true },
+                { JournalTypeEnum.ShipTargeted,true },
+                { JournalTypeEnum.Bounty, true },
+                { JournalTypeEnum.MissionCompleted,true },
+                { JournalTypeEnum.DatalinkScan,true },
+                { JournalTypeEnum.SearchAndRescue, true },
+                { JournalTypeEnum.MarketSell, true },
+                { JournalTypeEnum.SellExplorationData, true },
+                { JournalTypeEnum.MultiSellExplorationData, true },
+                { JournalTypeEnum.SellOrganicData, true },
+                { JournalTypeEnum.HoloscreenHacked, true },
+                { JournalTypeEnum.Died, true },
             };
         }
         public DateTime PreviousCycle => previousCycle;
@@ -56,10 +68,10 @@ namespace ODEliteTracker.Stores
         public PledgeData? PledgeData
         {
             get { return pledgeData; }
-            set 
-            { 
-                pledgeData = value; 
-                if(IsLive)
+            set
+            {
+                pledgeData = value;
+                if (IsLive)
                     PledgeDataUpdated?.Invoke(this, pledgeData);
             }
         }
@@ -68,6 +80,7 @@ namespace ODEliteTracker.Stores
         public EventHandler<PowerPlaySystem>? SystemUpdated;
         public EventHandler<PowerPlaySystem>? SystemAdded;
         public EventHandler<PowerPlaySystem>? SystemCycleUpdated;
+        public EventHandler<int>? MeritsEarned;
         public EventHandler? CyclesUpdated;
         public override DateTime GetJournalAge(DateTime defaultAge)
         {
@@ -86,6 +99,7 @@ namespace ODEliteTracker.Stores
             {
                 case LoadGameEvent.LoadGameEventArgs load:
                     odyssey = load.Odyssey;
+                    currentActivity = "Unknown";
                     if (IsLive)
                     {
                         var currentCycle = EliteHelpers.PreviousThursday();
@@ -114,6 +128,7 @@ namespace ODEliteTracker.Stores
                     }
                     break;
                 case LocationEvent.LocationEventArgs location:
+                    currentActivity = "Unknown";
                     if (location.Powers is null || location.Powers.Count == 0)
                     {
                         break;
@@ -122,6 +137,7 @@ namespace ODEliteTracker.Stores
                     Add_UpdateSystem(system, cycle);
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
+                    currentActivity = "Unknown";
                     if (fsdJump.Powers is null || fsdJump.Powers.Count == 0)
                     {
                         break;
@@ -130,6 +146,7 @@ namespace ODEliteTracker.Stores
                     Add_UpdateSystem(ppSystem, cycle);
                     break;
                 case CarrierJumpEvent.CarrierJumpEventArgs cJump:
+                    currentActivity = "Unknown";
                     if (cJump.Powers is null || cJump.Powers.Count == 0)
                     {
                         break;
@@ -148,36 +165,35 @@ namespace ODEliteTracker.Stores
                         PledgeDataUpdated?.Invoke(this, PledgeData);
                     break;
                 case PowerplayMeritsEvent.PowerplayMeritsEventArgs merits:
-                    if(systems.TryGetValue(CurrentSystemAddress, out system))
+                    if (systems.TryGetValue(currentSystemAddress, out var powerplaySystem))
                     {
                         UpdatePledgeData(merits);
 
-                        if (system.CycleData.TryGetValue(cycle, out var ppData))
+                        if (powerplaySystem.CycleData.TryGetValue(cycle, out var ppData))
                         {
-                            ppData.MeritsEarned += merits.MeritsGained;                            
-                            UpdateSystemIfLive(system);
+                            AddMerits(ppData, merits.MeritsGained);
+                            UpdateSystemIfLive(powerplaySystem);
                             break;
                         }
 
-                        var data = new PowerplayCycleData()
-                        {
-                            MeritsEarned = merits.MeritsGained
-                        };
+                        var data = new PowerplayCycleData();
 
-                        if(system.CycleData.TryAdd(cycle, data))
+                        AddMerits(data, merits.MeritsGained);
+
+                        if (powerplaySystem.CycleData.TryAdd(cycle, data))
                         {
-                            UpdateSystemIfLive(system);
+                            UpdateSystemIfLive(powerplaySystem);
                         }
                     }
                     break;
                 case PowerplayCollectEvent.PowerplayCollectEventArgs powerplayCollect:
-                    if (systems.TryGetValue(CurrentSystemAddress, out system))
+                    if (systems.TryGetValue(currentSystemAddress, out system))
                     {
                         var itemName = powerplayCollect.GetTypeCollected();
 
                         if (system.CycleData.TryGetValue(cycle, out var ppData))
                         {
-                            if(ppData.GoodsCollected.ContainsKey(itemName))
+                            if (ppData.GoodsCollected.ContainsKey(itemName))
                             {
                                 ppData.GoodsCollected[itemName] += powerplayCollect.Count;
                                 UpdateSystemIfLive(system);
@@ -189,12 +205,13 @@ namespace ODEliteTracker.Stores
                                 UpdateSystemIfLive(system);
                             }
                             break;
-                        } 
+                        }
                     }
                     break;
                 case PowerplayDeliverEvent.PowerplayDeliverEventArgs powerplayDeliver:
-                    if (systems.TryGetValue(CurrentSystemAddress, out system))
+                    if (systems.TryGetValue(currentSystemAddress, out system))
                     {
+                        SetActivity(cycle, "Powerplay Deliveries");
                         var itemName = powerplayDeliver.GetTypeCollected();
 
                         if (system.CycleData.TryGetValue(cycle, out var ppData))
@@ -213,6 +230,48 @@ namespace ODEliteTracker.Stores
                             break;
                         }
                     }
+                    break;
+                case ShipTargetedEvent.ShipTargetedEventArgs shipTargeted:
+                    if (shipTargeted.ScanStage > 2)
+                        SetActivity(cycle, "Ship Scans");
+                    break;
+                case BountyEvent.BountyEventArgs:
+                    SetActivity(cycle, "Bounties");
+                    break;
+                case MissionCompletedEvent.MissionCompletedEventArgs missionCompleted:
+                    if (missionCompleted.Name.Contains("Mission_Altruism"))
+                        SetActivity(cycle, "Donations");
+                    break;
+                case DatalinkScanEvent.DatalinkScanEventArgs datalink:
+                    if(datalink.Message.Contains("$Datascan_ShipUplink;"))
+                        SetActivity(cycle, "Data Link Scans");
+                    break;
+                case SearchAndRescueEvent.SearchAndRescueEventArgs:
+                    SetActivity(cycle, "Search & Rescue");
+                    break;
+                case MarketSellEvent.MarketSellEventArgs sell:
+                    SetActivity(cycle, "Market Sales");
+
+                    if (sell.AvgPricePaid == 0)
+                        SetActivity(cycle, "Mined Ore Sales");
+
+                    if (EliteCommodityHelpers.IsRare(sell.Type))
+                    {
+                        SetActivity(cycle, "Rare Good Sales");
+                    }
+                    break;
+                case SellExplorationDataEvent.SellExplorationDataEventArgs:
+                case MultiSellExplorationDataEvent.MultiSellExplorationDataEventArgs:
+                    SetActivity(cycle, "Cartographic Data Sales");
+                    break;
+                case SellOrganicDataEvent.SellOrganicDataEventArgs:
+                    SetActivity(cycle, "Exobiology Sales");
+                    break;
+                case HoloscreenHackedEvent.HoloscreenHackedEventArgs:
+                    SetActivity(cycle, "Holoscreen Hacks");
+                    break;
+                case DiedEvent.DiedEventArgs:
+                    currentActivity = "Unknown";
                     break;
 
             }
@@ -236,7 +295,7 @@ namespace ODEliteTracker.Stores
 
         private bool GetVisitedCycle(DateTime timeStamp, out DateTime cycle)
         {
-            if(timeStamp > previousCycle && timeStamp < currentCycle)
+            if (timeStamp > previousCycle && timeStamp < currentCycle)
             {
                 cycle = previousCycle;
                 return true;
@@ -252,7 +311,7 @@ namespace ODEliteTracker.Stores
 
         private void Add_UpdateSystem(PowerPlaySystem newSystem, DateTime cycle)
         {
-            CurrentSystemAddress = newSystem.Address;
+            currentSystemAddress = newSystem.Address;
             if (systems.TryGetValue(newSystem.Address, out var nSystem))
             {
                 nSystem.Add_UpdateCycle(cycle, newSystem);
@@ -265,7 +324,55 @@ namespace ODEliteTracker.Stores
                 if (IsLive)
                     SystemAdded?.Invoke(this, newSystem);
                 return;
-            }   
+            }
+        }
+
+        private void SetActivity(DateTime cycle, string activity)
+        {
+            currentActivity = activity;
+
+            if (storedMerits == 0 || string.Equals(currentActivity, "Unknown"))
+            {
+                return;
+            }
+
+            if (systems.TryGetValue(currentSystemAddress, out var system))
+            {
+                if (system.CycleData.TryGetValue(cycle, out var ppData))
+                {
+                    AddMerits(ppData, storedMerits);
+                    storedMerits = 0;
+                    UpdateSystemIfLive(system);
+                    return;
+                }
+
+                var data = new PowerplayCycleData();
+
+                AddMerits(data, storedMerits);
+                system.CycleData.Add(cycle, data);
+                storedMerits = 0;
+            }
+        }
+
+        private void AddMerits(PowerplayCycleData data, int value)
+        {
+            //FDEV being the pain that they are will sometime write the merits event before the activity
+            //So we store the value and apply it next time the activity is set
+            if (string.Equals(currentActivity, "Unknown"))
+            {
+                storedMerits = value;
+                return;
+            }
+
+            data.MeritList.Add(new(currentActivity, value));
+            //Ship scans can fire so fast the all fire before the merits events
+            //So we don't reset the activity on these
+            //Maybe strap it all together.  Donation missions can be spammed too quickly as well
+            //if (string.Equals("Ship Scans", currentActivity) == false)
+            //currentActivity = "UnKnown";
+            if (IsLive)
+                MeritsEarned?.Invoke(this, value);
+
         }
 
         public override void ClearData()

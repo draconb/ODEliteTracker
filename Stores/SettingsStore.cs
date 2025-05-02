@@ -58,6 +58,7 @@ namespace ODEliteTracker.Stores
         public CommoditySorting ColonisationCommoditySorting { get; internal set; } = CommoditySorting.Category;
 
         public BGSViewSettings BGSViewSettings { get; internal set; } = new();
+        public PowerPlaySettings PowerPlaySettings { get; internal set; } = new();
 
         public void LoadSettings()
         {
@@ -70,6 +71,7 @@ namespace ODEliteTracker.Stores
                 ColonisationCommoditySorting = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(ColonisationCommoditySorting)), CommoditySorting.Category);
                 CurrentViewModel = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(CurrentViewModel)), typeof(ColonisationViewModel));
                 BGSViewSettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(BGSViewSettings)), new BGSViewSettings());
+                PowerPlaySettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(PowerPlaySettings)), new PowerPlaySettings());
                 JournalAge = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(JournalAge)), JournalLogAge.OneHundredEightyDays);
             }
 
@@ -87,7 +89,8 @@ namespace ODEliteTracker.Stores
                 SettingsDTOHelpers.EnumToSettingsDto(nameof(ColonisationCommoditySorting), ColonisationCommoditySorting),
                 SettingsDTOHelpers.EnumToSettingsDto(nameof(JournalAge), JournalAge),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(CurrentViewModel), CurrentViewModel),
-                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(BGSViewSettings), BGSViewSettings)
+                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(BGSViewSettings), BGSViewSettings),
+                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(PowerPlaySettings), PowerPlaySettings),
             };
 
             databaseProvider.AddSettings(settings);

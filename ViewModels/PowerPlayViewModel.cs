@@ -10,16 +10,20 @@ namespace ODEliteTracker.ViewModels
 {
     public sealed class PowerPlayViewModel : ODViewModel
     {
-        public PowerPlayViewModel(PowerPlayDataStore dataStore)
+        public PowerPlayViewModel(PowerPlayDataStore dataStore, SettingsStore settings)
         {
             this.dataStore = dataStore;
+            this.settings = settings;
             this.dataStore.StoreLive += OnStoreLive;
             this.dataStore.PledgeDataUpdated += OnPledgeDataUpdated;
             this.dataStore.CyclesUpdated += OnCyclesUpdated;
             this.dataStore.SystemAdded += OnSystemAdded;
             this.dataStore.SystemUpdated += OnSystemUpdated;
+            this.dataStore.MeritsEarned += OnMeritsEarned;
 
             SetSelectedSystemCommand = new ODRelayCommand<PowerPlaySystemVM>(OnSetSelectedSystem);
+            CreateDiscordPostCommand = new ODRelayCommand(OnCreateDiscordPost);
+            OpenInaraCommand = new ODRelayCommand(OnOpenInara);
 
             currentCycleNo = EliteHelpers.CurrentCycleNo();
 
@@ -28,6 +32,7 @@ namespace ODEliteTracker.ViewModels
         }
 
         private readonly PowerPlayDataStore dataStore;
+        private readonly SettingsStore settings;
         private int currentCycleNo;
 
         private PledgeDataVM? pledgeData;
@@ -56,10 +61,53 @@ namespace ODEliteTracker.ViewModels
         }
         public override bool IsLive => dataStore.IsLive;
 
-        public ICommand SetSelectedSystemCommand { get; }
-        public List<PowerPlaySystemVM>? LastCycleSystems { get; private set; }
-        public List<PowerPlaySystemVM>? ThisCycleSystems { get; private set; }
+        public bool HideSystemsWithoutMerits
+        {
+            get => settings.PowerPlaySettings.HideSystemsWithoutMerits;
+            set
+            {
+                settings.PowerPlaySettings.HideSystemsWithoutMerits = value;
+                OnPropertyChanged(nameof(HideSystemsWithoutMerits));
+                OnPropertyChanged(nameof(LastCycleSystems));
+                OnPropertyChanged(nameof(ThisCycleSystems));
+            }
+        }
 
+        private string discordButtonText = "Create Post";
+        public string DiscordButtonText
+        {
+            get => discordButtonText;
+            set
+            {
+                discordButtonText = value;
+                OnPropertyChanged(nameof(DiscordButtonText));
+            }
+        }
+
+        public List<PowerPlaySystemVM>? lastCycleSystems { get; private set; }
+        public IEnumerable<PowerPlaySystemVM>? LastCycleSystems
+        {
+            get
+            {
+                if(HideSystemsWithoutMerits)
+                {
+                    return lastCycleSystems?.Where(x => x.MeritsEarned(dataStore.PreviousCycle));
+                }
+                return lastCycleSystems;
+            }
+        }
+        public List<PowerPlaySystemVM>? thisCycleSystems { get; private set; }
+        public IEnumerable<PowerPlaySystemVM>? ThisCycleSystems
+        {
+            get
+            {
+                if (HideSystemsWithoutMerits)
+                {
+                    return thisCycleSystems?.Where(x => x.MeritsEarned(dataStore.CurrentCycle));
+                }
+                return thisCycleSystems;
+            }
+        }
         private PowerPlaySystemVM? selectedSystem;
         public PowerPlaySystemVM? SelectedSystem
         {
@@ -91,14 +139,18 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
+        public string CurrentCycle => $"Cycle 2.{currentCycleNo - tabIndex}";
+
+        public ICommand SetSelectedSystemCommand { get; }
+        public ICommand CreateDiscordPostCommand { get; }
+        public ICommand OpenInaraCommand { get; }
+
         private DateTime GetSelectedCycle()
         {
             if (tabIndex == 0)
                 return dataStore.CurrentCycle;
             return dataStore.PreviousCycle;
-        }
-
-        public string CurrentCycle => $"Cycle 2.{currentCycleNo - tabIndex}";
+        } 
 
         private void OnSetSelectedSystem(PowerPlaySystemVM model)
         {
@@ -112,11 +164,16 @@ namespace ODEliteTracker.ViewModels
             OnPropertyChanged(nameof(CurrentCycle));
         }
 
+        private void OnMeritsEarned(object? sender, int e)
+        {
+            UpdateSystems(null);
+        }
+
         private void OnStoreLive(object? sender, bool e)
         {
             if (e)
             {
-                UpdateSystems(null);
+                UpdateSystems(dataStore.CurrentSystem);
 
                 if (dataStore.PledgeData != null)
                 {
@@ -140,33 +197,33 @@ namespace ODEliteTracker.ViewModels
 
         private void UpdateSystems(PowerPlaySystem? system)
         {
-            LastCycleSystems = dataStore.Systems.Where(x => x.CycleData.ContainsKey(dataStore.PreviousCycle) /* && x.MeritsEarned > 0*/)
+            lastCycleSystems = dataStore.Systems.Where(x => x.CycleData.ContainsKey(dataStore.PreviousCycle) /* && x.MeritsEarned > 0*/)
                                                 .OrderBy(x => x.Name)
                                                 .Select(x => new PowerPlaySystemVM(x)).ToList();
 
-            ThisCycleSystems = dataStore.Systems.Where(x => x.CycleData.ContainsKey(dataStore.CurrentCycle)/* && x.MeritsEarned > 0*/)
+            thisCycleSystems = dataStore.Systems.Where(x => x.CycleData.ContainsKey(dataStore.CurrentCycle)/* && x.MeritsEarned > 0*/)
                                                 .OrderBy(x => x.Name)
                                                 .Select(x => new PowerPlaySystemVM(x)).ToList();
 
             if (system != null)
             {
-                SelectedSystem = ThisCycleSystems.FirstOrDefault(x => x.Address == system.Address);
+                SelectedSystem = ThisCycleSystems?.FirstOrDefault(x => x.Address == system.Address);
                 tabIndex = 0;
             }
             if (SelectedSystem == null)
             {
-                SelectedSystem = ThisCycleSystems.FirstOrDefault();
+                SelectedSystem = ThisCycleSystems?.FirstOrDefault();
                 tabIndex = 0;
             }
             if (SelectedSystem == null)
             {
-                SelectedSystem = LastCycleSystems.FirstOrDefault();
+                SelectedSystem = LastCycleSystems?.FirstOrDefault();
                 tabIndex = 1;
             }
 
             OnPropertyChanged(nameof(TabIndex));
-            OnPropertyChanged(nameof(LastCycleSystems));
-            OnPropertyChanged(nameof(ThisCycleSystems));
+            OnPropertyChanged(nameof(lastCycleSystems));
+            OnPropertyChanged(nameof(thisCycleSystems));
         }
 
 
@@ -197,6 +254,33 @@ namespace ODEliteTracker.ViewModels
             SelectedSystem = LastCycleSystems?.FirstOrDefault(x => x.Address == SelectedSystem.Address) ?? LastCycleSystems?.FirstOrDefault();
         }
 
+        private void OnCreateDiscordPost(object? obj)
+        {
+            var cycleDate = TabIndex == 0 ? dataStore.CurrentCycle : dataStore.PreviousCycle;
+
+            var data = TabIndex == 0 ? thisCycleSystems?.Where(x => x.MeritsEarned(cycleDate)) : lastCycleSystems?.Where(x => x.MeritsEarned(cycleDate));
+
+            if(data == null || !data.Any())
+            {
+                DiscordButtonText = "No Data";
+                Task.Delay(4000).ContinueWith(e => { DiscordButtonText = "Create Post"; });
+                return;
+            }
+            if (Helpers.DiscordPostCreator.CreatePowerPlayPost(data, CurrentCycle, cycleDate))
+            {
+                DiscordButtonText = "Post Created";
+                Task.Delay(4000).ContinueWith(e => { DiscordButtonText = "Create Post"; });
+            }
+        }
+
+        private void OnOpenInara(object? obj)
+        {
+            if (selectedSystem == null)
+                return;
+
+            ODMVVM.Helpers.OperatingSystem.OpenUrl($"https://inara.cz/galaxy-starsystem/?search={selectedSystem.NonUpperName.Replace(' ', '+')}");
+        }
+
         public override void Dispose()
         {
             this.dataStore.StoreLive -= OnStoreLive;
@@ -204,6 +288,7 @@ namespace ODEliteTracker.ViewModels
             this.dataStore.CyclesUpdated -= OnCyclesUpdated;
             this.dataStore.SystemAdded -= OnSystemAdded;
             this.dataStore.SystemUpdated -= OnSystemUpdated;
+            this.dataStore.MeritsEarned -= OnMeritsEarned;
         }
     }
 }

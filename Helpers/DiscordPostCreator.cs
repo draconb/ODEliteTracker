@@ -1,4 +1,5 @@
 ﻿using ODEliteTracker.ViewModels.ModelViews.BGS;
+using ODEliteTracker.ViewModels.ModelViews.PowerPlay;
 using System.Text;
 
 namespace ODEliteTracker.Helpers
@@ -153,6 +154,45 @@ namespace ODEliteTracker.Helpers
             TimeSpan t = time.ToUniversalTime() - new DateTime(1970, 1, 1);
             int secondsSinceEpoch = (int)t.TotalSeconds;
             return $"<t:{secondsSinceEpoch}>";
+        }
+
+        internal static bool CreatePowerPlayPost(IEnumerable<PowerPlaySystemVM> cycleData, string cycle, DateTime cycleDate)
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine($"__**Powerplay report for {cycle}**__");
+            builder.AppendLine();
+
+            foreach(var system in cycleData)
+            {
+                if (system.Data.TryGetValue(cycleDate, out var data))
+                {
+                    builder.AppendLine($"> **{system.NonUpperName}**");
+                    builder.AppendLine($">    Merits Earned : {data.MeritsEarnedValue:N0}");
+
+                    if(data.GoodsCollected.Count > 0)
+                    {
+                        builder.AppendLine(">    Items Collected :");
+                        foreach (var item in data.GoodsCollected)
+                        {
+                            builder.AppendLine($">        {item.Name} | {item.Count:N0}");
+                        }
+                    }
+
+                    if (data.GoodsDelivered.Count > 0)
+                    {
+                        builder.AppendLine(">    Items Delivered :");
+                        foreach (var item in data.GoodsDelivered)
+                        {
+                            builder.AppendLine($">        {item.Name} | {item.Count:N0}");
+                        }
+                    }
+                }
+            }
+
+            var result = builder.ToString().TrimEnd('\r', '\n');
+
+            return ODMVVM.Helpers.OperatingSystem.SetStringToClipboard(result);
         }
     }
 }

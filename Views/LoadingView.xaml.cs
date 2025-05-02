@@ -7,7 +7,6 @@ namespace ODEliteTracker.Views
     /// </summary>
     public partial class LoadingView : UserControl
     {
-
         public LoadingView()
         {
             InitializeComponent();

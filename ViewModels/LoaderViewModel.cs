@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NLog;
 using ODEliteTracker.Database;
 using ODMVVM.Helpers.IO;
 using ODMVVM.Models;
@@ -9,6 +10,7 @@ namespace ODEliteTracker.ViewModels
 {
     public sealed class LoaderViewModel : ODObservableObject
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public LoaderViewModel(ODEliteTrackerDbContextFactory contextFactory)
         {
             this.contextFactory = contextFactory;
@@ -58,6 +60,8 @@ namespace ODEliteTracker.ViewModels
             catch (Exception ex)
             {
                 StatusText = "Error Getting Update";
+                Logger.Error(ex.Message);
+                Logger.Error(ex.StackTrace);
                 await Task.Delay(1000);
             }
             StatusText = "Migrating Database";
@@ -70,12 +74,16 @@ namespace ODEliteTracker.ViewModels
             catch (Microsoft.Data.Sqlite.SqliteException ex)
             {
                 StatusText = "Error Accessing Database\nApplication will now close";
+                Logger.Error(ex.Message);
+                Logger.Error(ex.StackTrace);
                 await Task.Delay(2000);
                 InitialiseComplete?.Invoke(this, false);
             }
             catch (Exception ex)
             {
                 StatusText = "Error Loading\nApplication will now close";
+                Logger.Error(ex.Message);
+                Logger.Error(ex.StackTrace);
                 await Task.Delay(2000);
                 InitialiseComplete?.Invoke(this, false);
             }

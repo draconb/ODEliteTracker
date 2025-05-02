@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
 using ODEliteTracker.Database;
+using ODEliteTracker.Extensions;
+using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
 using ODEliteTracker.Themes;
@@ -27,7 +30,7 @@ namespace ODEliteTracker
         public static Version AppVersion { get; internal set; } = new Version(1, 0);
 
 #if INSTALL
-        public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OD Explorer");
+        public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ODEliteTracker");
 #else
         public readonly static string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 #endif
@@ -41,67 +44,25 @@ namespace ODEliteTracker
             .ConfigureAppConfiguration(c => { c.SetBasePath(Path.GetDirectoryName(AppContext.BaseDirectory) ?? string.Empty); })
             .ConfigureServices((context, services) =>
             {
-                //Windows
-                services.AddSingleton(provider => new MainWindow(provider.GetRequiredService<IODNavigationService>())
-                {
-                    DataContext = provider.GetRequiredService<MainViewModel>()
-                });
-                services.AddTransient(provider => new LoaderWindow()
-                {
-                    DataContext = provider.GetRequiredService<LoaderViewModel>()
-                });
                 //Database
-                services.AddSingleton<IODDatabaseProvider, ODEliteTrackerDatabaseProvider>();
-                services.AddSingleton(new ODEliteTrackerDbContextFactory(connectionString));
+                services.AddDatabase(connectionString);
+                //Windows
+                services.AddWindows();
                 //Navigation
                 services.AddSingleton<IODNavigationService, ODNavigationService>();
                 services.AddSingleton<Func<Type, ODViewModel>>(provider => viewModelType => (ODViewModel)provider.GetRequiredService(viewModelType));
-                
                 //View Models
-                services.AddSingleton<MainViewModel>();
-
-                services.AddTransient<ColonisationViewModel>();
-                services.AddTransient<MassacreMissionsViewModel>();
-                services.AddTransient<TradeMissionViewModel>();
-                services.AddTransient<SettingsViewModel>();
-                services.AddTransient<LoadingViewModel>();
-                services.AddTransient<BGSViewModel>();
-                services.AddTransient<PowerPlayViewModel>();
-                services.AddTransient<LoaderViewModel>();
-
+                services.AddViewModels();
                 //Services
-                services.AddSingleton<ThemeManager>();
-                services.AddSingleton<JournalEventParser>();
-                services.AddSingleton<IManageJournalEvents, JournalManager>();
-
+                services.AddServices();
                 //Store
-                services.AddSingleton<SettingsStore>();
-                services.AddSingleton<ColonisationStore>();
-                services.AddSingleton<SharedDataStore>();
-                services.AddSingleton<MassacreMissionStore>();
-                services.AddSingleton<TradeMissionStore>();
-                services.AddSingleton<BGSDataStore>();
-                services.AddSingleton<PowerPlayDataStore>();
-                services.AddSingleton<TickDataStore>();
-
+                services.AddStores();
                 //http clients
-                services.AddHttpClient<EliteBGSApiService>((httpClient) =>
-                {
-                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    httpClient.BaseAddress = new Uri("https://elitebgs.app/api/ebgs/v5/");
-                    httpClient.DefaultRequestHeaders.Accept.Add(
-                        new MediaTypeWithQualityHeaderValue("application/json"));
-                })
-               .ConfigurePrimaryHttpMessageHandler(() =>
-               {
-                   return new SocketsHttpHandler
-                   {
-                       PooledConnectionLifetime = TimeSpan.FromSeconds(5),
-                       ConnectTimeout = TimeSpan.FromSeconds(10),
-                   };
-               });
+                services.AddHttpClients();
 
             }).Build();
+
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Gets services.
@@ -116,6 +77,10 @@ namespace ODEliteTracker
         /// </summary>
         private async void OnStartup(object sender, StartupEventArgs e)
         {
+            LogManager.Setup().LoadConfiguration(builder => {
+                builder.ForLogger().FilterMinLevel(LogLevel.Debug).WriteToFile(fileName: Path.Combine(BaseDirectory, "Logs", "Error.txt"));
+            });
+
             await _host.StartAsync();
 
             //Disable shutdown when the dialog closes
@@ -154,7 +119,8 @@ namespace ODEliteTracker
         private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
-            
+            Logger.Fatal(e.Exception.Message);   
+            Logger.Fatal(e.Exception.StackTrace);     
         }
     }
 }
