@@ -5,6 +5,7 @@ using ODEliteTracker.ViewModels;
 using ODJournalDatabase.Database.DTOs;
 using ODJournalDatabase.Database.Interfaces;
 using ODMVVM.Navigation;
+using ODMVVM.ViewModels;
 
 namespace ODEliteTracker.Stores
 {
@@ -25,7 +26,7 @@ namespace ODEliteTracker.Stores
             {
                 return;
             }
-            if(e is not LoadingViewModel)
+            if (e is not LoadingViewModel)
             {
                 CurrentViewModel = e.GetType();
             }
@@ -39,6 +40,8 @@ namespace ODEliteTracker.Stores
         public Type CurrentViewModel { get; set; } = typeof(MassacreMissionsViewModel);
         public Theme CurrentTheme { get; set; } = Theme.OD;
         public JournalLogAge JournalAge { get; set; } = JournalLogAge.OneHundredEightyDays;
+        public ODWindowPosition MainWindowPosition { get; set; } = new();
+
         public DateTime JournalAgeDateTime
         {
             get
@@ -73,10 +76,16 @@ namespace ODEliteTracker.Stores
                 BGSViewSettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(BGSViewSettings)), new BGSViewSettings());
                 PowerPlaySettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(PowerPlaySettings)), new PowerPlaySettings());
                 JournalAge = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(JournalAge)), JournalLogAge.OneHundredEightyDays);
+                MainWindowPosition = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(MainWindowPosition)), MainWindowPosition);
             }
 
             //Apply Theme
             themeManager.SetTheme(CurrentTheme);
+
+            if (MainWindowPosition.IsZero)
+            {
+                ODWindowPosition.ResetWindowPosition(MainWindowPosition);
+            }
         }
 
         public void SaveSettings()
@@ -91,6 +100,7 @@ namespace ODEliteTracker.Stores
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(CurrentViewModel), CurrentViewModel),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(BGSViewSettings), BGSViewSettings),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(PowerPlaySettings), PowerPlaySettings),
+                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(MainWindowPosition), MainWindowPosition),
             };
 
             databaseProvider.AddSettings(settings);

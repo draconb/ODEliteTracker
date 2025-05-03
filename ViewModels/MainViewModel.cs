@@ -4,11 +4,13 @@ using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews;
 using ODJournalDatabase.JournalManagement;
+using ODMVVM.Commands;
 using ODMVVM.Extensions;
 using ODMVVM.Navigation;
 using ODMVVM.Navigation.Controls;
 using ODMVVM.ViewModels;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -36,6 +38,7 @@ namespace ODEliteTracker.ViewModels
 
             navigationService.CurrentViewLive += NavigationService_CurrentViewLive;
 
+            ResetWindowPositionCommand = new ODRelayCommand(OnResetWindow);
         }
 
         public override bool IsLive => true;
@@ -45,7 +48,12 @@ namespace ODEliteTracker.ViewModels
         private readonly SettingsStore settings;
         private readonly TickDataStore tickDataStore;
 
+        public ICommand ResetWindowPositionCommand { get; }
+
+        public EventHandler? WindowPositionReset;
+
         public string Title => $"Elite Tracker v{App.AppVersion}";
+
         public ObservableCollection<ODNavigationButton> MenuButtons { get; } =
         [
             new EliteStyleNavigationButton()
@@ -105,6 +113,16 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
+        public ODWindowPosition WindowPosition
+        {
+            get => settings.MainWindowPosition;
+            set
+            {
+                settings.MainWindowPosition = value;
+                OnPropertyChanged(nameof(WindowPosition));
+            }
+        }
+
         private bool uiEnabled;
         public bool UiEnabled
         {
@@ -133,6 +151,12 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
+        private void OnResetWindow(object? obj)
+        {
+            ODWindowPosition.ResetWindowPosition(WindowPosition);
+            WindowPositionReset?.Invoke(this, EventArgs.Empty);
+        }
+
         private void NavigationService_CurrentViewLive(object? sender, bool e)
         {
             UiEnabled = e;
@@ -152,8 +176,7 @@ namespace ODEliteTracker.ViewModels
             OnPropertyChanged(nameof(CurrentBody_Station));
             UiEnabled = true;
         }
-
-       
+        
         public async Task ChangeCommander()
         {
             UiEnabled = false;           

@@ -2,21 +2,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
-using ODEliteTracker.Database;
 using ODEliteTracker.Extensions;
-using ODEliteTracker.Models.Galaxy;
-using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
-using ODEliteTracker.Themes;
-using ODEliteTracker.ViewModels;
 using ODEliteTracker.Views;
-using ODJournalDatabase.Database.Interfaces;
-using ODJournalDatabase.JournalManagement;
 using ODMVVM.Navigation;
 using ODMVVM.ViewModels;
 using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Windows;
 using System.Windows.Threading;
 
