@@ -5,16 +5,30 @@ using System.Collections.ObjectModel;
 
 namespace ODEliteTracker.ViewModels.ModelViews.Massacre
 {
-    public sealed class MassacreStackVM(string issuingFaction, string targetFaction) : ODObservableObject
+    public sealed class MassacreStackVM(string issuingFaction, string targetFaction, string starSystem) : ODObservableObject
     {
         public string IssuingFaction { get; } = issuingFaction;
         public string TargetFaction { get; } = targetFaction;
-        public int Reward => Missions.Sum(x => x.Reward);
-        public int Kills => Missions.Sum(x => x.KillCount);
+        public string? StarSystem { get; } = starSystem;
+        public int Reward => ActiveMissions.Sum(x => x.Reward);
+        public int Kills => ActiveMissions.Sum(x => x.KillCount);
+        public int KillsRemaining => Missions.Sum(x => x.KillCount - x.Kills);
+
+        private int killDifference;
+        public int KillDifference
+        {
+            get => killDifference;
+            set
+            {
+                killDifference = value;
+                OnPropertyChanged(nameof(KillDifference));
+            }
+        }
+
         public string RewardString => $"{Reward:N0}";
         public int ActiveMissionCount => Missions.Count(x => x.CurrentState < MissionState.Completed);
         public ObservableCollection<MassacreMissionVM> Missions { get; } = [];
-
+        public IEnumerable<MassacreMissionVM> ActiveMissions => Missions.Where(x => x.CurrentState < MissionState.Completed);
         public MassacreMissionVM? AddMission(MassacreMission mission)
         {
             var newMission = Missions.FirstOrDefault(x => x.MissionID == mission.MissionID);
@@ -27,6 +41,8 @@ namespace ODEliteTracker.ViewModels.ModelViews.Massacre
             OnPropertyChanged(nameof(Reward));
             OnPropertyChanged(nameof(RewardString));
             OnPropertyChanged(nameof(Kills));
+            OnPropertyChanged(nameof(StarSystem));
+            OnPropertyChanged(nameof(ActiveMissions));
 
             return newMission;
         }
@@ -46,7 +62,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Massacre
             OnPropertyChanged(nameof(RewardString));
             OnPropertyChanged(nameof(Kills));
             OnPropertyChanged(nameof(Kills));
-
+            OnPropertyChanged(nameof(ActiveMissions));
             return Missions.Count == 0;
         }
     }

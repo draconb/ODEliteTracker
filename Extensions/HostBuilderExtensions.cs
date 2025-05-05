@@ -10,6 +10,7 @@ using ODJournalDatabase.JournalManagement;
 using ODMVVM.Navigation;
 using System.Net.Http.Headers;
 using System.Net.Http;
+using ODEliteTracker.Notifications.Themes;
 
 namespace ODEliteTracker.Extensions
 {
@@ -45,12 +46,15 @@ namespace ODEliteTracker.Extensions
             services.AddTransient<BGSViewModel>();
             services.AddTransient<PowerPlayViewModel>();
             services.AddTransient<LoaderViewModel>();
+            services.AddTransient<NotificationSettingsViewModel>();
         }
 
         public static void AddServices(this IServiceCollection services)
         {
             services.AddSingleton<ThemeManager>();
+            services.AddSingleton<NotificationThemeManager>();
             services.AddSingleton<JournalEventParser>();
+            services.AddSingleton<NotificationService>();
             services.AddSingleton<IManageJournalEvents, JournalManager>();
         }
 

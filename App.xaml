@@ -7,6 +7,7 @@
              xmlns:themes="clr-namespace:ODEliteTracker.Themes"
              xmlns:converters="clr-namespace:ODMVVM.WpfConverters;assembly=ODMVVM"
              xmlns:wpfconverters="clr-namespace:ODEliteTracker.WPFConverters"
+             xmlns:notification="clr-namespace:ODEliteTracker.Notifications.Themes"
              DispatcherUnhandledException="OnDispatcherUnhandledException"
              Exit="OnExit"
              Startup="OnStartup">
@@ -33,32 +34,24 @@
             <DataTemplate DataType="{x:Type viewmodels:PowerPlayViewModel}">
                 <views:PowerPlayView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:NotificationSettingsViewModel}">
+                <views:NotificationSettingsView />
+            </DataTemplate>
             
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
             <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
             <wpfconverters:NullToVisibilityConverter x:Key="NullToVis" />
+            <converters:FlagsEnumValueConverter x:Key="EnumFlagConverter" />
             
             <FontFamily x:Key="Eurostile">pack://application:,,,/Assets/Fonts/#Eurostile</FontFamily>
             
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/BusyIndicator;component/Theme/Default.xaml" />
-                <!--<ResourceDictionary Source="/Controls/ControlsResources.xaml" />-->
-                <ResourceDictionary Source="/Controls/Navigation/NavigationBtnStyle.xaml" />
-                <ResourceDictionary Source="/Controls/Styles/ScrollbarStyle.xaml" />
-                <ResourceDictionary Source="/Controls/Styles/DataGridStyles.xaml" />
-                <ResourceDictionary Source="/Controls/Styles/ComboBoxStyle.xaml" />
-                <ResourceDictionary Source="/Controls/Styles/ListBoxStyles.xaml" />
-                <ResourceDictionary Source="/Controls/Styles/ButtonStyles.xaml" />
-                <ResourceDictionary Source="/Controls/Styles/TabControlStyles.xaml" />
-                <ResourceDictionary Source="/Controls/Styles/RadioButton.xaml" />
-                <ResourceDictionary Source="/Controls/Styles/CheckBoxStyles.xaml" />
-                <ResourceDictionary Source="/Controls/Styles/TextBoxStyles.xaml" />
-                <ResourceDictionary Source="/Controls/Trade/DeliveryMissionTemplate.xaml" />                
-                <ResourceDictionary Source="/Controls/Styles/RectangleStyles.xaml" />                
-                <ResourceDictionary Source="/Controls/Styles/PowerPlayStyles.xaml" />                
-                <ResourceDictionary Source="/Controls/Styles/BorderStyles.xaml" />                
+                <ResourceDictionary Source="/Controls/ControlsResources.xaml" />             
                 <themes:ThemeDictionary DefaultSource="pack://application:,,,/ODEliteTracker;component/Themes/DefaultTheme.xaml" 
                                         Source="/Themes/DefaultTheme.xaml"/>
+                <notification:NotificationThemeDictionary DefaultSource="pack://application:,,,/ODEliteTracker;component/Notifications/Themes/EliteStyleNotificationTheme.xaml"
+                                                          Source="pack://application:,,,/ODEliteTracker;component/Notifications/Themes/EliteStyleNotificationTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>            
         </ResourceDictionary>
     </Application.Resources>

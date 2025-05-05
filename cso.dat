@@ -183,3 +183,16 @@ V1
 2:provider,WG
 2:viewModelType,x5
 2:httpClient,kR
+2:notificationTheme,lD
+2:options,bO
+2:thinBorder,J1
+2:thickBorder,a1B
+2:case NotificationSize.Small:,N1
+2:case NotificationSize.Medium:,GP
+2:case NotificationSize.Large:,hP
+2:case ToastNotifications.Position.Corner.TopLeft:,JK
+2:case ToastNotifications.Position.Corner.BottomLeft:,nD
+2:default,UV
+2:bodyStation,lW
+2:carrierJump,c
+2:bodyStn,e

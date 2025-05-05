@@ -1,24 +1,35 @@
 ﻿using EliteJournalReader;
 using EliteJournalReader.Events;
+using NetTopologySuite.Geometries;
+using ODEliteTracker.Helpers;
 using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Models.Market;
 using ODEliteTracker.Models.Ship;
+using ODEliteTracker.Notifications;
+using ODEliteTracker.Notifications.ScanNotification;
+using ODEliteTracker.Services;
 using ODJournalDatabase.JournalManagement;
 using ODMVVM.Helpers;
+using System.Xml.Linq;
 
 namespace ODEliteTracker.Stores
 {
     public sealed class SharedDataStore : LogProcessorBase
     {
-        public SharedDataStore(IManageJournalEvents journalManager)
+        public SharedDataStore(IManageJournalEvents journalManager,
+                               NotificationService notificationService)
         {
             this.journalManager = journalManager;
+            this.notificationService = notificationService;
             this.journalManager.RegisterLogProcessor(this);
         }
 
         #region Private fields
         private readonly IManageJournalEvents journalManager;
+        private readonly NotificationService notificationService;
         private Dictionary<string, FactionData> factions = [];
+        private string? lastShipTarget;
+        private string? commanderPower;
         #endregion
 
         #region Public Properties
@@ -27,6 +38,7 @@ namespace ODEliteTracker.Stores
         {
             get => new()
             {
+                { JournalTypeEnum.Powerplay, true },
                 { JournalTypeEnum.Location, true },
                 { JournalTypeEnum.FSDJump, true},
                 { JournalTypeEnum.CarrierJump, true},
@@ -36,6 +48,7 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.Market, false },
                 { JournalTypeEnum.Loadout, true },
                 { JournalTypeEnum.Cargo, false },
+                { JournalTypeEnum.ShipTargeted, false },
             };
         }
         public Dictionary<string, FactionData> Factions => factions;
@@ -91,6 +104,9 @@ namespace ODEliteTracker.Stores
 
             switch (evt.EventData)
             {
+                case PowerplayEvent.PowerplayEventArgs powerPlay:
+                    commanderPower = powerPlay.Power;
+                    break;
                 case LocationEvent.LocationEventArgs location:
                     UpdateCurrentSystem(new(location));
                     string? bodyStation = null;
@@ -104,11 +120,49 @@ namespace ODEliteTracker.Stores
                     }
                     UpdateCurrentBody_Station(bodyStation);
                     AddFactions(location.Factions);
+
+                    if(location.Population == 0 || location.SystemFaction is null || location.Factions is null || location.Factions.Count == 0)
+                    {
+                        SystemNotification(location.StarSystem,
+                        [
+                            "Unpopulated",
+                            location.SystemSecurity_Localised,
+                        ]);
+                        break;
+                    }
+
+                    SystemNotification(location.StarSystem,
+                        [
+                            location.SystemFaction.Name,
+                            $"Population : {EliteHelpers.FormatNumber(location.Population ?? 0)}",
+                            location.SystemAllegiance,
+                            location.SystemFaction.FactionState,
+                            location.SystemSecurity_Localised,
+                            EliteHelpers.FactionReputationToString(location.Factions.FirstOrDefault(x => string.Equals(x.Name, location.SystemFaction.Name))?.MyReputation)
+                        ]);
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
                     UpdateCurrentSystem(new(fsdJump));
                     UpdateCurrentBody_Station(null);
                     AddFactions(fsdJump.Factions);
+                    if (fsdJump.Population == 0 || fsdJump.SystemFaction is null || fsdJump.Factions is null || fsdJump.Factions.Count == 0)
+                    {
+                        SystemNotification(fsdJump.StarSystem,
+                        [
+                            "Unpopulated",
+                            fsdJump.SystemSecurity_Localised,
+                        ]);
+                        break;
+                    }
+                    SystemNotification(fsdJump.StarSystem,
+                    [
+                            fsdJump.SystemFaction.Name,
+                            $"Population : {EliteHelpers.FormatNumber(fsdJump.Population)}",
+                            fsdJump.SystemAllegiance,
+                            fsdJump.SystemFaction.FactionState,
+                            fsdJump.SystemSecurity_Localised,
+                            EliteHelpers.FactionReputationToString(fsdJump.Factions.FirstOrDefault(x => string.Equals(x.Name, fsdJump.SystemFaction.Name))?.MyReputation)
+                        ]);
                     break;
                 case CarrierJumpEvent.CarrierJumpEventArgs carrierJump:
                     UpdateCurrentSystem(new(carrierJump));
@@ -123,9 +177,44 @@ namespace ODEliteTracker.Stores
                     }                    
                     UpdateCurrentBody_Station(bodyStn);  
                     AddFactions(carrierJump.Factions);
+
+                    if (carrierJump.Population == 0 || carrierJump.SystemFaction is null || carrierJump.Factions is null || carrierJump.Factions.Count == 0)
+                    {
+                        SystemNotification(carrierJump.StarSystem,
+                        [
+                            "Unpopulated",
+                            carrierJump.SystemSecurity_Localised,
+                        ]);
+                        break;
+                    }
+
+                    SystemNotification(carrierJump.StarSystem,
+                        [
+                            carrierJump.SystemFaction.Name,
+                            $"Population : {EliteHelpers.FormatNumber(carrierJump.Population ?? 0)}",
+                            carrierJump.SystemAllegiance,
+                            carrierJump.SystemFaction.FactionState,
+                            carrierJump.SystemSecurity_Localised,
+                            EliteHelpers.FactionReputationToString(carrierJump.Factions.FirstOrDefault(x => string.Equals(x.Name, carrierJump.SystemFaction.Name))?.MyReputation)
+                        ]);
                     break;
                 case DockedEvent.DockedEventArgs docked:
                     UpdateCurrentBody_Station(string.IsNullOrEmpty(docked.StationName_Localised) ? docked.StationName : docked.StationName_Localised);
+
+                    if (IsLive == false)
+                        break;
+
+                    var args = new NotificationArgs(docked.StationName_Localised ?? docked.StationName,
+                        [
+                            $"{EliteJournalReaderHelpers.StationTypeText(docked.StationType)}",
+                            $"{docked.StationFaction.Name}",
+                            $"{docked.StationGovernment_Localised ?? docked.StationGovernment}",
+                            $"{docked.StationEconomy_Localised ?? docked.StationEconomy}",
+                            $"{docked.LandingPads.LandPadText()}"
+                        ],
+                        NotificationType.Station);
+
+                    notificationService.ShowBasicNotification(args);
                     break;
                 case UndockedEvent.UndockedEventArgs:
                     UpdateCurrentBody_Station(null);
@@ -165,7 +254,56 @@ namespace ODEliteTracker.Stores
                         }
                     }
                     break;
+                case ShipTargetedEvent.ShipTargetedEventArgs shipTargeted:
+
+                    if (shipTargeted.ScanStage != 3)
+                        break;
+
+                    var pilotName = shipTargeted.PilotName_Localised ?? shipTargeted.PilotName;
+
+                    if (string.IsNullOrEmpty(pilotName) || string.Equals(pilotName, lastShipTarget))
+                    {
+                        return;
+                    }
+
+                    lastShipTarget = pilotName;
+
+                    if (string.IsNullOrEmpty(lastShipTarget) || string.IsNullOrEmpty(shipTargeted.Power) && shipTargeted.Bounty <= 0)
+                    {
+                        break;
+                    }
+
+                    var targetType = TargetType.None;
+
+                    if(string.IsNullOrEmpty(shipTargeted.Power) == false && string.Equals(shipTargeted.Power, commanderPower) == false)
+                    {
+                        targetType |= TargetType.Enemy;
+                    }
+
+                    if (shipTargeted.Bounty > 0)
+                    {
+                        targetType |= TargetType.Wanted;                    
+                    }
+
+                    //Shouldn't reach this but just in case
+                    if (targetType == TargetType.None)
+                    {
+                        break;
+                    }
+
+                    notificationService.ShowShipTargetedNotification(pilotName, EliteHelpers.ConvertShipName(shipTargeted.Ship), targetType, shipTargeted.Bounty, shipTargeted.Faction, shipTargeted.Power);
+                    break;
+
             }
+        }
+
+        private void SystemNotification(string name, string[] fields)
+        {
+            if (IsLive == false)
+                return;
+
+            var args = new NotificationArgs(name, fields, NotificationType.System);
+            notificationService.ShowBasicNotification(args);
         }
 
         private void UpdateCurrentSystem(StarSystem starSystem)

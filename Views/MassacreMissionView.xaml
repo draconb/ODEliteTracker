@@ -34,9 +34,12 @@
                             <ColumnDefinition />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
                         <Border Background="{DynamicResource CardBackground}"
-                                Grid.Row="1"
+                                Grid.Row="0"                                
                                 Grid.Column="0"
                                 MinHeight="180"
                                 CornerRadius="5"
@@ -243,8 +246,9 @@
                             </DataGrid>
                         </Border>
                         <Border Background="{DynamicResource CardBackground}"
-                                Grid.Row="1"
+                                Grid.Row="0"
                                 Grid.Column="1"
+                                Grid.RowSpan="2"
                                 MinHeight="180"
                                 CornerRadius="5"
                                 Margin="5"
@@ -261,27 +265,106 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Issuing Faction"
                                                         HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                        MinWidth="120"
                                                         Binding="{Binding IssuingFaction}" />
+                                    <DataGridTextColumn Header="System"
+                                                        MinWidth="120"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                        Binding="{Binding StarSystem}" />
                                     <DataGridTextColumn Header="Target Faction"
                                                         HeaderStyle="{DynamicResource DataGridHeaderLeft}"
                                                         Width="*"
                                                         Binding="{Binding TargetFaction}" />
                                     <DataGridTextColumn Header="Kills"
-                                                        MinWidth="80"
+                                                        MinWidth="50"
                                                         HeaderStyle="{DynamicResource DataGridHeaderCenter}"
                                                         ElementStyle="{DynamicResource DataGridElementCenter}"
-                                                        Binding="{Binding Kills}" />
+                                                        Binding="{Binding Kills}" />               
+                                    <DataGridTextColumn Header="Rem"
+                                                        MinWidth="50"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                        ElementStyle="{DynamicResource DataGridElementCenter}"
+                                                        Binding="{Binding KillsRemaining}" />
+                                    <DataGridTextColumn Header="Diff"
+                                                        MinWidth="50"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                        ElementStyle="{DynamicResource DataGridElementCenter}"
+                                                        Binding="{Binding KillDifference}" />
                                     <DataGridTextColumn Header="Count"
-                                                        MinWidth="80"
+                                                        MinWidth="50"
                                                         HeaderStyle="{DynamicResource DataGridHeaderCenter}"
                                                         ElementStyle="{DynamicResource DataGridElementCenter}"
-                                                        Binding="{Binding Missions.Count}" />
+                                                        Binding="{Binding ActiveMissionCount}" />
                                     <DataGridTextColumn Header="Reward"
                                                         HeaderStyle="{DynamicResource DataGridHeaderCenter}"
                                                         ElementStyle="{DynamicResource DataGridElementRightMargin}"
                                                         Binding="{Binding Reward, StringFormat=N0}" />                                   
                                 </DataGrid.Columns>
                             </DataGrid>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackground}"
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                CornerRadius="5"
+                                Margin="5"
+                                Padding="5">
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="140"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Mission Counts"
+                                           Grid.Column="0"
+                                           Grid.Row="1"
+                                           Margin="10" />
+
+                                <TextBlock Text="Active"
+                                           Grid.Column="2"
+                                           Grid.Row="0"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="10" />
+                                <TextBlock Text="Redirected"
+                                           Grid.Column="3"
+                                           Grid.Row="0"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="10" />
+                                <TextBlock Text="Total"
+                                           Grid.Column="4"
+                                           Grid.Row="0"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="10" />
+
+                                <TextBlock Text="{Binding ActiveMissionCount}"
+                                           Grid.Column="2"
+                                           Grid.Row="1"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="10" />
+                                <TextBlock Text="{Binding RedirectedMissionCount}"
+                                           Grid.Column="3"
+                                           Grid.Row="1"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="10" />
+                                <TextBlock Text="{Binding ActiveMissions.Count}"
+                                           Grid.Column="4"
+                                           Grid.Row="1"                                           
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="10" />
+                            </Grid>
                         </Border>
                     </Grid>
 

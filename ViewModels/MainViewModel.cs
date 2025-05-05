@@ -21,12 +21,14 @@ namespace ODEliteTracker.ViewModels
         public MainViewModel(IODNavigationService oDNavigationService,
                                       IManageJournalEvents journalManager,
                                       SharedDataStore sharedDataStore,
+                                      NotificationService notificationService,
                                       SettingsStore settings,
                                       TickDataStore tickDataStore)
         {
             navigationService = oDNavigationService;
             this.journalManager = journalManager;
             this.sharedData = sharedDataStore;
+            this.notificationService = notificationService;
             this.settings = settings;
             this.tickDataStore = tickDataStore;
 
@@ -45,6 +47,7 @@ namespace ODEliteTracker.ViewModels
         private readonly IODNavigationService navigationService;
         private readonly IManageJournalEvents journalManager;
         private readonly SharedDataStore sharedData;
+        private readonly NotificationService notificationService;
         private readonly SettingsStore settings;
         private readonly TickDataStore tickDataStore;
 
@@ -85,11 +88,16 @@ namespace ODEliteTracker.ViewModels
 
         public ObservableCollection<ODNavigationButton> FooterButtons { get; } =
         [
+            new EliteStyleNavigationButton()
+            {
+                ButtonImage = new BitmapImage(new Uri("/Assets/Notifications/monitor.png", UriKind.Relative)),
+                TargetView = typeof(NotificationSettingsViewModel),
+            },
             new EliteStyleNavigationButton() 
             { 
                 ButtonImage = new BitmapImage(new Uri("/Assets/Icons/settings.png", UriKind.Relative)),
                 TargetView = typeof(SettingsViewModel), 
-            }
+            },            
         ];
 
         public ObservableCollection<JournalCommanderVM> JournalCommanders { get; set; } = [];
@@ -224,6 +232,11 @@ namespace ODEliteTracker.ViewModels
         private void OnCurrentBody_StationChanged(object? sender, string? e)
         {
             OnPropertyChanged(nameof(CurrentBody_Station));
+        }
+
+        internal void OnClose()
+        {
+            notificationService.Dispose();
         }
     }
 }

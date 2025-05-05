@@ -15,6 +15,7 @@ namespace ODEliteTracker.Views
             InitializeComponent();
             NavView.AssignNavigation(oDNavigationService);
             Loaded += MainWindow_Loaded;
+            Closing += MainWindow_Closing;
         }
 
         private async void MainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
@@ -28,6 +29,15 @@ namespace ODEliteTracker.Views
             }
 
             loaded = true;           
+        }
+
+
+        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (DataContext is MainViewModel viewModel)
+            {
+                viewModel.OnClose();
+            }
         }
 
         private void OnWindowPositionReset(object? sender, EventArgs e)

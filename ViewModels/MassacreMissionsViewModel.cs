@@ -35,6 +35,8 @@ namespace ODEliteTracker.ViewModels
         public IEnumerable<MassacreMissionVM> CompletedMissions { get; private set; } = [];
         public ObservableCollection<FactionStackVM> FactionStacks { get; private set; } = [];
 
+        public int ActiveMissionCount => ActiveMissions.Where(x => x.CurrentState == MissionState.Active).Count();
+        public int RedirectedMissionCount => ActiveMissions.Where(x => x.CurrentState == MissionState.Redirected).Count();
         public override bool IsLive { get => massacreStore.IsLive; }
         public override void Dispose()
         {
@@ -85,9 +87,19 @@ namespace ODEliteTracker.ViewModels
                                       .Where(x => x.CurrentState == MissionState.Completed)
                                       .OrderByDescending(x => x.CompletionTime);
 
+            var maxKills = Stacks.Max(x => x.Kills);
+
+            foreach (var stack in Stacks)
+            {
+                stack.KillDifference = maxKills - stack.Kills;
+            }
+
             OnPropertyChanged(nameof(ActiveMissions));
             OnPropertyChanged(nameof(CompletedMissions));
+            OnPropertyChanged(nameof(ActiveMissionCount));
+            OnPropertyChanged(nameof(RedirectedMissionCount));
         }
+
         private void OnMissionAdded(object? sender, MassacreMission e)
         {
             var mission = AddMissionToStack(e);
@@ -141,6 +153,9 @@ namespace ODEliteTracker.ViewModels
             {
                 FactionStacks.RemoveItem(factionStack);
             }
+
+            OnPropertyChanged(nameof(ActiveMissionCount));
+            OnPropertyChanged(nameof(RedirectedMissionCount));
         }
 
         private void OnMissionsUpdated(object? sender, EventArgs e)
@@ -153,11 +168,12 @@ namespace ODEliteTracker.ViewModels
         private MassacreMissionVM? AddMissionToStack(MassacreMission mission)
         {
             var stack = stacks.FirstOrDefault(x => string.Equals(x.IssuingFaction, mission.IssuingFaction)
+                                                && string.Equals(x.StarSystem, mission.OriginSystemName)
                                                 && string.Equals(x.TargetFaction, mission.TargetFaction));
 
             if (stack is null)
             {
-                stack = new MassacreStackVM(mission.IssuingFaction, mission.TargetFaction);
+                stack = new MassacreStackVM(mission.IssuingFaction, mission.TargetFaction, mission.OriginSystemName);
                 stacks.Add(stack);
             }
             return stack.AddMission(mission);

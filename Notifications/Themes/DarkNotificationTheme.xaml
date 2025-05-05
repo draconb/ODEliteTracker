@@ -1,0 +1,38 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="NotifcationBorder"
+                     Color="#FF333333" />
+    <SolidColorBrush x:Key="NotificationForeground"
+                     Color="#FFF3F3F3" />
+    <SolidColorBrush x:Key="NotificationHeaderColour"
+                     Color="White" />
+
+    <Style x:Key="NotificationBorderStyle"
+           TargetType="{x:Type Border}">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource NotifcationBorder}" />
+        <Setter Property="Margin"
+                Value="0,5" />
+        <Setter Property="CornerRadius"
+                Value="0" />
+        <Setter Property="Padding"
+                Value="10" />
+        <Setter Property="Background"
+                Value="#1E1E1E" />
+    </Style>
+
+    <Style x:Key="NotificationBorderStyleLeft"
+           TargetType="{x:Type Border}">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource NotifcationBorder}" />
+        <Setter Property="Margin"
+                Value="0,5" />
+        <Setter Property="CornerRadius"
+                Value="0" />
+        <Setter Property="Padding"
+                Value="10" />
+        <Setter Property="Background"
+                Value="#1E1E1E" />
+    </Style>
+</ResourceDictionary>

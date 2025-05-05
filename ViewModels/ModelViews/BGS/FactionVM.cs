@@ -109,6 +109,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
         public SearchAndRescueVM? SearchAndRescue { get; private set; }
 
         public FactionWarVM? Wars { get; set; }
+
         public bool HasData()
         {
             return infPlus > 0
@@ -120,8 +121,10 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
                 || FootMurders > 0
                 || ShipMurders > 0
                 || CartoDataValue > 0
-                || SearchAndRescue != null && SearchAndRescue.Total > 0;
+                || SearchAndRescue != null && SearchAndRescue.Total > 0
+                || Wars != null && Wars.Total > 0;
         }
+
         public void AddTraction(TradeTransaction transaction)
         {
             if (transaction.Type == Models.TransactionType.Sale)

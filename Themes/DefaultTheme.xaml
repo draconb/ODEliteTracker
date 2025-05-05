@@ -22,7 +22,7 @@
     <SolidColorBrush x:Key="PrimaryControlBackground"
                      Color="#FF333333" />
     <SolidColorBrush x:Key="PrimaryControlBorder"
-                     Color="#6A3004" />
+                     Color="#FFD37D00" />
     <SolidColorBrush x:Key="PrimaryControlForeground"
                      Color="{StaticResource P_Foreground}" />
     <SolidColorBrush x:Key="PrimaryControlForegroundDisabled"

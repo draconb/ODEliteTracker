@@ -437,6 +437,7 @@ namespace ODEliteTracker.Stores
             if (czManager.HasConflict())
             {
                 currentSystem.AddWar(czManager.GetConflictZone(timestamp));
+                UpdateSystemIfLive(currentSystem);
                 return;
             }
             czManager.Reset();

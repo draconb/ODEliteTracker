@@ -31,7 +31,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
 
         internal void Update(ConstructionResource resource)
         {
-            LocalName = resource.LocalName;
+            LocalName = resource.LocalName ?? "Unknown";
             RequiredAmount = resource.RequiredAmount;
             ProvidedAmount = resource.ProvidedAmount;
             Payment = resource.Payment;

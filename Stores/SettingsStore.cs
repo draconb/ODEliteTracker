@@ -1,5 +1,6 @@
 ﻿using ODEliteTracker.Models;
 using ODEliteTracker.Models.Settings;
+using ODEliteTracker.Notifications.Themes;
 using ODEliteTracker.Themes;
 using ODEliteTracker.ViewModels;
 using ODJournalDatabase.Database.DTOs;
@@ -11,16 +12,19 @@ namespace ODEliteTracker.Stores
 {
     public sealed class SettingsStore
     {
-        public SettingsStore(IODDatabaseProvider databaseProvider, ThemeManager themeManager, IODNavigationService navigationService)
+        public SettingsStore(IODDatabaseProvider databaseProvider,
+                             ThemeManager themeManager,
+                             IODNavigationService navigationService,
+                             NotificationThemeManager notificationTheme)
         {
             this.databaseProvider = databaseProvider;
             this.themeManager = themeManager;
             this.navigationService = navigationService;
-
+            this.notificationTheme = notificationTheme;
             this.navigationService.CurrentViewChanged += NavigationService_CurrentViewChanged;
         }
 
-        private void NavigationService_CurrentViewChanged(object? sender, ODMVVM.ViewModels.ODViewModel? e)
+        private void NavigationService_CurrentViewChanged(object? sender, ODViewModel? e)
         {
             if (e == null)
             {
@@ -35,12 +39,15 @@ namespace ODEliteTracker.Stores
         private readonly IODDatabaseProvider databaseProvider;
         private readonly ThemeManager themeManager;
         private readonly IODNavigationService navigationService;
+        private readonly NotificationThemeManager notificationTheme;
 
         public int SelectedCommanderID { get; set; } = 0;
         public Type CurrentViewModel { get; set; } = typeof(MassacreMissionsViewModel);
         public Theme CurrentTheme { get; set; } = Theme.OD;
         public JournalLogAge JournalAge { get; set; } = JournalLogAge.OneHundredEightyDays;
         public ODWindowPosition MainWindowPosition { get; set; } = new();
+
+        public NotificationSettings NotificationSettings { get; set; } = NotificationSettings.GetDefault();
 
         public DateTime JournalAgeDateTime
         {
@@ -77,10 +84,12 @@ namespace ODEliteTracker.Stores
                 PowerPlaySettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(PowerPlaySettings)), new PowerPlaySettings());
                 JournalAge = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(JournalAge)), JournalLogAge.OneHundredEightyDays);
                 MainWindowPosition = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(MainWindowPosition)), MainWindowPosition);
+                NotificationSettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(NotificationSettings)), NotificationSettings.GetDefault());
             }
 
-            //Apply Theme
+            //Apply Themes
             themeManager.SetTheme(CurrentTheme);
+            notificationTheme.SetTheme(NotificationSettings.CurrentTheme);
 
             if (MainWindowPosition.IsZero)
             {
@@ -101,6 +110,7 @@ namespace ODEliteTracker.Stores
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(BGSViewSettings), BGSViewSettings),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(PowerPlaySettings), PowerPlaySettings),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(MainWindowPosition), MainWindowPosition),
+                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(NotificationSettings), NotificationSettings),
             };
 
             databaseProvider.AddSettings(settings);
