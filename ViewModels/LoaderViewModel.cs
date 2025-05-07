@@ -45,7 +45,7 @@ namespace ODEliteTracker.ViewModels
                 {
                     var update = ODDialogService.ShowWithOwner(null, $"Version {updateInfo.Version} is available", "Would you like to download?", System.Windows.MessageBoxButton.YesNo);
 
-                    if(update == System.Windows.MessageBoxResult.OK)
+                    if(update == System.Windows.MessageBoxResult.Yes)
                     {
                         ODMVVM.Helpers.OperatingSystem.OpenUrl(updateInfo.Url);
                     }                    

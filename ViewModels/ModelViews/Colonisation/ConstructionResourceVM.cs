@@ -15,6 +15,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
             ProvidedAmount = resource.ProvidedAmount;
             Payment = resource.Payment;
         }
+
         private Commodity details;
         public string FDEVName { get; set; }
         public string LocalName { get; set; }
@@ -26,8 +27,6 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
         public string Delivered => ProvidedAmount > 0 ? $"{ProvidedAmount:N0} t" : string.Empty;
         public string Remaining => $"{RemainingCount:N0} t";
         public int Payment { get; set; }
-
-
 
         internal void Update(ConstructionResource resource)
         {
@@ -41,6 +40,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
             OnPropertyChanged(nameof(Delivered));
             OnPropertyChanged(nameof(Remaining));
             OnPropertyChanged(nameof(Payment));
+            OnPropertyChanged(nameof(RemainingCount));
         }
     }
 }

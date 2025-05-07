@@ -17,11 +17,11 @@ namespace ODEliteTracker.Notifications
 
             switch (args.Type)
             {
-                case NotificationType.Station:
+                case NotificationOptions.Station:
                     ImageSource = "/Assets/Icons/Coriolis_sm.png";
                     break;
                 default:
-                case NotificationType.System:
+                case NotificationOptions.System:
                     ImageSource = "/Assets/Icons/orrery_map.png";
                     break;
             }            

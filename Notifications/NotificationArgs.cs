@@ -1,10 +1,6 @@
-﻿namespace ODEliteTracker.Notifications
-{
-    public enum NotificationType
-    {
-        System,
-        Station
-    }
+﻿using ODEliteTracker.Models.Settings;
 
-    public record NotificationArgs(string Header, string[] Text, NotificationType Type);
+namespace ODEliteTracker.Notifications
+{
+    public record NotificationArgs(string Header, string[] Text, NotificationOptions Type);
 }

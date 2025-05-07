@@ -1,0 +1,142 @@
+﻿<UserControl x:Class="ODEliteTracker.Controls.Bounties.BountyViewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ODEliteTracker.Controls.Bounties"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:Shared="clr-namespace:ODEliteTracker.ViewModels.ModelViews.Shared"
+             xmlns:controls="clr-namespace:ODEliteTracker.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Shared:BountyManagerVM}"
+             x:Name="Root"
+             d:DesignHeight="450"
+             d:DesignWidth="800">
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="sortingEnum"
+                            MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="Shared:BountySorting" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
+    <Grid Margin="5,5,0,5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Current bounty vouchers"
+                   Foreground="{DynamicResource PrimaryForeground}"
+                   Grid.Row="0" />
+
+            <Label Content="Sorting :"
+                   Foreground="{DynamicResource PrimaryForeground}"
+                   Margin="20,0,0,0" />
+            <ComboBox x:Name="SortingSelector"
+                      ItemsSource="{Binding Source={StaticResource sortingEnum}}"
+                      SelectedItem="{Binding Sorting}"
+                      VerticalAlignment="Center"
+                      Height="25"
+                      Width="80" />
+            <TextBlock Text="Top Most Faction :"
+                       VerticalAlignment="Center"
+                       Margin="20,0,0,0" />
+            <TextBox Text="{Binding TopFaction}"
+                     Margin="10,0"
+                     Width="300"
+                     BorderThickness="1"
+                     BorderBrush="{DynamicResource EliteBtnBorder}"
+                     Background="{DynamicResource ViewBackground}"
+                     CaretBrush="{DynamicResource PrimaryControlForeground}"
+                     VerticalContentAlignment="Center" />
+            <Button Content="Set Faction"
+                    Style="{DynamicResource EliteStyleButton}"
+                    Command="{Binding SetTopMostFaction}"
+                    CommandParameter="{Binding TopFaction}"
+                    Margin="5,0" />
+        </StackPanel>
+        <DataGrid ItemsSource="{Binding Bounties}"
+                  HeadersVisibility="Column"
+                  Grid.Row="1"
+                  FontSize="22"
+                  CanUserResizeColumns="True"
+                  CanUserReorderColumns="False"
+                  SelectionMode="Single"
+                  AlternationCount="1"
+                  x:Name="Grid"
+                  AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                  ScrollViewer.VerticalScrollBarVisibility="Visible"
+                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                  MinRowHeight="30"
+                  Style="{StaticResource BaseDataGridStyle}"
+                  CellStyle="{DynamicResource NoSelectCell}"
+                  RowStyle="{StaticResource NoSelectRowStyle}">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                        CellStyle="{DynamicResource ButtonGridCell}"
+                                        Width="25">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button FontFamily="Segoe MDL2 Assets"
+                                    Style="{DynamicResource EliteStyleButton}"
+                                    Content="&#xE74D;"
+                                    Command="{Binding ElementName=Grid, Path=DataContext.AddIgnoredBounties}"
+                                    CommandParameter="{Binding Name}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsHitTestVisible="True"
+                                    BorderThickness="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Faction"
+                                    MinWidth="150"
+                                    Width="*"
+                                    IsReadOnly="True"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                    Binding="{Binding Name}" />
+                <DataGridTextColumn Header="Count"
+                                    Width="80"
+                                    IsReadOnly="True"
+                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                    ElementStyle="{DynamicResource DataGridElementCenter}"
+                                    Binding="{Binding Count}" />
+                <DataGridTextColumn Header="Value"
+                                    Width="150"
+                                    IsReadOnly="True"
+                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                    ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                    Binding="{Binding Value}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="3"
+              Margin="0,0,19,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="80" />
+                <ColumnDefinition Width="150" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="1"
+                   HorizontalContentAlignment="Right"
+                   Margin="0,0,5,0"
+                   Foreground="{DynamicResource PrimaryForeground}"
+                   Content="{Binding TotalBVCount}"
+                   ContentStringFormat="N0" />
+
+            <Label Grid.Column="2"
+                   HorizontalContentAlignment="Right"
+                   Margin="0,0,5,0"
+                   Foreground="{DynamicResource PrimaryForeground}"
+                   Content="{Binding TotalBVValue}"
+                   ContentStringFormat="N0" />
+        </Grid>
+    </Grid>
+</UserControl>

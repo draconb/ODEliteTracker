@@ -36,7 +36,8 @@ namespace ODEliteTracker.Models
     {
         ShowAll,
         Name,
-        Category
+        Category,
+        Remaining
     }
 
     public enum TradeMissionType

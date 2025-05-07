@@ -2,6 +2,7 @@
 using ODEliteTracker.Models.Missions;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews.BGS;
+using ODEliteTracker.ViewModels.ModelViews.Shared;
 using ODMVVM.Commands;
 using ODMVVM.Extensions;
 using ODMVVM.Services.MessageBox;
@@ -15,6 +16,7 @@ namespace ODEliteTracker.ViewModels
     public sealed class BGSViewModel : ODViewModel
     {
         public BGSViewModel(BGSDataStore dataStore,
+                            SharedDataStore sharedDataStore,
                             SettingsStore settings)
         {
             this.dataStore = dataStore;
@@ -34,10 +36,14 @@ namespace ODEliteTracker.ViewModels
             CreateDiscordPostCommand = new ODRelayCommand(OnCreateDiscordPost);
             OpenInaraCommand = new ODRelayCommand(OnOpenInara);
 
-
             missionExpiryUpdateTimer = new Timer(OnUpdateExpiry, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+
             if (dataStore.IsLive)
                 OnStoreLive(null, true);
+
+            bountyManager = new(sharedDataStore);
+            bountyManager.TopFactionSet += OnTopFactionSet;
+            bountyManager.TopFaction = settings.BGSViewSettings.TopMostBountyFaction;
         }
 
         private void OnOpenInara(object? obj)
@@ -59,62 +65,8 @@ namespace ODEliteTracker.ViewModels
             this.dataStore.VouchersClaimedEvent -= OnVoucherClaimed;
             this.dataStore.OnNewTickDetected -= OnNewTick;
             missionExpiryUpdateTimer.Dispose();
-        }
-
-        private void OnSetSelectedSystem(BGSTickSystemVM vM)
-        {
-            SelectedSystem = vM;
-        }
-
-        private void OnNewTick(object? sender, EventArgs e)
-        {
-            var ticks = dataStore.TickData.OrderByDescending(x => x.Time).Select(x => new TickDataVM(x));
-            Ticks.ClearCollection();
-            Ticks.AddRange(ticks);
-
-            SelectedTick = Ticks.FirstOrDefault();
-
-            PopulateSystems();
-            PopulateMissions();
-            OnPropertyChanged(nameof(Ticks));
-        }
-
-        private async Task OnDeleteTick()
-        {
-            if (SelectedTick == null)
-                return;
-
-            await dataStore.DeleteTick(SelectedTick.ID);
-
-            var ticks = dataStore.TickData.OrderByDescending(x => x.Time).Select(x => new TickDataVM(x));
-            Ticks.ClearCollection();
-            Ticks.AddRange(ticks);
-
-            SelectedTick = Ticks.FirstOrDefault();
-
-            PopulateSystems();
-            PopulateMissions();
-            OnPropertyChanged(nameof(Ticks));
-        }
-
-        private async Task OnAddNewTick(Window? window)
-        {
-            var time = ODDialogService.ShowDateTimeSelector(window, "Add Tick", DateTime.UtcNow.AddYears(1286));
-
-            if (time.Result == true)
-            {
-                var tick = await dataStore.AddTick(time.Time.AddYears(-1286));
-
-                var ticks = dataStore.TickData.OrderByDescending(x => x.Time).Select(x => new TickDataVM(x));
-                Ticks.ClearCollection();
-                Ticks.AddRange(ticks);
-
-                SelectedTick = Ticks.FirstOrDefault(x => string.Equals(x.ID, tick.Id)) ?? Ticks.FirstOrDefault();
-
-                PopulateSystems();
-                PopulateMissions();
-                OnPropertyChanged(nameof(Ticks));
-            }
+            bountyManager.TopFactionSet -= OnTopFactionSet;
+            bountyManager.Dispose();
         }
 
         private readonly Timer missionExpiryUpdateTimer;
@@ -128,6 +80,7 @@ namespace ODEliteTracker.ViewModels
         public ICommand DeletedTickCommand { get; }
         public ICommand CreateDiscordPostCommand { get; }
         public ICommand OpenInaraCommand { get; }
+
         public bool HideSystemsWithoutBGSData
         {
             get => settings.BGSViewSettings.HideSystemsWithoutData;
@@ -206,6 +159,16 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
+        private BountyManagerVM bountyManager;
+        public BountyManagerVM BountyManager
+        {
+            get => bountyManager;
+            set
+            {
+                bountyManager = value;
+                OnPropertyChanged(nameof(BountyManager));
+            }
+        }
         private void OnStoreLive(object? sender, bool e)
         {
             if (e)
@@ -349,10 +312,72 @@ namespace ODEliteTracker.ViewModels
             Missions.ClearCollection();
             Missions.AddRange(missions);
         }
+
         private void PopulateMegaships()
         {
             MegaShipScans = dataStore.MegaShipScans.Select(x => new MegaShipScanVM(x));
             OnPropertyChanged(nameof(MegaShipScans));
+        }
+
+        private void OnSetSelectedSystem(BGSTickSystemVM vM)
+        {
+            SelectedSystem = vM;
+        }
+
+        private void OnNewTick(object? sender, EventArgs e)
+        {
+            var ticks = dataStore.TickData.OrderByDescending(x => x.Time).Select(x => new TickDataVM(x));
+            Ticks.ClearCollection();
+            Ticks.AddRange(ticks);
+
+            SelectedTick = Ticks.FirstOrDefault();
+
+            PopulateSystems();
+            PopulateMissions();
+            OnPropertyChanged(nameof(Ticks));
+        }
+
+        private async Task OnDeleteTick()
+        {
+            if (SelectedTick == null)
+                return;
+
+            await dataStore.DeleteTick(SelectedTick.ID);
+
+            var ticks = dataStore.TickData.OrderByDescending(x => x.Time).Select(x => new TickDataVM(x));
+            Ticks.ClearCollection();
+            Ticks.AddRange(ticks);
+
+            SelectedTick = Ticks.FirstOrDefault();
+
+            PopulateSystems();
+            PopulateMissions();
+            OnPropertyChanged(nameof(Ticks));
+        }
+
+        private async Task OnAddNewTick(Window? window)
+        {
+            var time = ODDialogService.ShowDateTimeSelector(window, "Add Tick", DateTime.UtcNow.AddYears(1286));
+
+            if (time.Result == true)
+            {
+                var tick = await dataStore.AddTick(time.Time.AddYears(-1286));
+
+                var ticks = dataStore.TickData.OrderByDescending(x => x.Time).Select(x => new TickDataVM(x));
+                Ticks.ClearCollection();
+                Ticks.AddRange(ticks);
+
+                SelectedTick = Ticks.FirstOrDefault(x => string.Equals(x.ID, tick.Id)) ?? Ticks.FirstOrDefault();
+
+                PopulateSystems();
+                PopulateMissions();
+                OnPropertyChanged(nameof(Ticks));
+            }
+        }
+
+        private void OnTopFactionSet(object? sender, string e)
+        {
+            this.settings.BGSViewSettings.TopMostBountyFaction = e;
         }
     }
 }

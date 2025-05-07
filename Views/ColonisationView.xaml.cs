@@ -1,6 +1,7 @@
 ﻿using ODEliteTracker.ViewModels.ModelViews.Colonisation;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace ODEliteTracker.Views
 {
@@ -39,6 +40,19 @@ namespace ODEliteTracker.Views
                         break;
                 }
             }
+        }
+
+        private void Popup_Closed(object sender, EventArgs e)
+        {
+            if (!object.Equals(this.button, Mouse.DirectlyOver))
+            {
+                this.button.IsChecked = false;
+            }
+        }
+
+        private void Popup_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            this.button.IsChecked = false;
         }
     }
 }

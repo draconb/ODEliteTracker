@@ -17,7 +17,9 @@ namespace ODEliteTracker.Services
         private Notifier notifier;
         private MessageOptions messageOptions;
 
-        public NotificationService(SettingsStore settingsStore) 
+        private bool NotificationsEnabled => settingsStore.NotificationSettings.NotificationsEnabled;
+
+        public NotificationService(SettingsStore settingsStore)
         {
             this.settingsStore = settingsStore;
             var settings = settingsStore.NotificationSettings;
@@ -50,8 +52,8 @@ namespace ODEliteTracker.Services
         {
             notifier?.Dispose();
 
-            IPositionProvider provider = settings.Placement == NotificationPlacement.Monitor ? 
-                new PrimaryScreenPositionProvider(settings.DisplayRegion, settings.XOffset, settings.YOffset) : 
+            IPositionProvider provider = settings.Placement == NotificationPlacement.Monitor ?
+                new PrimaryScreenPositionProvider(settings.DisplayRegion, settings.XOffset, settings.YOffset) :
                 new WindowPositionProvider(Application.Current.MainWindow, settings.DisplayRegion, settings.XOffset, settings.YOffset);
 
             notifier = new Notifier(cfg =>
@@ -90,8 +92,12 @@ namespace ODEliteTracker.Services
             notifier.Notify(() => new TestNotification(string.Empty, messageOptions, notificationSettings));
         }
 
+
         internal void ShowBasicNotification(NotificationArgs args)
         {
+            if (NotificationsEnabled == false || settingsStore.NotificationSettings.Options.HasFlag(args.Type) == false)
+                return;
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 notifier.Notify(() => new BasicNotification(string.Empty, messageOptions, args, settingsStore.NotificationSettings));
@@ -100,6 +106,9 @@ namespace ODEliteTracker.Services
 
         internal void ShowShipTargetedNotification(string name, string type, TargetType targetType, int bounty, string faction, string? power)
         {
+            if (NotificationsEnabled == false || settingsStore.NotificationSettings.Options.HasFlag(NotificationOptions.ShipScanned) == false)
+                return;
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 notifier.Notify(() => new ShipScannedNotification(name, messageOptions, settingsStore.NotificationSettings, type, targetType, bounty, faction, power));

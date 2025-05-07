@@ -1,35 +1,47 @@
 ﻿using EliteJournalReader;
 using EliteJournalReader.Events;
-using NetTopologySuite.Geometries;
+using ODEliteTracker.Database;
 using ODEliteTracker.Helpers;
+using ODEliteTracker.Managers;
+using ODEliteTracker.Models.BGS;
 using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Models.Market;
+using ODEliteTracker.Models.Settings;
 using ODEliteTracker.Models.Ship;
 using ODEliteTracker.Notifications;
 using ODEliteTracker.Notifications.ScanNotification;
 using ODEliteTracker.Services;
+using ODJournalDatabase.Database.Interfaces;
 using ODJournalDatabase.JournalManagement;
 using ODMVVM.Helpers;
-using System.Xml.Linq;
 
 namespace ODEliteTracker.Stores
 {
     public sealed class SharedDataStore : LogProcessorBase
     {
         public SharedDataStore(IManageJournalEvents journalManager,
-                               NotificationService notificationService)
+                               NotificationService notificationService,
+                               IODDatabaseProvider databaseProvider,
+                               SettingsStore settings)
         {
             this.journalManager = journalManager;
             this.notificationService = notificationService;
+            this.settings = settings;
+            this.databaseProvider = (ODEliteTrackerDatabaseProvider)databaseProvider;
             this.journalManager.RegisterLogProcessor(this);
+
+            bountiesManager = new(databaseProvider);
         }
 
         #region Private fields
         private readonly IManageJournalEvents journalManager;
         private readonly NotificationService notificationService;
+        private readonly SettingsStore settings;
+        private readonly ODEliteTrackerDatabaseProvider databaseProvider;
         private Dictionary<string, FactionData> factions = [];
         private string? lastShipTarget;
         private string? commanderPower;
+        private BountiesManager bountiesManager;
         #endregion
 
         #region Public Properties
@@ -49,6 +61,8 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.Loadout, true },
                 { JournalTypeEnum.Cargo, false },
                 { JournalTypeEnum.ShipTargeted, false },
+                { JournalTypeEnum.Bounty, true },
+                { JournalTypeEnum.RedeemVoucher, true},
             };
         }
         public Dictionary<string, FactionData> Factions => factions;
@@ -65,6 +79,7 @@ namespace ODEliteTracker.Stores
         public EventHandler<StationMarket?>? MarketEvent;
         public EventHandler<ShipInfo?>? ShipChangedEvent;
         public EventHandler<IEnumerable<ShipCargo>?>? ShipCargoUpdatedEvent;
+        public EventHandler? BountiesUpdated;
         #endregion
 
         public override void ClearData()
@@ -212,7 +227,7 @@ namespace ODEliteTracker.Stores
                             $"{docked.StationEconomy_Localised ?? docked.StationEconomy}",
                             $"{docked.LandingPads.LandPadText()}"
                         ],
-                        NotificationType.Station);
+                        NotificationOptions.Station);
 
                     notificationService.ShowBasicNotification(args);
                     break;
@@ -293,7 +308,32 @@ namespace ODEliteTracker.Stores
 
                     notificationService.ShowShipTargetedNotification(pilotName, EliteHelpers.ConvertShipName(shipTargeted.Ship), targetType, shipTargeted.Bounty, shipTargeted.Faction, shipTargeted.Power);
                     break;
+                case BountyEvent.BountyEventArgs bounty:
 
+                    if (bounty.Rewards is null || bounty.Rewards.Count == 0)
+                        break;
+
+                    foreach (var reward in bounty.Rewards)
+                    {
+                        bountiesManager.AddBounty(new VoucherClaim(Models.VoucherType.Bounty, reward.Faction, reward.Reward, bounty.Timestamp));
+                    }
+
+                    FireBountiesChangedIfLive();
+                    break;
+                case RedeemVoucherEvent.RedeemVoucherEventArgs redeemVoucher:
+
+                    if (!string.Equals(redeemVoucher.Type, "Bounty", StringComparison.OrdinalIgnoreCase))
+                        break;
+
+                    var fireEvent = false;
+                    foreach (var faction in redeemVoucher.Factions)
+                    {
+                        fireEvent = bountiesManager.FactionBountiesClaimed(faction.Faction) | fireEvent;
+                    }
+
+                    if (fireEvent)
+                        FireBountiesChangedIfLive();
+                    break;
             }
         }
 
@@ -302,7 +342,7 @@ namespace ODEliteTracker.Stores
             if (IsLive == false)
                 return;
 
-            var args = new NotificationArgs(name, fields, NotificationType.System);
+            var args = new NotificationArgs(name, fields, NotificationOptions.System);
             notificationService.ShowBasicNotification(args);
         }
 
@@ -340,6 +380,36 @@ namespace ODEliteTracker.Stores
                 {
                     this.factions.TryAdd(faction.Name, new(faction.Name, faction.Government, faction.Allegiance));
                 }
+            }
+        }
+
+        public override void RunBeforeParsingHistory(int currentCmdrId)
+        {
+            bountiesManager.Initialise(currentCmdrId);
+        }
+
+        public void AddIgnoredBountyFaction(string factionName)
+        {
+            bountiesManager.AddIgnoredBounty(settings.SelectedCommanderID, factionName);
+            FireBountiesChangedIfLive();           
+        }
+
+        public void RemoveIgnoreBountyFaction(string factionName)
+        {
+            bountiesManager.RemovedIgnoreBounty(settings.SelectedCommanderID, factionName);
+            FireBountiesChangedIfLive();
+        }
+
+        public List<BountyClaims> GetBounties()
+        {
+            return bountiesManager.GetBounties();
+        }
+
+        private void FireBountiesChangedIfLive()
+        {
+            if (IsLive)
+            {
+                BountiesUpdated?.Invoke(this, EventArgs.Empty); 
             }
         }
 

@@ -102,7 +102,7 @@ namespace ODEliteTracker.Models.BGS
             if (tickData == null) 
                 return null;
 
-            var claims = VoucherClaims.Where(x => data.TimeWithinTick(x.TimeClaimed));
+            var claims = VoucherClaims.Where(x => data.TimeWithinTick(x.Timestamp));
             var transactions = Transactions.Where(x => data.TimeWithinTick(x.TransactionTime));
             var crimes = Crimes.Where(x => data.TimeWithinTick(x.EventTime));
             var carto = CartoData.Where(x => data.TimeWithinTick(x.EventTime));

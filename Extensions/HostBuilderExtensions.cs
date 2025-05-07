@@ -78,13 +78,17 @@ namespace ODEliteTracker.Extensions
                 httpClient.BaseAddress = new Uri("https://elitebgs.app/api/ebgs/v5/");
                 httpClient.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue("application/json"));
+                httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+                {
+                    NoCache = true,
+                };
             })
            .ConfigurePrimaryHttpMessageHandler(() =>
            {
                return new SocketsHttpHandler
                {
                    PooledConnectionLifetime = TimeSpan.FromSeconds(5),
-                   ConnectTimeout = TimeSpan.FromSeconds(10),
+                   ConnectTimeout = TimeSpan.FromSeconds(10),                  
                };
            });
         }

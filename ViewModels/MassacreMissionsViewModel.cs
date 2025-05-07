@@ -63,12 +63,14 @@ namespace ODEliteTracker.ViewModels
                 AddMissionToStack(mission);
             }
 
-            var factionMissions = stacks.Where(x => x.ActiveMissionCount > 0)
+            var factionMissions = Stacks.Where(x => x.ActiveMissionCount > 0)
                                         .SelectMany(x => x.Missions)
                                         .Where(x => x.CurrentState <= MissionState.Completed)
                                         .GroupBy(x => x.TargetFaction)
                                         .ToDictionary(x => x.Key, x => x.ToList());
-            FactionStacks = [.. factionMissions.Select(x => new FactionStackVM(x.Key, x.Value))];
+
+            
+            FactionStacks = factionMissions.Count != 0 ? [.. factionMissions.Select(x => new FactionStackVM(x.Key, x.Value))] : [];
 
             SetMissionCollections();
             OnPropertyChanged(nameof(FactionStacks));
@@ -87,13 +89,15 @@ namespace ODEliteTracker.ViewModels
                                       .Where(x => x.CurrentState == MissionState.Completed)
                                       .OrderByDescending(x => x.CompletionTime);
 
-            var maxKills = Stacks.Max(x => x.Kills);
-
-            foreach (var stack in Stacks)
+            if (Stacks.Any())
             {
-                stack.KillDifference = maxKills - stack.Kills;
-            }
+                var maxKills = Stacks.Max(x => x.Kills);
 
+                foreach (var stack in Stacks)
+                {
+                    stack.KillDifference = maxKills - stack.Kills;
+                }
+            }
             OnPropertyChanged(nameof(ActiveMissions));
             OnPropertyChanged(nameof(CompletedMissions));
             OnPropertyChanged(nameof(ActiveMissionCount));
@@ -131,9 +135,11 @@ namespace ODEliteTracker.ViewModels
 
             mission.Update(e);
 
-            if(e.CurrentState >= MissionState.Completed)
-            {
-                var stack = stacks.FirstOrDefault(x => string.Equals(x.IssuingFaction, mission.IssuingFaction));
+            var stack = stacks.FirstOrDefault(x => string.Equals(x.IssuingFaction, mission.IssuingFaction));
+            stack?.UpdateKills();
+
+            if (e.CurrentState >= MissionState.Completed)
+            {               
 
                 if (stack != null && stack.UpdateMission(e))
                 {
@@ -142,6 +148,8 @@ namespace ODEliteTracker.ViewModels
                 SetMissionCollections();
                 OnPropertyChanged(nameof(Stacks));
             }
+
+            var stackss = Stacks.ToList();
             var factionStack = FactionStacks.FirstOrDefault(x => string.Equals(x.TargetFaction, e.TargetFaction));
 
             if (factionStack == null)

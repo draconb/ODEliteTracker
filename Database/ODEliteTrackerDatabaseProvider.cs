@@ -118,14 +118,14 @@ namespace ODEliteTracker.Database
                                                  x.CommanderID,
                                                  (int)x.EventType,
                                                  x.OriginalEvent?.ToString(Formatting.None) ?? string.Empty)
-              
+
                 ).ToArray();
 
 
             using var context = _contextFactory.CreateDbContext();
 
             context.BulkInsertOrUpdate(entriesToAdd, new BulkConfig() { PropertiesToIncludeOnCompare = ["TimeStamp", "Offset"] });
-  
+
             var connection = context.Database.GetDbConnection();
             connection.Open();
             using (var command = connection.CreateCommand())
@@ -335,7 +335,7 @@ namespace ODEliteTracker.Database
         {
             using var context = _contextFactory.CreateDbContext();
 
-            var knownDepot = context.InactiveDepots.FirstOrDefault(x =>x.MarketID == marketID && x.SystemAddress == systemAddress && x.StationName == stationName);
+            var knownDepot = context.InactiveDepots.FirstOrDefault(x => x.MarketID == marketID && x.SystemAddress == systemAddress && x.StationName == stationName);
 
             if (knownDepot != null)
             {
@@ -376,6 +376,44 @@ namespace ODEliteTracker.Database
 
             context.TickData.Remove(data);
             await context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Bounties
+        public Dictionary<string, DateTime> GetIgnoredBounties(int commanderID)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            return context.IgnoredBounties.Where(x => x.CommanderID == commanderID).ToDictionary(x => x.FactionName, x => x.BeforeDate);
+        }
+
+        public void DeleteIgnoredBounty(int commanderID, string factionName)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var data = context.IgnoredBounties.FirstOrDefault(x => x.CommanderID == commanderID && string.Equals(x.FactionName, factionName));
+
+            if (data is null)
+                return;
+
+            context.IgnoredBounties.Remove(data);
+            context.SaveChanges();
+        }
+
+        public void AddIgnoredBounty(int commanderID, string factionName, DateTime beforeDate)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var known = context.IgnoredBounties.FirstOrDefault(x => x.CommanderID == commanderID && string.Equals(x.FactionName, factionName));
+
+            if (known == null)
+            {
+                known = new IgnoredBounties(commanderID, factionName, beforeDate);
+                context.IgnoredBounties.Add(known);
+            }
+
+            known.BeforeDate = beforeDate;
+            context.SaveChanges();
         }
         #endregion
     }

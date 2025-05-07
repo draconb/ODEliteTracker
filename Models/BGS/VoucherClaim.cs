@@ -6,9 +6,9 @@ namespace ODEliteTracker.Models.BGS
     {
         public VoucherClaim(string type, FactionAmount factionAmount, DateTime timeClaimed)
         {
-             Faction = factionAmount.Faction;
+            Faction = factionAmount.Faction;
             Value = factionAmount.Amount;
-            TimeClaimed = timeClaimed;
+            Timestamp = timeClaimed;
 
             if (Enum.TryParse(type, true, out VoucherType voucherType))
             {
@@ -20,7 +20,7 @@ namespace ODEliteTracker.Models.BGS
         {
             Faction = faction;
             Value = amount;
-            TimeClaimed = timestamp;
+            Timestamp = timestamp;
 
             if (Enum.TryParse(type, true, out VoucherType voucherType))
             {
@@ -28,9 +28,17 @@ namespace ODEliteTracker.Models.BGS
             }
         }
 
+        public VoucherClaim(VoucherType type, string faction, long amount, DateTime timestamp)
+        {
+            Faction = faction;
+            Value = amount;
+            Timestamp = timestamp;
+            VoucherType = type;
+        }
+
         public VoucherType VoucherType { get; } = VoucherType.Unknown;
         public string Faction { get; }
         public long Value { get; }
-        public DateTime TimeClaimed { get; }
+        public DateTime Timestamp { get; }
     }
 }

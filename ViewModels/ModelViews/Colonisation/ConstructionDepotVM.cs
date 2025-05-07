@@ -27,7 +27,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
         public ObservableCollection<ConstructionResourceVM> Resources { get; set; } 
             = [.. depot.Resources.Select(resource => new ConstructionResourceVM(resource))];
 
-        public IEnumerable<ConstructionResourceVM> FilteredResources => Resources.OrderBy(x => x.Category).ThenBy(x => x.LocalName).Where(x => x.RemainingCount > 0);
+        public IEnumerable<ConstructionResourceVM> FilteredResources => Resources.Where(x => x.RemainingCount > 0).OrderBy(x => x.Category).ThenBy(x => x.LocalName);
 
         private bool isSelected;
         public bool IsSelected

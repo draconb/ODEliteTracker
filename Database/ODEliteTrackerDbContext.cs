@@ -8,5 +8,6 @@ namespace ODEliteTracker.Database
     {
         public DbSet<InactiveDepotsDTO> InactiveDepots { get; set; }
         public DbSet<BGSTickData> TickData { get; set; }
+        public DbSet<IgnoredBounties> IgnoredBounties { get; set; }
     }
 }

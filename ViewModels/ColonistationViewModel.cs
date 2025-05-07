@@ -1,4 +1,5 @@
-﻿using ODEliteTracker.Models;
+﻿using ODEliteTracker.Helpers;
+using ODEliteTracker.Models;
 using ODEliteTracker.Models.Colonisation;
 using ODEliteTracker.Models.Market;
 using ODEliteTracker.Models.Ship;
@@ -44,6 +45,8 @@ namespace ODEliteTracker.ViewModels
             SetSelectedDepotCommand = new ODRelayCommand<ConstructionDepotVM?>(SetSelectedDepot);
             SetSelectedCommanderSystemCommand = new ODRelayCommand<CommanderSystemVM?>(SetSelectedCommanderSystem);
             SetActiveStateCommand = new ODRelayCommand<ConstructionDepotVM>(SetDepotActiveState);
+            CreatePostCommand = new ODRelayCommand<ColonisationPostType>(CreatePost);
+
             Depots.CollectionChanged += Depots_CollectionChanged;
 
             if (colonisationStore.IsLive)
@@ -75,6 +78,7 @@ namespace ODEliteTracker.ViewModels
         public ICommand SetSelectedDepotCommand { get; }
         public ICommand SetActiveStateCommand { get; }
         public ICommand SetSelectedCommanderSystemCommand { get; }
+        public ICommand CreatePostCommand { get; }
         #endregion
 
         #region Public properties
@@ -113,8 +117,9 @@ namespace ODEliteTracker.ViewModels
                 return CommoditySorting switch
                 {
                     CommoditySorting.ShowAll => SelectedDepot.Resources,
-                    CommoditySorting.Category => SelectedDepot.Resources.OrderBy(x => x.Category).ThenBy(x => x.LocalName).Where(x => x.RemainingCount > 0),
-                    _ => SelectedDepot.Resources.OrderBy(x => x.LocalName).Where(x => x.RemainingCount > 0),
+                    CommoditySorting.Category => SelectedDepot.Resources.Where(x => x.RemainingCount > 0).OrderBy(x => x.Category).ThenBy(x => x.LocalName),
+                    CommoditySorting.Remaining => SelectedDepot.Resources.Where(x => x.RemainingCount > 0).OrderByDescending(x => x.RemainingCount),
+                    _ => SelectedDepot.Resources.Where(x => x.RemainingCount > 0).OrderBy(x => x.LocalName),
                 };
             }
         }
@@ -191,6 +196,15 @@ namespace ODEliteTracker.ViewModels
         }
         #endregion
 
+        private void CreatePost(ColonisationPostType type)
+        {
+            if (SelectedDepot is null)
+                return;
+
+            var success = DiscordPostCreator.CreateColonisationPost(SelectedDepot, SelectedDepotResources, type);
+        }
+
+
         private void Depots_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             OnPropertyChanged(nameof(ActiveDepots));
@@ -237,6 +251,7 @@ namespace ODEliteTracker.ViewModels
             {
                 known.Update(e);
                 SelectedDepot = known;
+                OnPropertyChanged(nameof(SelectedDepotResources));
                 return;
             }
 
@@ -263,6 +278,8 @@ namespace ODEliteTracker.ViewModels
    
                 foreach (var depot in colonisationStore.Depots)
                 {
+                    if (depot.Progress >= 1)
+                        continue;
                     var newDepot = new ConstructionDepotVM(depot);
                     Depots.AddItem(newDepot);
                     var cmdrSystem = CommanderSystems.FirstOrDefault(x => x.SystemAddress == newDepot.SystemAddress);
