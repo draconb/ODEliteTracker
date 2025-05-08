@@ -1,4 +1,5 @@
 ﻿using ODEliteTracker.Models.BGS;
+using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Models.Missions;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews.BGS;
@@ -20,7 +21,9 @@ namespace ODEliteTracker.ViewModels
                             SettingsStore settings)
         {
             this.dataStore = dataStore;
+            this.sharedDataStore = sharedDataStore;
             this.settings = settings;
+
             this.dataStore.StoreLive += OnStoreLive;
             this.dataStore.MissionAddedEvent += OnMissionAdded;
             this.dataStore.MissionUpdatedEvent += OnMissionUpdated;
@@ -30,6 +33,8 @@ namespace ODEliteTracker.ViewModels
             this.dataStore.VouchersClaimedEvent += OnVoucherClaimed;
             this.dataStore.OnNewTickDetected += OnNewTick;
 
+            this.sharedDataStore.StoreLive += OnSharedDataLive;
+            this.sharedDataStore.CurrentSystemChanged += OnCurrentSystemChanged;
             SetSelectedSystemCommand = new ODRelayCommand<BGSTickSystemVM>(OnSetSelectedSystem);
             AddNewTickCommand = new ODAsyncRelayCommand<Window?>(OnAddNewTick);
             DeletedTickCommand = new ODAsyncRelayCommand(OnDeleteTick, () => SelectedTick?.ManualTick == true);
@@ -38,20 +43,17 @@ namespace ODEliteTracker.ViewModels
 
             missionExpiryUpdateTimer = new Timer(OnUpdateExpiry, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
-            if (dataStore.IsLive)
-                OnStoreLive(null, true);
-
-            bountyManager = new(sharedDataStore);
+            bountyManager = new(this.sharedDataStore);
             bountyManager.TopFactionSet += OnTopFactionSet;
             bountyManager.TopFaction = settings.BGSViewSettings.TopMostBountyFaction;
-        }
 
-        private void OnOpenInara(object? obj)
-        {
-            if (selectedSystem == null)
-                return;
+            materialTraders = new();
 
-            ODMVVM.Helpers.OperatingSystem.OpenUrl($"https://inara.cz/galaxy-starsystem/?search={selectedSystem.NonUpperName.Replace(' ', '+')}");
+            if (this.dataStore.IsLive)
+                OnStoreLive(null, true);
+
+            if(this.sharedDataStore.IsLive)
+                OnSharedDataLive(null, true);
         }
 
         public override void Dispose()
@@ -67,10 +69,13 @@ namespace ODEliteTracker.ViewModels
             missionExpiryUpdateTimer.Dispose();
             bountyManager.TopFactionSet -= OnTopFactionSet;
             bountyManager.Dispose();
+            this.sharedDataStore.StoreLive -= OnSharedDataLive;
+            this.sharedDataStore.CurrentSystemChanged -= OnCurrentSystemChanged;
         }
 
         private readonly Timer missionExpiryUpdateTimer;
         private readonly BGSDataStore dataStore;
+        private readonly SharedDataStore sharedDataStore;
         private readonly SettingsStore settings;
 
         public override bool IsLive => dataStore.IsLive;
@@ -169,6 +174,17 @@ namespace ODEliteTracker.ViewModels
                 OnPropertyChanged(nameof(BountyManager));
             }
         }
+
+        private MaterialTradersVM materialTraders;
+        public MaterialTradersVM MaterialTraders
+        {
+            get => materialTraders;
+            set
+            {
+                materialTraders = value;
+                OnPropertyChanged(nameof(MaterialTraders));
+            }
+        }
         private void OnStoreLive(object? sender, bool e)
         {
             if (e)
@@ -199,6 +215,14 @@ namespace ODEliteTracker.ViewModels
                 DiscordButtonText = "Post Created";
                 Task.Delay(4000).ContinueWith(e => { DiscordButtonText = "Create Post"; });
             }
+        }
+
+        private void OnOpenInara(object? obj)
+        {
+            if (selectedSystem == null)
+                return;
+
+            ODMVVM.Helpers.OperatingSystem.OpenUrl($"https://inara.cz/galaxy-starsystem/?search={selectedSystem.NonUpperName.Replace(' ', '+')}");
         }
 
         private void OnVoucherClaimed(object? sender, BGSStarSystem e)
@@ -378,6 +402,22 @@ namespace ODEliteTracker.ViewModels
         private void OnTopFactionSet(object? sender, string e)
         {
             this.settings.BGSViewSettings.TopMostBountyFaction = e;
+        }
+
+        private void OnCurrentSystemChanged(object? sender, StarSystem? e)
+        {
+            if (e is null)
+                return;
+
+            MaterialTraders.PopulateTraders(sharedDataStore.GetNearestTraders(), e.Position);
+        }
+
+        private void OnSharedDataLive(object? sender, bool e)
+        {
+            if(e)
+            {
+                OnCurrentSystemChanged(sender, sharedDataStore.CurrentSystem);
+            }
         }
     }
 }

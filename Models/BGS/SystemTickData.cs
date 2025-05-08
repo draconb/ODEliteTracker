@@ -84,10 +84,7 @@ namespace ODEliteTracker.Models.BGS
 
         public bool VisitedDuringPeriod(DateTime from, DateTime to)
         {
-            var min = VisitedTimes.Min();
-            var max = VisitedTimes.Max();
-
-            return min >= from && max < to;
+            return VisitedTimes.Any(x => x >= from && x < to);
         }
     }
 }

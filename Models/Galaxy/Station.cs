@@ -18,6 +18,7 @@ namespace ODEliteTracker.Models.Galaxy
             StationFaction = data;
             MarketID = e.MarketID;
             StationType = e.StationType;
+            DistanceToArrival = e.DistFromStarLS;
         }
 
         public Station(DockedEvent.DockedEventArgs e, FactionData data)
@@ -26,11 +27,13 @@ namespace ODEliteTracker.Models.Galaxy
             StationFaction = data;
             MarketID = e.MarketID;
             StationType = e.StationType;
+            DistanceToArrival = e.DistFromStarLS;
         }
 
         public string StationName { get; set; }
         public FactionData StationFaction { get; set; }
         public ulong MarketID { get; set; }
         public string StationType { get; set; }
+        public double DistanceToArrival { get; set; }
     }
 }

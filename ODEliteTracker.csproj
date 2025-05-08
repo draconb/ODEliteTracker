@@ -29,6 +29,7 @@
     <None Remove="Assets\Icons\Wing.png" />
     <None Remove="Assets\Images\elite-dangerous-clean.png" />
     <None Remove="Assets\Images\OD.png" />
+    <None Remove="Assets\Json\MaterialTraders.jsonl" />
     <None Remove="Assets\Notifications\monitor.png" />
     <None Remove="Assets\Notifications\Notification Bottom Left.png" />
     <None Remove="Assets\Notifications\Notification Bottom Right.png" />
@@ -97,6 +98,7 @@
     <Resource Include="Assets\Icons\Wing.png" />
     <Resource Include="Assets\Images\elite-dangerous-clean.png" />
     <Resource Include="Assets\Images\OD.png" />
+    <EmbeddedResource Include="Assets\Json\MaterialTraders.jsonl" />
     <Resource Include="Assets\Notifications\monitor.png" />
     <Resource Include="Assets\Notifications\Notification Bottom Left.png" />
     <Resource Include="Assets\Notifications\Notification Bottom Right.png" />

@@ -8,6 +8,7 @@
              xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels"
              xmlns:wpfconverters="clr-namespace:ODMVVM.WpfConverters;assembly=ODMVVM"
              xmlns:bounties="clr-namespace:ODEliteTracker.Controls.Bounties"
+             xmlns:materialtraders="clr-namespace:ODEliteTracker.Controls.MaterialTraders"
              d:DataContext="{d:DesignInstance viewmodels:BGSViewModel}"
              mc:Ignorable="d"
              x:Name="Root"
@@ -539,6 +540,9 @@
                     <TabItem Header="Bounties"
                              DataContext="{Binding BountyManager}">
                         <bounties:BountyViewControl />
+                    </TabItem>
+                    <TabItem Header="Material Traders">
+                        <materialtraders:MaterialTradersControl DataContext="{Binding MaterialTraders}"/>
                     </TabItem>
                 </TabControl>
 

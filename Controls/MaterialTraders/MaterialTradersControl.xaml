@@ -1,0 +1,175 @@
+﻿<UserControl x:Class="ODEliteTracker.Controls.MaterialTraders.MaterialTradersControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ODEliteTracker.Controls.MaterialTraders"
+             xmlns:shared="clr-namespace:ODEliteTracker.ViewModels.ModelViews.Shared"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance {x:Type shared:MaterialTradersVM}}"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Manufactured"
+                   Foreground="{DynamicResource Header}"
+                   Margin="5"
+                   Grid.Row="0"
+                   Grid.Column="0" />
+
+        <DataGrid ItemsSource="{Binding ManufacturedTraders}"
+                  Style="{DynamicResource BaseDataGridStyle}"
+                  HeadersVisibility="Column"
+                  Margin="5"
+                  AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                  CellStyle="{DynamicResource NoSelectCell}"
+                  RowStyle="{DynamicResource NoSelectRowStyle}"
+                  Grid.Row="1"
+                  Grid.Column="0">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                        CellStyle="{DynamicResource ButtonGridCell}"
+                                        Width="25">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button FontFamily="Segoe MDL2 Assets"
+                                    Style="{DynamicResource EliteStyleButton}"
+                                    Content="&#xE74D;"
+                                    Command="{Binding CopyToClipboardCommand}"
+                                    CommandParameter="{Binding SystemName}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsHitTestVisible="True"
+                                    BorderThickness="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="System"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    Binding="{Binding SystemName}" />
+                <DataGridTextColumn Header="Station"
+                                    Width="*"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    Binding="{Binding StationName}" />
+                <DataGridTextColumn Header="Arrival"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                    Binding="{Binding DistanceToArrival}" />
+                <DataGridTextColumn Header="Distance"
+                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                    ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                    Binding="{Binding Distance}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Text="Encoded"
+                   Foreground="{DynamicResource Header}"
+                   Margin="5"
+                   Grid.Row="0"
+                   Grid.Column="1" />
+
+        <DataGrid ItemsSource="{Binding EncodedTraders}"
+                  Style="{DynamicResource BaseDataGridStyle}"
+                  HeadersVisibility="Column"
+                  Margin="5"
+                  AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                  CellStyle="{DynamicResource NoSelectCell}"
+                  RowStyle="{DynamicResource NoSelectRowStyle}"
+                  Grid.Row="1"
+                  Grid.Column="1">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                        CellStyle="{DynamicResource ButtonGridCell}"
+                                        Width="25">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button FontFamily="Segoe MDL2 Assets"
+                                    Style="{DynamicResource EliteStyleButton}"
+                                    Content="&#xE74D;"
+                                    Command="{Binding CopyToClipboardCommand}"
+                                    CommandParameter="{Binding SystemName}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsHitTestVisible="True"
+                                    BorderThickness="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="System"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    Binding="{Binding SystemName}" />
+                <DataGridTextColumn Header="Station"
+                                    Width="*"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    Binding="{Binding StationName}" />
+                <DataGridTextColumn Header="Arrival"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                    Binding="{Binding DistanceToArrival}" />
+                <DataGridTextColumn Header="Distance"
+                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                    ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                    Binding="{Binding Distance}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Text="Raw"
+                   Foreground="{DynamicResource Header}"
+                   Margin="5"
+                   Grid.Row="0"
+                   Grid.Column="2" />
+
+        <DataGrid ItemsSource="{Binding RawTraders}"
+                  Style="{DynamicResource BaseDataGridStyle}"
+                  HeadersVisibility="Column"
+                  Margin="5"
+                  AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                  CellStyle="{DynamicResource NoSelectCell}"
+                  RowStyle="{DynamicResource NoSelectRowStyle}"
+                  Grid.Row="1"
+                  Grid.Column="2">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                        CellStyle="{DynamicResource ButtonGridCell}"
+                                        Width="25">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button FontFamily="Segoe MDL2 Assets"
+                                    Style="{DynamicResource EliteStyleButton}"
+                                    Content="&#xE74D;"
+                                    Command="{Binding CopyToClipboardCommand}"
+                                    CommandParameter="{Binding SystemName}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsHitTestVisible="True"
+                                    BorderThickness="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="System"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    Binding="{Binding SystemName}" />
+                <DataGridTextColumn Header="Station"
+                                    Width="*"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    Binding="{Binding StationName}" />
+                <DataGridTextColumn Header="Arrival"
+                                    HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                    ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                    Binding="{Binding DistanceToArrival}" />
+                <DataGridTextColumn Header="Distance"
+                                    HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                    ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                    Binding="{Binding Distance}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

@@ -214,3 +214,16 @@ V1
 2:AppendColumns,E9
 2:builder,Q6
 2:columName,W4
+2:PopulateTraders,S6
+2:assembly,s
+2:resourceName,m_
+2:str,BX
+2:stream,mW
+2:reader,t9
+2:jsonReader,XV
+2:serializer,dM
+2:person,ZN
+2:GetNearestTraders,QZ
+2:currentPos,qP
+2:manufacturedTraders,CZ
+2:encodedTraders,j3

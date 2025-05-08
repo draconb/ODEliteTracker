@@ -2,16 +2,24 @@
 
 namespace ODEliteTracker.Models.Galaxy
 {
-    public sealed class Position(double x, double y, double z)
+    public sealed class Position
     {
         public const double kEpsilon = 0.00001F;
         public const double kEpsilonNormalSqrt = 1e-15F;
 
+        public Position() { }
+
+        public Position(double x, double y, double z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
         public Position(SystemPosition starPos) : this(starPos.X, starPos.Y, starPos.Z) { }
 
-        public double X { get; } = x;
-        public double Y { get; } = y;
-        public double Z { get; } = z;
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
 
         public Position FlipZ => new(X, Y, Z * -1);
 

@@ -43,7 +43,7 @@ namespace ODEliteTracker.ViewModels
 
                 if (updateInfo.Version > App.AppVersion)
                 {
-                    var update = ODDialogService.ShowWithOwner(null, $"Version {updateInfo.Version} is available", "Would you like to download?", System.Windows.MessageBoxButton.YesNo);
+                    var update = ODDialogService.ShowWithOwner(null, $"Version {updateInfo.Version} is available", "Would you like to open the download page?", System.Windows.MessageBoxButton.YesNo);
 
                     if(update == System.Windows.MessageBoxResult.Yes)
                     {

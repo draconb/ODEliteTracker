@@ -31,6 +31,7 @@ namespace ODEliteTracker.Stores
             this.journalManager.RegisterLogProcessor(this);
 
             bountiesManager = new(databaseProvider);
+            materialTraderService = new();
         }
 
         #region Private fields
@@ -42,6 +43,7 @@ namespace ODEliteTracker.Stores
         private string? lastShipTarget;
         private string? commanderPower;
         private BountiesManager bountiesManager;
+        private readonly MaterialTraderService materialTraderService;
         #endregion
 
         #region Public Properties
@@ -427,6 +429,15 @@ namespace ODEliteTracker.Stores
                     ShipCargoUpdatedEvent?.Invoke(this, CurrentShipCargo);
                 }
             }
+        }
+
+        public Tuple<IEnumerable<MaterialTrader>, IEnumerable<MaterialTrader>, IEnumerable<MaterialTrader>> GetNearestTraders()
+        {
+            //This should never happen if we have any logs
+            if (CurrentSystem == null)
+                return Tuple.Create(Enumerable.Empty<MaterialTrader>(), Enumerable.Empty<MaterialTrader>(), Enumerable.Empty<MaterialTrader>());
+
+            return materialTraderService.GetNearestTraders(CurrentSystem.Position);
         }
     }
 }

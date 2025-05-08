@@ -74,7 +74,6 @@ namespace ODEliteTracker.Extensions
         {
             services.AddHttpClient<EliteBGSApiService>((httpClient) =>
             {
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 httpClient.BaseAddress = new Uri("https://elitebgs.app/api/ebgs/v5/");
                 httpClient.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue("application/json"));
