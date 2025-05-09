@@ -502,7 +502,8 @@
                                        Margin="5,5" />
                             <DataGrid ItemsSource="{Binding SelectedSystemData.Merits}"
                                       Style="{DynamicResource BaseDataGridStyle}"
-                                      RowStyle="{DynamicResource ConstructionResourcesStyle}"
+                                      RowStyle="{DynamicResource NoSelectRowStyle}"
+                                      CellStyle="{DynamicResource NoSelectCellNoMargin}"
                                       HeadersVisibility="Column"
                                       Margin="5"
                                       Grid.Column="0"
@@ -521,7 +522,7 @@
                                     <DataGridTextColumn Header="Merits"
                                                         MinWidth="100"
                                                         HeaderStyle="{DynamicResource DataGridHeaderCenter}"
-                                                        ElementStyle="{DynamicResource DataGridElementCenter}"
+                                                        ElementStyle="{DynamicResource DataGridElementRightMargin}"
                                                         Binding="{Binding Merits}" />
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -552,7 +553,8 @@
                                            Grid.Column="1" />
                                 <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsCollected}"
                                           Style="{DynamicResource BaseDataGridStyle}"
-                                          RowStyle="{DynamicResource ConstructionResourcesStyle}"
+                                          RowStyle="{DynamicResource NoSelectRowStyle}"
+                                          CellStyle="{DynamicResource NoSelectCellNoMargin}"
                                           HeadersVisibility="Column"
                                           Margin="5"
                                           Grid.Column="1"
@@ -591,7 +593,8 @@
                                            Grid.Column="1" />
                                 <DataGrid ItemsSource="{Binding SelectedSystemData.GoodsDelivered}"
                                           Style="{DynamicResource BaseDataGridStyle}"
-                                          RowStyle="{DynamicResource ConstructionResourcesStyle}"
+                                          RowStyle="{DynamicResource NoSelectRowStyle}"
+                                          CellStyle="{DynamicResource NoSelectCellNoMargin}"
                                           HeadersVisibility="Column"
                                           Margin="5"
                                           Grid.Column="1"

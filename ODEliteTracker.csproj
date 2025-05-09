@@ -15,6 +15,7 @@
     <None Remove="Assets\Icons\assassin-large.png" />
     <None Remove="Assets\Icons\assassin.png" />
     <None Remove="Assets\Icons\bgs.png" />
+    <None Remove="Assets\Icons\Clipboard.png" />
     <None Remove="Assets\Icons\ColonisationBtn.png" />
     <None Remove="Assets\Icons\Coriolis_sm.png" />
     <None Remove="Assets\Icons\edassets_larger.png" />
@@ -84,6 +85,7 @@
     <Resource Include="Assets\Icons\assassin-large.png" />
     <Resource Include="Assets\Icons\assassin.png" />
     <Resource Include="Assets\Icons\bgs.png" />
+    <Resource Include="Assets\Icons\Clipboard.png" />
     <Resource Include="Assets\Icons\ColonisationBtn.png" />
     <Resource Include="Assets\Icons\Coriolis_sm.png" />
     <Resource Include="Assets\Icons\edassets_larger.png" />

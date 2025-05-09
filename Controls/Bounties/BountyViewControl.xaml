@@ -75,7 +75,7 @@
                   MinRowHeight="30"
                   Style="{StaticResource BaseDataGridStyle}"
                   CellStyle="{DynamicResource NoSelectCell}"
-                  RowStyle="{StaticResource NoSelectRowStyle}">
+                  RowStyle="{DynamicResource NoSelectRowStyle}">
             <DataGrid.Columns>
                 <DataGridTemplateColumn HeaderStyle="{DynamicResource DataGridHeaderCenter}"
                                         CellStyle="{DynamicResource ButtonGridCell}"

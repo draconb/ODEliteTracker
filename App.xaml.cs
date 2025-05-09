@@ -18,7 +18,7 @@ namespace ODEliteTracker
     /// </summary>
     public partial class App
     {
-        public static Version AppVersion { get; internal set; } = new Version(1, 1, 2);
+        public static Version AppVersion { get; internal set; } = new Version(1, 1, 3);
 
 #if INSTALL
         public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ODEliteTracker");
@@ -27,7 +27,7 @@ namespace ODEliteTracker
 #endif
         private const string database = "ODEliteTracker.db";
         private static readonly string connectionString = $"DataSource={Path.Combine(BaseDirectory, database)};";
-        private static string id;
+        
         private static readonly IHost _host = Host
             .CreateDefaultBuilder()
             .ConfigureAppConfiguration(c => { c.SetBasePath(Path.GetDirectoryName(AppContext.BaseDirectory) ?? string.Empty); })

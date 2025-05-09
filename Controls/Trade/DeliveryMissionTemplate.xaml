@@ -17,8 +17,10 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <TextBlock Text="{Binding Commodity_Localised, StringFormat={}{0} Collected}" />
-                <TextBlock Grid.Column="1">
+                <TextBlock Text="{Binding Commodity_Localised, StringFormat={}{0} Collected}"
+                           IsHitTestVisible="False" />
+                <TextBlock Grid.Column="1"
+                           IsHitTestVisible="False" >
                     <TextBlock.Text>
                         <MultiBinding StringFormat="{}{0} / {1} [ R: {2} ]">
                             <Binding Path="ItemsCollected" />
@@ -31,6 +33,7 @@
                              Grid.ColumnSpan="2"
                              Minimum="0"
                              Margin="0,5,0,0"
+                             IsHitTestVisible="False"
                              Maximum="{Binding Count}"
                              Value="{Binding ItemsCollected}" />
             </Grid>
@@ -79,8 +82,10 @@
                 <RowDefinition />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <TextBlock Text="{Binding Commodity_Localised, StringFormat={}{0} Delivered}" />
-            <TextBlock Grid.Column="1">
+            <TextBlock Text="{Binding Commodity_Localised, StringFormat={}{0} Delivered}"
+                       IsHitTestVisible="False" />
+            <TextBlock Grid.Column="1"
+                       IsHitTestVisible="False">
                 <TextBlock.Text>
                     <MultiBinding StringFormat="{}{0} / {1} [ R: {2} ]">
                         <Binding Path="ItemsDelivered" />
@@ -93,6 +98,7 @@
                          Grid.ColumnSpan="2"
                          Minimum="0"
                          Margin="0,5,0,0"
+                         IsHitTestVisible="False"
                          Maximum="{Binding Count}"
                          Value="{Binding ItemsDelivered}" />
         </Grid>
@@ -107,7 +113,7 @@
                          Value="True">
                 <Setter Property="Template"
                         Value="{StaticResource DeliveryMissionCommodities}" />
-            </DataTrigger>
+            </DataTrigger>            
         </Style.Triggers>
     </Style>
 
@@ -127,12 +133,14 @@
                 <TextBlock Grid.Row="0"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center"
+                           IsHitTestVisible="False"
                            Foreground="{DynamicResource Header}"
                            Text="{Binding OriginSystemName}"
                            Margin="5,0,0,0" />
                 <TextBlock Grid.Row="1"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center"
+                           IsHitTestVisible="False"
                            Text="{Binding OriginStationName}"
                            Margin="5,0,0,0" />
             </Grid>
@@ -172,12 +180,14 @@
 
             <TextBlock Grid.Row="0"
                        HorizontalAlignment="Left"
+                       IsHitTestVisible="False"
                        Text="{Binding OriginSystemName}"
                        Foreground="{DynamicResource Header}"
                        Margin="5,0,0,0" />
 
             <TextBlock Grid.Row="1"
                        HorizontalAlignment="Left"
+                       IsHitTestVisible="False"
                        Text="{Binding OriginStationName}"
                        Margin="5,0,0,0" />        
            

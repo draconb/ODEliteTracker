@@ -50,8 +50,8 @@
                             Padding="5">
                         <DataGrid ItemsSource="{Binding ActiveMissions}"
                                   Style="{DynamicResource BaseDataGridStyle}"
-                                  RowStyle="{DynamicResource ConstructionResourcesStyle}"
-                                  CellStyle="{DynamicResource RouteCells}"
+                                  RowStyle="{DynamicResource NoSelectRowStyle}"
+                                  CellStyle="{DynamicResource NoSelectCellNoMargin}"
                                   HeadersVisibility="Column"
                                   IsHitTestVisible="True">
                             <DataGrid.Columns>
