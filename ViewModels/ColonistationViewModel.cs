@@ -3,6 +3,7 @@ using ODEliteTracker.Models;
 using ODEliteTracker.Models.Colonisation;
 using ODEliteTracker.Models.Market;
 using ODEliteTracker.Models.Ship;
+using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews;
 using ODEliteTracker.ViewModels.ModelViews.Colonisation;
@@ -19,11 +20,13 @@ namespace ODEliteTracker.ViewModels
     {
         public ColonisationViewModel(ColonisationStore colonisationStore,
                                      SharedDataStore sharedDataStore,
-                                     SettingsStore settings)
+                                     SettingsStore settings,
+                                     NotificationService notification)
         {
             this.colonisationStore = colonisationStore;
             this.sharedData = sharedDataStore;
             this.settings = settings;
+            this.notification = notification;
             this.colonisationStore.StoreLive += OnStoreLive;
             this.colonisationStore.DepotUpdated += OnDepotUpdated;
             this.colonisationStore.NewDepot += OnNewDepot;
@@ -72,6 +75,7 @@ namespace ODEliteTracker.ViewModels
         private readonly ColonisationStore colonisationStore;
         private readonly SharedDataStore sharedData;
         private readonly SettingsStore settings;
+        private readonly NotificationService notification;
         #endregion
 
         #region Commands
@@ -194,6 +198,17 @@ namespace ODEliteTracker.ViewModels
                 OnPropertyChanged(nameof(CurrentShip));
             }
         }
+
+        private string discordButtonText = "Create Post";
+        public string DiscordButtonText
+        {
+            get => discordButtonText;
+            set
+            {
+                discordButtonText = value;
+                OnPropertyChanged(nameof(DiscordButtonText));
+            }
+        }
         #endregion
 
         private void CreatePost(ColonisationPostType type)
@@ -201,7 +216,12 @@ namespace ODEliteTracker.ViewModels
             if (SelectedDepot is null)
                 return;
 
-            var success = DiscordPostCreator.CreateColonisationPost(SelectedDepot, SelectedDepotResources, type);
+            if (DiscordPostCreator.CreateColonisationPost(SelectedDepot, SelectedDepotResources, type))
+            {
+                DiscordButtonText = "Post Created";
+                notification.ShowBasicNotification(new("Clipboard", ["Construction Post", "Copied To Clipboard"], Models.Settings.NotificationOptions.CopyToClipboard));
+                Task.Delay(4000).ContinueWith(e => { DiscordButtonText = "Create Post"; });
+            }
         }
 
 
@@ -252,6 +272,7 @@ namespace ODEliteTracker.ViewModels
                 known.Update(e);
                 SelectedDepot = known;
                 OnPropertyChanged(nameof(SelectedDepotResources));
+                CheckMarket();
                 return;
             }
 

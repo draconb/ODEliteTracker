@@ -433,6 +433,7 @@
                             <RowDefinition />
                             <RowDefinition />
                             <RowDefinition />
+                            <RowDefinition />
                         </Grid.RowDefinitions>
                         
                         <CheckBox Style="{DynamicResource EliteStyleCheckBox}"
@@ -487,6 +488,22 @@
                                        Foreground="Red" />
                                        Ship
                         </TextBlock>
+
+                        <CheckBox Style="{DynamicResource EliteStyleCheckBox}"
+                                  Content="Copy To Clipboard"
+                                  Grid.Row="3"
+                                  Margin="10"
+                                  VerticalAlignment="Center"
+                                  VerticalContentAlignment="Center"
+                                  Command="{Binding SetOptions}"
+                                  CommandParameter="{x:Static settings:NotificationOptions.CopyToClipboard}"
+                                  IsChecked="{Binding NotificationSettings.Options, Converter={StaticResource EnumFlagConverter}, ConverterParameter={x:Static settings:NotificationOptions.CopyToClipboard}, Mode=OneWay}" />
+                        <TextBlock Text="Notification when something is copied to the clipboard"
+                                   Margin="10"
+                                   VerticalAlignment="Center"
+                                   FontSize="16"
+                                   Grid.Row="3"
+                                   Grid.Column="1" />
                     </Grid>
                 </Grid>
 

@@ -20,6 +20,9 @@ namespace ODEliteTracker.Helpers
         {
             systems = systems.Where(x => x.HasData).OrderBy(x => x.Name);
 
+            if (systems is null || systems.Any() == false)
+                return false;
+
             var builder = new StringBuilder();
 
             builder.AppendLine($"__**BGS Report - Tick : {DiscordTimeConvertor(data.TickTime)}**__");

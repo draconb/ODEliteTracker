@@ -1,6 +1,7 @@
 ﻿using ODEliteTracker.Models.BGS;
 using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Models.Missions;
+using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews.BGS;
 using ODEliteTracker.ViewModels.ModelViews.Shared;
@@ -11,6 +12,7 @@ using ODMVVM.ViewModels;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using ToastNotifications.Core;
 
 namespace ODEliteTracker.ViewModels
 {
@@ -18,12 +20,13 @@ namespace ODEliteTracker.ViewModels
     {
         public BGSViewModel(BGSDataStore dataStore,
                             SharedDataStore sharedDataStore,
-                            SettingsStore settings)
+                            SettingsStore settings,
+                            NotificationService notification)
         {
             this.dataStore = dataStore;
             this.sharedDataStore = sharedDataStore;
             this.settings = settings;
-
+            this.notification = notification;
             this.dataStore.StoreLive += OnStoreLive;
             this.dataStore.MissionAddedEvent += OnMissionAdded;
             this.dataStore.MissionUpdatedEvent += OnMissionUpdated;
@@ -47,7 +50,7 @@ namespace ODEliteTracker.ViewModels
             bountyManager.TopFactionSet += OnTopFactionSet;
             bountyManager.TopFaction = settings.BGSViewSettings.TopMostBountyFaction;
 
-            materialTraders = new();
+            materialTraders = new(this.notification);
 
             if (this.dataStore.IsLive)
                 OnStoreLive(null, true);
@@ -77,6 +80,7 @@ namespace ODEliteTracker.ViewModels
         private readonly BGSDataStore dataStore;
         private readonly SharedDataStore sharedDataStore;
         private readonly SettingsStore settings;
+        private readonly NotificationService notification;
 
         public override bool IsLive => dataStore.IsLive;
 
@@ -213,8 +217,13 @@ namespace ODEliteTracker.ViewModels
             if(Helpers.DiscordPostCreator.CreateBGSPost(systems, selectedTick))
             {
                 DiscordButtonText = "Post Created";
+                notification.ShowBasicNotification(new("Clipboard", ["BGS Activity Post", "Copied To Clipboard"], Models.Settings.NotificationOptions.CopyToClipboard));
                 Task.Delay(4000).ContinueWith(e => { DiscordButtonText = "Create Post"; });
+                return;
             }
+
+            DiscordButtonText = "No Data";
+            Task.Delay(4000).ContinueWith(e => { DiscordButtonText = "Create Post"; });
         }
 
         private void OnOpenInara(object? obj)

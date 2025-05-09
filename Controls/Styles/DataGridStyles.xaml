@@ -10,6 +10,8 @@
                 Value="False" />
         <Setter Property="GridLinesVisibility"
                 Value="None" />
+        <Setter Property="IsReadOnly"
+                Value="True" />
         <Setter Property="SelectionMode"
                 Value="Single" />
         <Setter Property="CanUserAddRows"
@@ -130,7 +132,7 @@
         <Setter Property="VerticalAlignment"
                 Value="Center" />
         <Setter Property="Margin"
-                Value="5,0,5,0" />
+                Value="5,0,5,0" />        
     </Style>
 
     <Style x:Key="DataGridElementCenter"
@@ -202,8 +204,31 @@
                         Value="Transparent" />
             </Trigger>
         </Style.Triggers>
-
     </Style>
+
+    <Style TargetType="{x:Type DataGridCell}"
+           x:Key="NoSelectCellNoMargin">
+        <Setter Property="BorderThickness"
+                Value="0" />
+        <Setter Property="IsHitTestVisible"
+                Value="False" />
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="BorderBrush"
+                Value="Transparent" />
+        <Setter Property="FocusVisualStyle"
+                Value="{x:Null}" />
+        <Style.Triggers>
+            <Trigger Property="IsSelected"
+                     Value="True">
+                <Setter Property="Foreground"
+                        Value="{DynamicResource PrimaryForeground}" />
+                <Setter Property="Background"
+                        Value="Transparent" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
     <Style TargetType="{x:Type DataGridCell}"
            x:Key="RouteCells">
         <Setter Property="IsHitTestVisible"
@@ -219,10 +244,10 @@
         <Style.Triggers>
             <Trigger Property="IsSelected"
                      Value="True">
-                <Setter Property="Margin"
-                        Value="0" />
-                <Setter Property="BorderThickness"
-                        Value="0" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource PrimaryForeground}" />
+                <Setter Property="Background"
+                        Value="Transparent" />
             </Trigger>
         </Style.Triggers>
     </Style>

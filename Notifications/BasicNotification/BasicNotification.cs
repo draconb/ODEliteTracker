@@ -1,10 +1,8 @@
 ﻿using ODEliteTracker.Models.Settings;
 using ODMVVM.Commands;
-using System.Windows.Forms;
 using System.Windows;
 using System.Windows.Input;
 using ToastNotifications.Core;
-using Application = System.Windows.Application;
 
 namespace ODEliteTracker.Notifications
 {
@@ -23,6 +21,9 @@ namespace ODEliteTracker.Notifications
                 default:
                 case NotificationOptions.System:
                     ImageSource = "/Assets/Icons/orrery_map.png";
+                    break;
+                case NotificationOptions.CopyToClipboard:
+                    ImageSource = "/Assets/Icons/Clipboard.png";
                     break;
             }            
 

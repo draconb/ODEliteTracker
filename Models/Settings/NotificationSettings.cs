@@ -23,7 +23,8 @@ namespace ODEliteTracker.Models.Settings
         System = 1 << 0,
         Station = 1 << 1,
         ShipScanned = 1 << 2,
-        All = System | Station | ShipScanned
+        CopyToClipboard = 1 << 3,
+        All = System | Station | ShipScanned | CopyToClipboard,        
     }
 
     public sealed class NotificationSettings

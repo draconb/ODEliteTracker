@@ -1,4 +1,5 @@
 ﻿using ODEliteTracker.Models.PowerPlay;
+using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews.PowerPlay;
 using ODMVVM.Commands;
@@ -10,10 +11,11 @@ namespace ODEliteTracker.ViewModels
 {
     public sealed class PowerPlayViewModel : ODViewModel
     {
-        public PowerPlayViewModel(PowerPlayDataStore dataStore, SettingsStore settings)
+        public PowerPlayViewModel(PowerPlayDataStore dataStore, SettingsStore settings, NotificationService notification)
         {
             this.dataStore = dataStore;
             this.settings = settings;
+            this.notification = notification;
             this.dataStore.StoreLive += OnStoreLive;
             this.dataStore.PledgeDataUpdated += OnPledgeDataUpdated;
             this.dataStore.CyclesUpdated += OnCyclesUpdated;
@@ -33,6 +35,7 @@ namespace ODEliteTracker.ViewModels
 
         private readonly PowerPlayDataStore dataStore;
         private readonly SettingsStore settings;
+        private readonly NotificationService notification;
         private int currentCycleNo;
 
         private PledgeDataVM? pledgeData;
@@ -268,7 +271,8 @@ namespace ODEliteTracker.ViewModels
             }
             if (Helpers.DiscordPostCreator.CreatePowerPlayPost(data, CurrentCycle, cycleDate))
             {
-                DiscordButtonText = "Post Created";
+                DiscordButtonText = "Post Created"; 
+                notification.ShowBasicNotification(new("Clipboard", ["Powerplay Post", "Copied To Clipboard"], Models.Settings.NotificationOptions.CopyToClipboard));
                 Task.Delay(4000).ContinueWith(e => { DiscordButtonText = "Create Post"; });
             }
         }

@@ -462,7 +462,8 @@
                                   BorderThickness="0"
                                   AlternatingRowBackground="{DynamicResource RowAlternationColour}"
                                   Style="{StaticResource BaseDataGridStyle}"
-                                  RowStyle="{StaticResource ConstructionResourcesStyle}">
+                                  RowStyle="{DynamicResource NoSelectRowStyle}"
+                                  CellStyle="{DynamicResource NoSelectCellNoMargin}" >
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Origin"
                                                     MinWidth="95"
@@ -517,7 +518,8 @@
                                       MinRowHeight="30"
                                       BorderThickness="0"
                                       Style="{StaticResource BaseDataGridStyle}"
-                                      RowStyle="{StaticResource ConstructionResourcesStyle}">
+                                      RowStyle="{DynamicResource NoSelectRowStyle}"
+                                      CellStyle="{DynamicResource NoSelectCellNoMargin}" >
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Scan Date"
                                                         MinWidth="120"
@@ -554,8 +556,8 @@
                         Padding="5">
                     <DataGrid  ItemsSource="{Binding Factions}"
                                Style="{DynamicResource BaseDataGridStyle}"
-                               RowStyle="{DynamicResource ConstructionResourcesStyle}"
-                               CellStyle="{DynamicResource RouteCells}"
+                               RowStyle="{DynamicResource NoSelectRowStyle}"
+                               CellStyle="{DynamicResource NoSelectCellNoMargin}"
                                Foreground="{DynamicResource PrimaryForeground}"
                                FontSize="18"
                                ScrollViewer.HorizontalScrollBarVisibility="Visible"
