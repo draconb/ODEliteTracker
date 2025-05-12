@@ -1,4 +1,6 @@
 ﻿using EliteJournalReader.Events;
+using ODCapi.Models;
+using ODCapi.Services;
 using ODEliteTracker.Stores;
 using ODJournalDatabase.Database.Interfaces;
 using ODJournalDatabase.JournalManagement;
@@ -10,23 +12,29 @@ namespace ODEliteTracker.Services
         #region ctor
         public JournalManager(JournalEventParser eventParser,
                               SettingsStore settingsStore,
-                              IODDatabaseProvider oDDatabase)
+                              IODDatabaseProvider oDDatabase,
+                              CAPIService cAPIService)
         {
             //Event parser
             this.eventParser = eventParser;
             this.settingsStore = settingsStore;
             this.oDDatabase = oDDatabase;
+            this.capiService = cAPIService;
             this.eventParser.OnJournalEventReceived += EventParser_OnJournalEventReceived;
             this.eventParser.LiveStatusChange += async (sender, e) => await EventParser_LiveStatusChange(sender, e);
         }
+ 
         #endregion
 
         private readonly JournalEventParser eventParser;
         private readonly SettingsStore settingsStore;
         private readonly IODDatabaseProvider oDDatabase;
+        private readonly CAPIService capiService;
         private readonly List<IProcessJournalLogs> journalLogParserList = [];
-
+        private DateTime lastCAPICall = DateTime.MinValue;
         private bool ManagerLive { get; set; }
+
+        public bool CanCallCAPI => capiService.CurrentState == ODCapi.Services.State.Authorised && DateTime.UtcNow - lastCAPICall > TimeSpan.FromMinutes(10);
 
         public List<JournalCommander> Commanders { get; private set; } = [];
 
@@ -43,7 +51,16 @@ namespace ODEliteTracker.Services
         }
 
         public EventHandler<JournalCommander>? OnCommanderChanged;
-        public event EventHandler? OnCommandersUpdated;
+
+        public bool CAPIIsLive => capiService.IsLive;
+
+        public event EventHandler? CommandersUpdated;
+
+        public event EventHandler<bool>? CAPILive
+        {
+            add => capiService.CAPILive += value;
+            remove => capiService.CAPILive -= value;
+        }
 
         #region Event Parser Methods
         private void EventParser_OnJournalEventReceived(object? sender, JournalEntry e)
@@ -84,8 +101,10 @@ namespace ODEliteTracker.Services
                 }
 
                 var history = journalLogParserList.Where(x => x.EventsToParse.Count != 0).ToList();
+                if (SelectedCommander != null && SelectedCommander.UseCAPI && string.IsNullOrEmpty(SelectedCommander.Name) == false)
+                    _= capiService.Login(SelectedCommander.Name, SelectedCommander.Name.Contains("(Legacy)")).ConfigureAwait(false);
 
-                await eventParser.StreamJournalHistoryOfTypeAsync(settingsStore.SelectedCommanderID, history, settingsStore.JournalAgeDateTime);                
+                await eventParser.StreamJournalHistoryOfTypeAsync(settingsStore.SelectedCommanderID, history, settingsStore.JournalAgeDateTime);
             }
         }
         #endregion
@@ -121,15 +140,16 @@ namespace ODEliteTracker.Services
         public async Task ChangeCommander()
         {
             ManagerLive = false;
+            lastCAPICall = DateTime.MinValue;
             await ReadSelectedCommander();
         }
 
         public async Task ReadNewDirectory(string path)
         {
             ManagerLive = false;
-            var commander = new JournalCommander(-1, "Reading History", path, "", false);
+            var commander = new JournalCommander(-1, "Reading History", path, "", false, false);
 
-            await eventParser.StartWatchingAsync(commander).ConfigureAwait(true);
+            await eventParser.StartWatchingAsync(commander, false).ConfigureAwait(true);
             await UpdateCommanders();
         }
 
@@ -161,14 +181,14 @@ namespace ODEliteTracker.Services
                 var ret = Commanders.FirstOrDefault();
                 settingsStore.SelectedCommanderID = ret?.Id ?? 0;
             }
-            OnCommandersUpdated?.Invoke(this, EventArgs.Empty);
+            CommandersUpdated?.Invoke(this, EventArgs.Empty);
         }
         public async Task ResetDatabase()
         {
             ManagerLive = false;
             eventParser.StopWatcher();
             Commanders.Clear();
-            OnCommandersUpdated?.Invoke(this, EventArgs.Empty);
+            CommandersUpdated?.Invoke(this, EventArgs.Empty);
             await Task.Factory.StartNew(oDDatabase.ResetDatabaseAsync);
         }
         #endregion
@@ -176,10 +196,23 @@ namespace ODEliteTracker.Services
         public async Task ReadSelectedCommander()
         {
             SelectedCommander = Commanders.FirstOrDefault(cmdr => cmdr.Id == settingsStore.SelectedCommanderID)
-                ?? new(-1, "Reading History", "", "", false);
+                ?? new(-1, string.Empty, string.Empty, string.Empty, false, false);
 
-            await eventParser.StartWatchingAsync(SelectedCommander).ConfigureAwait(true);
+            await eventParser.StartWatchingAsync(SelectedCommander, false).ConfigureAwait(true);
         }
 
+        internal async Task<CAPIFleetCarrier?> GetCarrier()
+        {
+            if (selectedCommander == null
+                || selectedCommander.UseCAPI == false
+                || string.IsNullOrEmpty(selectedCommander.Name)
+                || CanCallCAPI == false)
+            {
+                return null;
+            }
+            lastCAPICall = DateTime.UtcNow;
+
+            return await capiService.GetCarrier(selectedCommander.Name);
+        }
     }
 }

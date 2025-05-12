@@ -52,7 +52,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Massacre
         public int KillCount { get; set; }
         public int Kills { get; set; }
         public string KillsString => $"{Kills} / {KillCount}";
-
+        public bool AtStation { get; private set; }
         internal void Update(MassacreMission mission)
         {
             CurrentState = mission.CurrentState;
@@ -73,6 +73,16 @@ namespace ODEliteTracker.ViewModels.ModelViews.Massacre
             OnPropertyChanged(nameof(Kills));
         }
 
+        internal void UpdateStation(ulong marketId)
+        {
+            if(CurrentState != MissionState.Redirected)
+            {
+                return;
+            }
+
+            AtStation = marketId == OriginMarketID;
+            OnPropertyChanged(nameof(AtStation));
+        }
         internal void UpdateExpiryTime()
         {
             OnPropertyChanged(nameof(ExpiryRelativeTime));

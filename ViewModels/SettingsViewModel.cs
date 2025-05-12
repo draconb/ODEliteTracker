@@ -1,4 +1,5 @@
-﻿using ODEliteTracker.Models;
+﻿using ODCapi.Services;
+using ODEliteTracker.Models;
 using ODEliteTracker.Stores;
 using ODEliteTracker.Themes;
 using ODEliteTracker.ViewModels.ModelViews;
@@ -21,35 +22,63 @@ namespace ODEliteTracker.ViewModels
                                  SettingsStore setting,
                                  IODNavigationService navigationService,
                                  IODDatabaseProvider databaseProvider,
-                                 IManageJournalEvents journalManager)
+                                 IManageJournalEvents journalManager,
+                                 CAPIService capiService)
         {
             this.themeManager = themeManager;
             this.setting = setting;
             this.navigationService = navigationService;
             this.databaseProvider = databaseProvider;
             this.journalManager = journalManager;
+            this.capiService = capiService;
+
             SetTheme = new ODRelayCommand<Theme>(OnChangeTheme);
             OpenUrlCommand = new ODRelayCommand<string>(OpenUrl);
 
             ToggleCommanderHidden = new ODRelayCommand(OnToggleCommanderHidden, (_) => SelectedCommander != null && SelectedCommander?.Id != setting.SelectedCommanderID);
+            ToggleCommanderUseCAPI = new ODRelayCommand(OnToggleCommanderUseCAPI, (_) => SelectedCommander != null);
             ResetLastReadFile = new ODRelayCommand(OnResetLastFile, (_) => SelectedCommander != null && SelectedCommander?.Id != setting.SelectedCommanderID);
             ChangeJourneyDirectoryCommand = new ODAsyncRelayCommand(OnChangeJournalDirectory, () => SelectedCommander != null && SelectedCommander?.Id != setting.SelectedCommanderID);
             SaveCommanderChanges = new ODAsyncRelayCommand(OnSaveCommanderChanges, () => SelectedCommander != null);
             ReadNewDirectoryCommand = new ODAsyncRelayCommand(OnReadNewDirectory);
             DeleteCommander = new ODAsyncRelayCommand<Window?>(OnDeleteCommander, (_) => SelectedCommander?.Id != setting.SelectedCommanderID);
             ResetDataBaseCommand = new ODAsyncRelayCommand<Window?>(OnResetDataBase);
+            CAPIButtonCommand = new ODAsyncRelayCommand(OnCAPIButtonPressed, () => CAPISate != State.AwaitingCallback);
 
+            this.capiService.StateChange += OnCAPIStateChange;
             _ = LoadCommanders();
             OnModelLive(true);
         }
 
+        public override void Dispose()
+        {
+            this.capiService.StateChange -= OnCAPIStateChange;
+            base.Dispose();
+        }
         private readonly ThemeManager themeManager;
         private readonly SettingsStore setting;
         private readonly IODNavigationService navigationService;
         private readonly IODDatabaseProvider databaseProvider;
         private readonly IManageJournalEvents journalManager;
+        private readonly CAPIService capiService;
 
         public override bool IsLive => true;
+
+        private State CAPISate => capiService.CurrentState;
+        public string CAPIStatus => capiService.CurrentState switch
+        {
+             State.AwaitingCallback => "Awaiting CallBack",
+             State.Authorised => $"CMDR {capiService.CommanderName}\nLogged In",
+             State.NotAuthorised => "Authorisation Failed",
+             _ => "Logged Out",
+        };
+         
+        public string CAPIButtonText => capiService.CurrentState switch
+        {            
+            State.Authorised => "Log Out",
+            _ => "Log In",
+        };
+
         public Theme CurrentTheme => setting.CurrentTheme;
         public JournalLogAge LogAge
         {
@@ -86,15 +115,47 @@ namespace ODEliteTracker.ViewModels
         public ICommand SetTheme { get; }
         public ICommand OpenUrlCommand { get; }
         public ICommand ToggleCommanderHidden { get; }
+        public ICommand ToggleCommanderUseCAPI { get; }
         public ICommand ResetLastReadFile { get; }
         public ICommand ChangeJourneyDirectoryCommand { get; }
         public ICommand SaveCommanderChanges { get; }
         public ICommand DeleteCommander { get; }
         public ICommand ReadNewDirectoryCommand { get; }
         public ICommand ResetDataBaseCommand { get; }
+        public ICommand CAPIButtonCommand { get; }
         #endregion
 
         #region Command Methods
+        private async Task OnCAPIButtonPressed()
+        {
+            var activeCommander = JournalCommanderViews.FirstOrDefault(x => x.Id == setting.SelectedCommanderID);
+
+            if (activeCommander == null)
+            {
+                return;
+            }
+
+            switch (capiService.CurrentState)
+            {
+                case State.NotAuthorised:
+                case State.LoggedOut:
+                    await capiService.Login(activeCommander.Name, activeCommander.Name.Contains("(Legacy)"));
+                    break;
+                case State.AwaitingCallback:
+                    return;
+                case State.Authorised:
+                    capiService.LogOut();
+                    break;
+                default:
+                    break;
+            }
+
+            OnPropertyChanged(nameof(CAPIStatus));
+            OnPropertyChanged(nameof(CAPIButtonText));
+            OnPropertyChanged(nameof(CAPISate));
+            OnPropertyChanged(nameof(CAPIButtonCommand));
+        }
+
         private void OnChangeTheme(Theme theme)
         {
             setting.CurrentTheme = theme;
@@ -113,6 +174,12 @@ namespace ODEliteTracker.ViewModels
         {
             if (SelectedCommander != null)
                 SelectedCommander.IsHidden = !SelectedCommander.IsHidden;
+        }
+        
+        private void OnToggleCommanderUseCAPI(object? obj)
+        {
+            if (SelectedCommander != null)
+                SelectedCommander.UseCAPI = !SelectedCommander.UseCAPI;
         }
 
         private async Task OnChangeJournalDirectory()
@@ -172,7 +239,7 @@ namespace ODEliteTracker.ViewModels
 
             foreach (var commander in JournalCommanderViews)
             {
-                databaseProvider.AddCommander(new(commander.Id, commander.Name, commander.JournalPath, commander.LastFile, commander.IsHidden));
+                databaseProvider.AddCommander(new(commander.Id, commander.Name, commander.JournalPath, commander.LastFile, commander.IsHidden, commander.UseCAPI));
             }
             await journalManager.UpdateCommanders();
         }
@@ -198,6 +265,16 @@ namespace ODEliteTracker.ViewModels
             navigationService.NavigateTo<SettingsViewModel>();
         }
         #endregion
+
+        private void OnCAPIStateChange(object? sender, State e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                ((ODAsyncRelayCommand)CAPIButtonCommand).RaiseCanExecuteChanged();
+                OnPropertyChanged(nameof(CAPIStatus));
+                OnPropertyChanged(nameof(CAPIButtonText));
+            });
+        }
 
         private async Task ChangeJournalAge()
         {

@@ -23,7 +23,8 @@ namespace ODEliteTracker.ViewModels
                                       SharedDataStore sharedDataStore,
                                       NotificationService notificationService,
                                       SettingsStore settings,
-                                      TickDataStore tickDataStore)
+                                      TickDataStore tickDataStore,
+                                      FleetCarrierDataStore carrierDataStore)
         {
             navigationService = oDNavigationService;
             this.journalManager = journalManager;
@@ -31,16 +32,18 @@ namespace ODEliteTracker.ViewModels
             this.notificationService = notificationService;
             this.settings = settings;
             this.tickDataStore = tickDataStore;
-
+            this.carrierDataStore = carrierDataStore;
             this.sharedData.StoreLive += OnStoreLive;
             this.sharedData.CurrentSystemChanged += OnCurrentSystemChanged;
             this.sharedData.CurrentBody_StationChanged += OnCurrentBody_StationChanged;
 
-            this.journalManager.OnCommandersUpdated += OnCommandersUpdated;
+            this.journalManager.CommandersUpdated += OnCommandersUpdated;
 
             navigationService.CurrentViewLive += NavigationService_CurrentViewLive;
 
             ResetWindowPositionCommand = new ODRelayCommand(OnResetWindow);
+
+            //UtilButtons.AddItem(new UiScaleButton() { DataContext = this });
         }
 
         public override bool IsLive => true;
@@ -50,6 +53,7 @@ namespace ODEliteTracker.ViewModels
         private readonly NotificationService notificationService;
         private readonly SettingsStore settings;
         private readonly TickDataStore tickDataStore;
+        private readonly FleetCarrierDataStore carrierDataStore;
 
         public ICommand ResetWindowPositionCommand { get; }
 
@@ -73,7 +77,7 @@ namespace ODEliteTracker.ViewModels
             { 
                 ButtonImage = new BitmapImage(new Uri("/Assets/Icons/ColonisationBtn.png", UriKind.Relative)), 
                 TargetView = typeof(ColonisationViewModel)
-            },
+            },            
             new EliteStyleNavigationButton()
             {
                 ButtonImage = new BitmapImage(new Uri("/Assets/Icons/bgs.png", UriKind.Relative)),
@@ -83,7 +87,17 @@ namespace ODEliteTracker.ViewModels
             {
                 ButtonImage = new BitmapImage(new Uri("/Assets/Icons/powerplay.png", UriKind.Relative)),
                 TargetView = typeof(PowerPlayViewModel)
-            }
+            },
+            new EliteStyleNavigationButton()
+            {
+                ButtonImage = new BitmapImage(new Uri("/Assets/Icons/fleetcarrier.png", UriKind.Relative)),
+                TargetView = typeof(FleetCarrierViewModel)
+            },
+        ];
+
+        public ObservableCollection<UtilNavigationButton> UtilButtons { get; } = 
+        [
+            new UiScaleButton()
         ];
 
         public ObservableCollection<ODNavigationButton> FooterButtons { get; } =
@@ -159,6 +173,18 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
+        public double UiScale 
+        {
+            get => settings.UiScale;
+            set
+            {
+                if(settings.UiScale == value) 
+                    return;
+                settings.UiScale = value;
+                OnPropertyChanged(nameof(UiScale));
+            }
+        }
+
         private void OnResetWindow(object? obj)
         {
             ODWindowPosition.ResetWindowPosition(WindowPosition);
@@ -213,6 +239,8 @@ namespace ODEliteTracker.ViewModels
                     SelectedCommander = JournalCommanders.FirstOrDefault(x => x.Id == settings.SelectedCommanderID);
                     OnPropertyChanged(nameof(JournalCommanders));
                     OnPropertyChanged(nameof(SelectedCommander));
+                    OnPropertyChanged(nameof(CurrentSystemName));
+                    OnPropertyChanged(nameof(CurrentBody_Station));
                 }), DispatcherPriority.DataBind);
             }
 

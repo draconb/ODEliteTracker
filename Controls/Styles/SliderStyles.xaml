@@ -128,7 +128,7 @@
                                OverridesDefaultStyle="True"
                                Template="{DynamicResource SliderThumbHorizontalDefault}"
                                VerticalAlignment="Center"
-                               Width="5" />
+                               Width="8" />
                     </Track.Thumb>
                 </Track>
             </Grid>

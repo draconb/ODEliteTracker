@@ -28,6 +28,7 @@
     <None Remove="Assets\Icons\settings.png" />
     <None Remove="Assets\Icons\trade.png" />
     <None Remove="Assets\Icons\Wing.png" />
+    <None Remove="Assets\Icons\zoom.png" />
     <None Remove="Assets\Images\elite-dangerous-clean.png" />
     <None Remove="Assets\Images\OD.png" />
     <None Remove="Assets\Json\MaterialTraders.jsonl" />
@@ -67,6 +68,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
@@ -75,6 +77,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ODCapi\ODCapi.csproj" />
     <ProjectReference Include="..\ODJournalDatabase\ODJournalDatabase.csproj" />
     <ProjectReference Include="..\ODMvvm\ODMVVM.csproj" />
     <ProjectReference Include="..\ToastNotifications\Src\ToastNotifications\ToastNotifications.csproj" />
@@ -89,6 +92,7 @@
     <Resource Include="Assets\Icons\ColonisationBtn.png" />
     <Resource Include="Assets\Icons\Coriolis_sm.png" />
     <Resource Include="Assets\Icons\edassets_larger.png" />
+    <Resource Include="Assets\Icons\fleetcarrier.png" />
     <Resource Include="Assets\Icons\GitHub_Logo_White.png" />
     <Resource Include="Assets\Icons\inaramenulogo.png" />
     <Resource Include="Assets\Icons\OD.png" />
@@ -98,6 +102,7 @@
     <Resource Include="Assets\Icons\settings.png" />
     <Resource Include="Assets\Icons\trade.png" />
     <Resource Include="Assets\Icons\Wing.png" />
+    <Resource Include="Assets\Icons\zoom.png" />
     <Resource Include="Assets\Images\elite-dangerous-clean.png" />
     <Resource Include="Assets\Images\OD.png" />
     <EmbeddedResource Include="Assets\Json\MaterialTraders.jsonl" />

@@ -37,6 +37,9 @@
             <DataTemplate DataType="{x:Type viewmodels:NotificationSettingsViewModel}">
                 <views:NotificationSettingsView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:FleetCarrierViewModel}">
+                <views:FleetCarrierView />
+            </DataTemplate>
             
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
             <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />

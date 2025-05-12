@@ -27,7 +27,6 @@ namespace ODEliteTracker.Stores
             this.journalManager = journalManager;
             this.notificationService = notificationService;
             this.settings = settings;
-            this.databaseProvider = (ODEliteTrackerDatabaseProvider)databaseProvider;
             this.journalManager.RegisterLogProcessor(this);
 
             bountiesManager = new(databaseProvider);
@@ -38,9 +37,8 @@ namespace ODEliteTracker.Stores
         private readonly IManageJournalEvents journalManager;
         private readonly NotificationService notificationService;
         private readonly SettingsStore settings;
-        private readonly ODEliteTrackerDatabaseProvider databaseProvider;
         private Dictionary<string, FactionData> factions = [];
-        private string? lastShipTarget;
+        private Dictionary<string, DateTime> previousShipTargets = [];
         private string? commanderPower;
         private BountiesManager bountiesManager;
         private readonly MaterialTraderService materialTraderService;
@@ -71,6 +69,7 @@ namespace ODEliteTracker.Stores
         public StarSystem? CurrentSystem { get; private set; }
         public StationMarket? CurrentMarket { get; private set; }
         public string? CurrentBody_Station { get; private set; }
+        public ulong CurrentMarketID { get; private set; } = 0;
         public ShipInfo? CurrentShipInfo { get; private set; }
         public IEnumerable<ShipCargo>? CurrentShipCargo { get; private set; }
         #endregion
@@ -216,6 +215,7 @@ namespace ODEliteTracker.Stores
                         ]);
                     break;
                 case DockedEvent.DockedEventArgs docked:
+                    CurrentMarketID = docked.MarketID;
                     UpdateCurrentBody_Station(string.IsNullOrEmpty(docked.StationName_Localised) ? docked.StationName : docked.StationName_Localised);
 
                     if (IsLive == false)
@@ -234,6 +234,7 @@ namespace ODEliteTracker.Stores
                     notificationService.ShowBasicNotification(args);
                     break;
                 case UndockedEvent.UndockedEventArgs:
+                    CurrentMarketID = 0;
                     UpdateCurrentBody_Station(null);
                     break;
                 case ApproachBodyEvent.ApproachBodyEventArgs approachBody:
@@ -278,31 +279,31 @@ namespace ODEliteTracker.Stores
 
                     var pilotName = shipTargeted.PilotName_Localised ?? shipTargeted.PilotName;
 
-                    if (string.IsNullOrEmpty(pilotName) || string.Equals(pilotName, lastShipTarget))
+                    if (string.IsNullOrEmpty(pilotName) || string.Equals(pilotName, previousShipTargets))
                     {
                         return;
                     }
 
-                    lastShipTarget = pilotName;
+                    if (CanNotifyOfTarget(pilotName) == false)
+                        break;
 
-                    if (string.IsNullOrEmpty(lastShipTarget) || string.IsNullOrEmpty(shipTargeted.Power) && shipTargeted.Bounty <= 0)
+                    if (string.IsNullOrEmpty(shipTargeted.Power) && shipTargeted.Bounty <= 0)
                     {
                         break;
                     }
 
                     var targetType = TargetType.None;
 
-                    if(string.IsNullOrEmpty(shipTargeted.Power) == false && string.Equals(shipTargeted.Power, commanderPower) == false)
+                    if (string.IsNullOrEmpty(shipTargeted.Power) == false && string.Equals(shipTargeted.Power, commanderPower) == false)
                     {
                         targetType |= TargetType.Enemy;
                     }
 
                     if (shipTargeted.Bounty > 0)
                     {
-                        targetType |= TargetType.Wanted;                    
+                        targetType |= TargetType.Wanted;
                     }
 
-                    //Shouldn't reach this but just in case
                     if (targetType == TargetType.None)
                     {
                         break;
@@ -337,6 +338,35 @@ namespace ODEliteTracker.Stores
                         FireBountiesChangedIfLive();
                     break;
             }
+        }
+
+        private bool CanNotifyOfTarget(string pilotName)
+        {
+            var notificationTime = TimeSpan.FromSeconds(settings.NotificationSettings.DisplayTime + 1);
+            var utcNow = DateTime.UtcNow;
+
+            //Remove old targets so the dictionary doesn't grow massive
+            var oldTargets = previousShipTargets.Where(x => utcNow - x.Value > notificationTime);
+            if (oldTargets.Any())
+            {
+                foreach (var target in oldTargets)
+                {
+                    previousShipTargets.Remove(target.Key);
+                }
+            }
+            //Check if we know about this one and if it's been long enough since the last scan
+            if (previousShipTargets.ContainsKey(pilotName))
+            {
+                if (utcNow - previousShipTargets[pilotName] < notificationTime)
+                {
+                    return false;
+                }
+                previousShipTargets[pilotName] = utcNow;
+                return true;
+            }
+
+            previousShipTargets.TryAdd(pilotName, utcNow);
+            return true;
         }
 
         private void SystemNotification(string name, string[] fields)

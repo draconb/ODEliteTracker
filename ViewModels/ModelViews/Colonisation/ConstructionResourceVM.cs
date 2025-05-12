@@ -1,4 +1,6 @@
 ﻿using ODEliteTracker.Models.Colonisation;
+using ODEliteTracker.Models.FleetCarrier;
+using ODEliteTracker.ViewModels.ModelViews.FleetCarrier;
 using ODMVVM.Helpers;
 using ODMVVM.ViewModels;
 
@@ -27,6 +29,8 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
         public string Delivered => ProvidedAmount > 0 ? $"{ProvidedAmount:N0} t" : string.Empty;
         public string Remaining => $"{RemainingCount:N0} t";
         public int Payment { get; set; }
+        public long CarrierStockValue { get; private set; }
+        public string CarrierStock => CarrierStockValue > 0 ? $"{CarrierStockValue:N0} t" : string.Empty;
 
         internal void Update(ConstructionResource resource)
         {
@@ -41,6 +45,12 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
             OnPropertyChanged(nameof(Remaining));
             OnPropertyChanged(nameof(Payment));
             OnPropertyChanged(nameof(RemainingCount));
+        }
+
+        internal void SetCarrierStock(CarrierCommodity carrierCommodity)
+        {
+            CarrierStockValue = carrierCommodity.StockCount;
+            OnPropertyChanged(nameof(CarrierStock));
         }
     }
 }

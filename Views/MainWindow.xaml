@@ -45,8 +45,10 @@
 
             <navigation:NavigationView x:Name="NavView"
                                        Grid.Row="1"
+                                       UiScale="{Binding ElementName=Root, Path=DataContext.UiScale, Mode=TwoWay}"
                                        IsEnabled="{Binding ElementName=Root, Path=DataContext.UiEnabled}"
                                        MenuButtons="{Binding ElementName=Root, Path=DataContext.MenuButtons}"
+                                       UtilButtons="{Binding ElementName=Root, Path=DataContext.UtilButtons}"
                                        FooterButtons="{Binding ElementName=Root, Path=DataContext.FooterButtons}" />
 
             <controls:StatusBar Grid.Row="2" />

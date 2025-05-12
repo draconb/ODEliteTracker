@@ -21,16 +21,17 @@
                 BorderThickness="0"
                 BorderBrush="{DynamicResource ViewBackground}"
                 Background="{DynamicResource NavigationBarBackground}">
-            <Grid Margin="4,10,6,5"
-                  ButtonBase.Click="NavigationBtn_Click">
+            <Grid Margin="4,10,6,5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <ItemsControl Grid.Row="0"
                               Focusable="False"
                               ItemsSource="{Binding MenuButtons}"
+                              ButtonBase.Click="NavigationBtn_Click"
                               KeyboardNavigation.DirectionalNavigation="Contained"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                               ScrollViewer.VerticalScrollBarVisibility="Disabled">
@@ -43,6 +44,20 @@
 
                 <ItemsControl Grid.Row="1"
                               Focusable="False"
+                              ItemsSource="{Binding UtilButtons}"
+                              KeyboardNavigation.DirectionalNavigation="Contained"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel IsItemsHost="True" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                </ItemsControl>
+                <ItemsControl Grid.Row="2"
+                              Focusable="False"
+                              ButtonBase.Click="NavigationBtn_Click"
                               ItemsSource="{Binding FooterButtons}"
                               KeyboardNavigation.DirectionalNavigation="Contained"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -55,11 +70,17 @@
                 </ItemsControl>
             </Grid>
         </Border>
+
         <Border Grid.Column="1"
                 CornerRadius="5"
                 Padding="5"
                 Background="{DynamicResource ViewBackground}">
-            <ContentControl Content="{Binding NavigationService.CurrentView, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged}" Opacity="0.1" >
+            <Border.LayoutTransform>
+                <ScaleTransform ScaleX="{Binding UiScale}"
+                                ScaleY="{Binding UiScale}" />
+            </Border.LayoutTransform>
+            <ContentControl Content="{Binding NavigationService.CurrentView, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged}"
+                            Opacity="0.1">
                 <ContentControl.Style>
                     <Style TargetType="{x:Type ContentControl}">
                         <Style.Triggers>

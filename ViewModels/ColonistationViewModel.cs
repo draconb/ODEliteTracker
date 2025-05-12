@@ -1,6 +1,7 @@
 ﻿using ODEliteTracker.Helpers;
 using ODEliteTracker.Models;
 using ODEliteTracker.Models.Colonisation;
+using ODEliteTracker.Models.FleetCarrier;
 using ODEliteTracker.Models.Market;
 using ODEliteTracker.Models.Ship;
 using ODEliteTracker.Services;
@@ -20,11 +21,13 @@ namespace ODEliteTracker.ViewModels
     {
         public ColonisationViewModel(ColonisationStore colonisationStore,
                                      SharedDataStore sharedDataStore,
+                                     FleetCarrierDataStore fcDataStore,
                                      SettingsStore settings,
                                      NotificationService notification)
         {
             this.colonisationStore = colonisationStore;
             this.sharedData = sharedDataStore;
+            this.fcDataStore = fcDataStore;
             this.settings = settings;
             this.notification = notification;
             this.colonisationStore.StoreLive += OnStoreLive;
@@ -56,6 +59,14 @@ namespace ODEliteTracker.ViewModels
             {
                 OnStoreLive(null, true);
             }
+
+            this.fcDataStore.CarrierStockUpdated += OnCarrierStockUpdated;
+            this.fcDataStore.StoreLive += OnFcStoreLive;
+
+            if (fcDataStore.IsLive)
+            {
+                OnFcStoreLive(null, true);
+            }
         }
 
         public override void Dispose()
@@ -69,11 +80,15 @@ namespace ODEliteTracker.ViewModels
             this.sharedData.MarketEvent -= OnMarketEvent;
             this.sharedData.ShipChangedEvent -= OnShipChanged;
             this.sharedData.ShipCargoUpdatedEvent -= OnCargoUpdated;
+
+            this.fcDataStore.CarrierStockUpdated -= OnCarrierStockUpdated;
+            this.fcDataStore.StoreLive -= OnFcStoreLive;
         }
 
         #region Private fields
         private readonly ColonisationStore colonisationStore;
         private readonly SharedDataStore sharedData;
+        private readonly FleetCarrierDataStore fcDataStore;
         private readonly SettingsStore settings;
         private readonly NotificationService notification;
         #endregion
@@ -98,6 +113,7 @@ namespace ODEliteTracker.ViewModels
                 return selectedDepot.Inactive ? "Set Active" : "Set Inactive";
             }
         }
+
         public CommoditySorting CommoditySorting
         {
             get => settings.ColonisationCommoditySorting;
@@ -108,6 +124,7 @@ namespace ODEliteTracker.ViewModels
                 OnPropertyChanged(nameof(CurrentMarketItems));
             }
         }
+
         public ObservableCollection<ConstructionDepotVM> Depots { get; } = [];
         public IEnumerable<ConstructionDepotVM> ActiveDepots => Depots.Where(x => x.Inactive == false);
         public IEnumerable<ConstructionDepotVM> InactiveDepots => Depots.Where(x => x.Inactive == true);
@@ -142,6 +159,7 @@ namespace ODEliteTracker.ViewModels
                 if (selectedDepot != null)
                     selectedDepot.IsSelected = true;
                 CheckMarket();
+                OnFcStoreLive(null, true);
                 OnPropertyChanged(nameof(SelectedDepot));
                 OnPropertyChanged(nameof(ActiveButtonText));
                 OnPropertyChanged(nameof(SelectedDepotResources));
@@ -183,6 +201,7 @@ namespace ODEliteTracker.ViewModels
                 {
                     CommoditySorting.Category => CurrentMarket.ItemsForSale.Where(x => x.RequiredResource).OrderBy(x => x.Category_Localised).ThenBy(x => x.Name_Localised),
                     CommoditySorting.Name => CurrentMarket.ItemsForSale.Where(x => x.RequiredResource).OrderBy(x => x.Name_Localised),
+                    CommoditySorting.Remaining => CurrentMarket.ItemsForSale.Where(x => x.RequiredResource).OrderByDescending(x => x.Required),
                     _ => CurrentMarket.ItemsForSale.OrderBy(x => x.Name_Localised),
                 };
             }
@@ -271,6 +290,12 @@ namespace ODEliteTracker.ViewModels
             {
                 known.Update(e);
                 SelectedDepot = known;
+                if(known.Complete)
+                {
+                    known.Inactive = true;
+                    OnPropertyChanged(nameof(ActiveDepots));
+                    OnPropertyChanged(nameof(InactiveDepots));
+                }
                 OnPropertyChanged(nameof(SelectedDepotResources));
                 CheckMarket();
                 return;
@@ -300,7 +325,9 @@ namespace ODEliteTracker.ViewModels
                 foreach (var depot in colonisationStore.Depots)
                 {
                     if (depot.Progress >= 1)
-                        continue;
+                    {
+                        depot.Inactive = true;
+                    }
                     var newDepot = new ConstructionDepotVM(depot);
                     Depots.AddItem(newDepot);
                     var cmdrSystem = CommanderSystems.FirstOrDefault(x => x.SystemAddress == newDepot.SystemAddress);
@@ -344,6 +371,7 @@ namespace ODEliteTracker.ViewModels
         private void OnShipChanged(object? sender, ShipInfo? e)
         {
             CurrentShip = e == null ? null : new(e);
+            OnCargoUpdated(null, sharedData.CurrentShipCargo);
         }
 
         private void OnCargoUpdated(object? sender, IEnumerable<ShipCargo>? e)
@@ -376,6 +404,36 @@ namespace ODEliteTracker.ViewModels
         private void SetSelectedCommanderSystem(CommanderSystemVM? vM)
         {
             SelectedCommanderSystem = vM;
+        }
+
+        private void OnFcStoreLive(object? sender, bool e)
+        {
+            if (e && fcDataStore.CarrierData != null)
+            {
+                OnCarrierStockUpdated(sender, fcDataStore.CarrierData);
+            }
+        }
+
+        private void OnCarrierStockUpdated(object? sender, FleetCarrier e)
+        {
+            if(SelectedDepot == null || SelectedDepotResources == null || e.Stock.Count == 0)
+            {
+                return;
+            }
+
+            var updated = false;
+            foreach(var item in SelectedDepotResources)
+            {
+                var onCarrier = e.Stock.FirstOrDefault(x => string.Equals(x.commodity.FdevName, item.FDEVName, StringComparison.OrdinalIgnoreCase));
+
+                if (onCarrier == null)
+                    continue;
+                item.SetCarrierStock(onCarrier);            
+                updated = true;
+            }
+
+            if (updated)
+                OnPropertyChanged(nameof(SelectedDepotResources));
         }
     }
 }

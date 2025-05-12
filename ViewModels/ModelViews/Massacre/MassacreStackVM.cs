@@ -5,11 +5,22 @@ using System.Collections.ObjectModel;
 
 namespace ODEliteTracker.ViewModels.ModelViews.Massacre
 {
-    public sealed class MassacreStackVM(string issuingFaction, string targetFaction, string starSystem) : ODObservableObject
+    public sealed class MassacreStackVM : ODObservableObject
     {
-        public string IssuingFaction { get; } = issuingFaction;
-        public string TargetFaction { get; } = targetFaction;
-        public string? StarSystem { get; } = starSystem;
+        public MassacreStackVM(string issuingFaction, string targetFaction, string starSystem)
+        {
+            IssuingFaction = issuingFaction;
+            TargetFaction = targetFaction;
+
+            if (StarSystem.Contains(starSystem) == false)
+            {
+                StarSystem.Add(starSystem);
+            }
+        }
+
+        public string IssuingFaction { get; } 
+        public string TargetFaction { get; }
+        public List<string> StarSystem { get; } = [];
         public int Reward => ActiveMissions.Sum(x => x.Reward);
         public int Kills => ActiveMissions.Sum(x => x.KillCount);
         public int KillsRemaining => Missions.Sum(x => x.KillCount - x.Kills);
@@ -37,6 +48,10 @@ namespace ODEliteTracker.ViewModels.ModelViews.Massacre
                 return null;
 
             newMission = new(mission);
+
+            if (StarSystem.Contains(mission.OriginSystemName) == false)
+                StarSystem.Add(mission.OriginSystemName);
+
             Missions.AddItem(newMission);
             OnPropertyChanged(nameof(Reward));
             OnPropertyChanged(nameof(RewardString));

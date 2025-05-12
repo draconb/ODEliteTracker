@@ -24,7 +24,7 @@ namespace ODEliteTracker.Database
             if (includeHidden)
             {
                 var allCmdrs = await context.JournalCommanders
-                    .Select(x => new JournalCommander(x.Id, x.Name, x.JournalDir, x.LastFile, x.IsHidden))
+                    .Select(x => new JournalCommander(x.Id, x.Name, x.JournalDir, x.LastFile, x.IsHidden, x.UseCAPI))
                     .ToListAsync();
 
                 var reslt = allCmdrs.OrderBy(x => x.Name.Contains("(Legacy)"))
@@ -34,7 +34,7 @@ namespace ODEliteTracker.Database
 
             var cmdrs = await context.JournalCommanders
                 .Where(x => x.IsHidden == false)
-                .Select(x => new JournalCommander(x.Id, x.Name, x.JournalDir, x.LastFile, x.IsHidden))
+                .Select(x => new JournalCommander(x.Id, x.Name, x.JournalDir, x.LastFile, x.IsHidden, x.UseCAPI))
                 .ToListAsync();
 
             var ret = cmdrs.OrderBy(x => x.Name.Contains("(Legacy)"))
@@ -57,20 +57,22 @@ namespace ODEliteTracker.Database
                     Name = cmdr.Name,
                     LastFile = cmdr.LastFile ?? string.Empty,
                     JournalDir = cmdr.JournalPath ?? string.Empty,
-                    IsHidden = cmdr.IsHidden
+                    IsHidden = cmdr.IsHidden,
+                    UseCAPI = cmdr.UseCAPI
                 };
                 context.JournalCommanders.Add(known);
                 context.SaveChanges();
-                return new(known.Id, known.Name, known.JournalDir, known.LastFile, known.IsHidden);
+                return new(known.Id, known.Name, known.JournalDir, known.LastFile, known.IsHidden, known.UseCAPI);
             }
 
             known.LastFile = cmdr.LastFile ?? string.Empty;
             known.JournalDir = cmdr.JournalPath ?? string.Empty;
             known.Name = cmdr.Name;
             known.IsHidden = cmdr.IsHidden;
+            known.UseCAPI = cmdr.UseCAPI;
             context.SaveChanges();
             context.Database.CloseConnection();
-            return new(known.Id, known.Name, known.JournalDir, known.LastFile, known.IsHidden);
+            return new(known.Id, known.Name, known.JournalDir, known.LastFile, known.IsHidden, known.UseCAPI);
         }
 
         public JournalCommander? GetCommander(int cmdrId)
@@ -84,7 +86,7 @@ namespace ODEliteTracker.Database
                 return null;
             }
 
-            return new(known.Id, known.Name, known.JournalDir, known.LastFile, known.IsHidden);
+            return new(known.Id, known.Name, known.JournalDir, known.LastFile, known.IsHidden, known.UseCAPI);
         }
 
         public async Task DeleteCommander(int commanderID)

@@ -88,4 +88,7 @@
     <!--Datagrid-->
     <SolidColorBrush x:Key="RowAlternationColour"
                      Color="#FF383838" />
+
+    <SolidColorBrush x:Key="MasscreMissionHighlight"
+                     Color="#FFD0B609" />
 </ResourceDictionary>

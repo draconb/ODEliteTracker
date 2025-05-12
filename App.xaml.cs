@@ -2,12 +2,15 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
+using ODCapi.Services;
 using ODEliteTracker.Extensions;
 using ODEliteTracker.Stores;
 using ODEliteTracker.Views;
 using ODMVVM.Navigation;
+using ODMVVM.Navigation.Controls;
 using ODMVVM.ViewModels;
 using System.IO;
+using System.Net.Http.Headers;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -18,7 +21,7 @@ namespace ODEliteTracker
     /// </summary>
     public partial class App
     {
-        public static Version AppVersion { get; internal set; } = new Version(1, 1, 3);
+        public static Version AppVersion { get; internal set; } = new Version(1, 2, 0);
 
 #if INSTALL
         public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ODEliteTracker");
@@ -28,9 +31,11 @@ namespace ODEliteTracker
         private const string database = "ODEliteTracker.db";
         private static readonly string connectionString = $"DataSource={Path.Combine(BaseDirectory, database)};";
         
+        private static readonly string CAPIAppName = $"OD Elite Tracker v{AppVersion}";
+
         private static readonly IHost _host = Host
             .CreateDefaultBuilder()
-            .ConfigureAppConfiguration(c => { c.SetBasePath(Path.GetDirectoryName(AppContext.BaseDirectory) ?? string.Empty); })
+            .ConfigureAppConfiguration(c => { c.SetBasePath(BaseDirectory); })
             .ConfigureServices((context, services) =>
             {
                 //Database
@@ -43,14 +48,11 @@ namespace ODEliteTracker
                 //View Models
                 services.AddViewModels();
                 //Services
-                services.AddServices();
+                services.AddServices(BaseDirectory);
                 //Store
                 services.AddStores();
                 //http clients
-                services.AddHttpClients();
-               
-                //id = context.Configuration.GetSection("CAPIID")?.Value?.ToString() ?? string.Empty;
-
+                services.AddHttpClients(CAPIAppName);
             }).Build();
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -72,11 +74,11 @@ namespace ODEliteTracker
                 builder.ForLogger().FilterMinLevel(LogLevel.Debug).WriteToFile(fileName: Path.Combine(BaseDirectory, "Logs", "Error.txt"));
             });
 
-            await _host.StartAsync();
+            await _host.StartAsync();            
 
             //Disable shutdown when the dialog closes
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            var updateWindow = _host.Services.GetRequiredService<LoaderWindow>();
+            var updateWindow = Services.GetRequiredService<LoaderWindow>();
             if (updateWindow.ShowDialog() is bool v && !v)
             {
                 Shutdown();

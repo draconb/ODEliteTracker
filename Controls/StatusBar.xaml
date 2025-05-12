@@ -7,6 +7,7 @@
              xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels"
              mc:Ignorable="d"
              FontSize="20"
+             Foreground="{DynamicResource EliteBtnFG}"
              d:DataContext="{d:DesignInstance viewmodels:MainViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="{DynamicResource TitleBarBackGround}">
@@ -33,7 +34,8 @@
                   DisplayMemberPath="Name"
                   Margin="5,0,10,0"
                   Grid.Column="2"
-                  MinWidth="180"
+                  MinWidth="230"  
+                  Tag="Up"
                   FontSize="18"
                   IsEnabled="{Binding UiEnabled, Mode=OneWay}"
                   HorizontalAlignment="Right"

@@ -40,6 +40,12 @@ namespace ODEliteTracker.Models
         Remaining
     }
 
+    public enum CarrierCommoditySorting
+    {
+        Name,
+        Category,
+
+    }
     public enum TradeMissionType
     {
         SourceAndReturn,
@@ -87,5 +93,27 @@ namespace ODEliteTracker.Models
         LowGroundCZ,
         MediumGroundCZ,
         HighGroundCZ            
+    }
+
+    public enum MissionSorting
+    {
+        [Description("Accepted Order")]
+        AcceptedOrder,
+        [Description("Origin System")]
+        System, 
+        [Description("Origin Station")]
+        Station,
+        [Description("Issuing Faction")]
+        Faction,
+        [Description("Target Faction")]
+        Target,
+        [Description("Total Kills")]
+        Kills,
+        [Description("Reward")]
+        Reward,
+        [Description("Expiry Time")]
+        Expiry,
+        [Description("Wing Mission")]
+        Wing
     }
 }

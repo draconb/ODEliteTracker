@@ -13,7 +13,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Market
             ItemsForSale = [.. marketInfo.ItemsForSale.Where(x => x.Stock > 0).Select(x => new StationCommodityVM(x, false))];
         }
 
-        public StationMarketVM(long marketId, string stationName, string starSystem)
+        public StationMarketVM(ulong marketId, string stationName, string starSystem)
         {
             MarketID = marketId;
             StationName = stationName;
@@ -21,7 +21,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Market
             ItemsForSale = [];
         }
 
-        public long MarketID { get; set; }
+        public ulong MarketID { get; set; }
         public string StationName { get; set; }
         public string StarSystem { get; set; }
         public List<StationCommodityVM> ItemsForSale { get; set; }

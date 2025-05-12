@@ -11,6 +11,7 @@ using ODMVVM.Navigation;
 using System.Net.Http.Headers;
 using System.Net.Http;
 using ODEliteTracker.Notifications.Themes;
+using ODCapi.Services;
 
 namespace ODEliteTracker.Extensions
 {
@@ -47,15 +48,17 @@ namespace ODEliteTracker.Extensions
             services.AddTransient<PowerPlayViewModel>();
             services.AddTransient<LoaderViewModel>();
             services.AddTransient<NotificationSettingsViewModel>();
+            services.AddTransient<FleetCarrierViewModel>();
         }
 
-        public static void AddServices(this IServiceCollection services)
+        public static void AddServices(this IServiceCollection services, string basePath)
         {
             services.AddSingleton<ThemeManager>();
             services.AddSingleton<NotificationThemeManager>();
             services.AddSingleton<JournalEventParser>();
             services.AddSingleton<NotificationService>();
             services.AddSingleton<IManageJournalEvents, JournalManager>();
+            services.AddSingleton(provider => new CAPIService(provider.GetRequiredService<OAuthService>(), basePath));
         }
 
         public static void AddStores(this IServiceCollection services)
@@ -68,9 +71,10 @@ namespace ODEliteTracker.Extensions
             services.AddSingleton<BGSDataStore>();
             services.AddSingleton<PowerPlayDataStore>();
             services.AddSingleton<TickDataStore>();
+            services.AddSingleton<FleetCarrierDataStore>();
         }
 
-        public static void AddHttpClients(this IServiceCollection services)
+        public static void AddHttpClients(this IServiceCollection services, string appName)
         {
             services.AddHttpClient<EliteBGSApiService>((httpClient) =>
             {
@@ -82,14 +86,38 @@ namespace ODEliteTracker.Extensions
                     NoCache = true,
                 };
             })
-           .ConfigurePrimaryHttpMessageHandler(() =>
-           {
-               return new SocketsHttpHandler
-               {
-                   PooledConnectionLifetime = TimeSpan.FromSeconds(5),
-                   ConnectTimeout = TimeSpan.FromSeconds(10),                  
-               };
-           });
+            .ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                return new SocketsHttpHandler
+                {
+                    PooledConnectionLifetime = TimeSpan.FromSeconds(5),
+                    ConnectTimeout = TimeSpan.FromSeconds(10),
+                };
+            });
+            
+            services.AddHttpClient("OAuthService", ctx =>
+            {
+                ctx.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+                {
+                    NoCache = true,
+                };
+                ctx.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                return new SocketsHttpHandler
+                {
+                    PooledConnectionLifetime = TimeSpan.FromSeconds(5),
+                    ConnectTimeout = TimeSpan.FromSeconds(10),
+                };
+            });
+
+            services.AddSingleton(client =>
+            {
+                var clientFactory = client.GetRequiredService<IHttpClientFactory>();
+                var httpClient = clientFactory.CreateClient("OAuthService");
+                return new OAuthService(httpClient, appName);
+            });
         }
     }
 }

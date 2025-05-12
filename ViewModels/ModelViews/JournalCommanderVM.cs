@@ -41,5 +41,16 @@ namespace ODEliteTracker.ViewModels.ModelViews
                 OnPropertyChanged(nameof(IsHidden));
             }
         }
+
+        private bool useCAPI = cmdr.UseCAPI;
+        public bool UseCAPI
+        {
+            get => useCAPI;
+            set
+            {
+                useCAPI = value;
+                OnPropertyChanged(nameof(UseCAPI));
+            }
+        }
     }
 }

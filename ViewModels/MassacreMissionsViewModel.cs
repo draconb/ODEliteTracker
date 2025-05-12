@@ -1,22 +1,30 @@
-﻿using ODEliteTracker.Models.Missions;
+﻿using ODEliteTracker.Models;
+using ODEliteTracker.Models.Missions;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews.Massacre;
 using ODMVVM.Extensions;
 using ODMVVM.ViewModels;
 using System.Collections.ObjectModel;
+using System.Printing;
 
 namespace ODEliteTracker.ViewModels
 {
     public sealed class MassacreMissionsViewModel : ODViewModel
     {
-        public MassacreMissionsViewModel(MassacreMissionStore massacreStore)
+        public MassacreMissionsViewModel(MassacreMissionStore massacreStore,
+                                         SharedDataStore sharedData,
+                                         SettingsStore settings)
         {
             this.massacreStore = massacreStore;
+            this.sharedDataStore = sharedData;
+            this.settings = settings;
+
             this.massacreStore.StoreLive += OnStoreLive;
             this.massacreStore.MissionAddedEvent += OnMissionAdded;
             this.massacreStore.MissionUpdatedEvent += OnMissionUpdated;
             this.massacreStore.MissionsUpdatedEvent += OnMissionsUpdated;
 
+            this.sharedDataStore.CurrentBody_StationChanged += OnCurrentStationChanged;
             //Timer to update expiry time every minute
             expiryTimeUpdateTimer = new Timer(OnUpdateExpiry, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
@@ -26,24 +34,106 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
-        private readonly MassacreMissionStore massacreStore;
-        private readonly Timer expiryTimeUpdateTimer;
+        private void OnCurrentStationChanged(object? sender, string? e)
+        {
+            foreach(var mission in activeMissions)
+            {
+                mission.UpdateStation(sharedDataStore.CurrentMarketID);
+            }
+        }
 
-        private List<MassacreStackVM> stacks { get; } = [];
-        public IEnumerable<MassacreStackVM> Stacks => stacks.Where(x => x.ActiveMissionCount > 0).OrderBy(x => x.IssuingFaction);
-        public IEnumerable<MassacreMissionVM> ActiveMissions { get; private set; } = [];
-        public IEnumerable<MassacreMissionVM> CompletedMissions { get; private set; } = [];
-        public ObservableCollection<FactionStackVM> FactionStacks { get; private set; } = [];
-
-        public int ActiveMissionCount => ActiveMissions.Where(x => x.CurrentState == MissionState.Active).Count();
-        public int RedirectedMissionCount => ActiveMissions.Where(x => x.CurrentState == MissionState.Redirected).Count();
         public override bool IsLive { get => massacreStore.IsLive; }
         public override void Dispose()
         {
             massacreStore.StoreLive -= OnStoreLive;
             massacreStore.MissionAddedEvent -= OnMissionAdded;
             massacreStore.MissionUpdatedEvent -= OnMissionUpdated;
+            sharedDataStore.CurrentBody_StationChanged -= OnCurrentStationChanged;
             expiryTimeUpdateTimer.Dispose();
+        }
+
+        private readonly MassacreMissionStore massacreStore;
+        private readonly SharedDataStore sharedDataStore;
+        private readonly SettingsStore settings;
+        private readonly Timer expiryTimeUpdateTimer;
+
+        private List<MassacreStackVM> stacks { get; } = [];
+        public IEnumerable<MassacreStackVM> Stacks
+        {
+            get
+            {
+                if (HideCompletedStacks)
+                {
+                    return stacks.Where(x => x.ActiveMissionCount > 0 && x.KillsRemaining > 0).OrderBy(x => x.IssuingFaction);
+                }
+                return stacks.Where(x => x.ActiveMissionCount > 0).OrderBy(x => x.IssuingFaction);
+            }
+        }
+        private IEnumerable<MassacreMissionVM> activeMissions { get; set; } = [];
+        public IEnumerable<MassacreMissionVM> ActiveMissions
+        {
+            get
+            {
+                return Sorting switch
+                {
+                    MissionSorting.System => activeMissions.OrderBy(x => x.OriginSystemName).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Station => activeMissions.OrderBy(x => x.OriginStationName).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Faction => activeMissions.OrderBy(x => x.IssuingFaction).ThenBy(x => x.AcceptedTime),
+                    MissionSorting.Target => activeMissions.OrderBy(x => x.TargetFaction).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Kills => activeMissions.OrderByDescending(x => x.KillCount).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Reward => activeMissions.OrderByDescending(x => x.Reward).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Expiry => activeMissions.OrderBy(x => x.Expiry).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Wing => activeMissions.OrderBy(x => x.Wing).ThenBy(x => x.IssuingFaction),
+                    _ => activeMissions.OrderBy(x => x.AcceptedTime).ThenBy(x => x.IssuingFaction),
+                };
+            }
+        }
+
+        private IEnumerable<MassacreMissionVM> completedMissions { get; set; } = [];
+        public IEnumerable<MassacreMissionVM> CompletedMissions
+        {
+            get
+            {
+                return Sorting switch
+                {
+                    MissionSorting.System => completedMissions.OrderBy(x => x.OriginSystemName).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Station => completedMissions.OrderBy(x => x.OriginStationName).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Faction => completedMissions.OrderBy(x => x.IssuingFaction).ThenBy(x => x.AcceptedTime),
+                    MissionSorting.Target => completedMissions.OrderBy(x => x.TargetFaction).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Kills => completedMissions.OrderByDescending(x => x.KillCount).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Reward => completedMissions.OrderByDescending(x => x.Reward).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Expiry => completedMissions.OrderBy(x => x.Expiry).ThenBy(x => x.IssuingFaction),
+                    MissionSorting.Wing => completedMissions.OrderBy(x => x.Wing).ThenBy(x => x.IssuingFaction),
+                    _ => completedMissions.OrderBy(x => x.AcceptedTime).ThenBy(x => x.IssuingFaction),
+                };
+            }
+        }
+
+        public ObservableCollection<FactionStackVM> FactionStacks { get; private set; } = [];
+        public int ActiveMissionCount => activeMissions.Where(x => x.CurrentState == MissionState.Active).Count();
+        public int RedirectedMissionCount => activeMissions.Where(x => x.CurrentState == MissionState.Redirected).Count();
+
+        public bool HideCompletedStacks
+        {
+            get => settings.MassacreSettings.HideCompletedStacks;
+            set
+            {
+                settings.MassacreSettings.HideCompletedStacks = value;
+                OnPropertyChanged(nameof(HideCompletedStacks));
+                OnPropertyChanged(nameof(Stacks));
+            }
+        }
+
+        public MissionSorting Sorting
+        {
+            get => settings.MassacreSettings.MissionSorting;
+            set
+            {
+                settings.MassacreSettings.MissionSorting = value;
+                OnPropertyChanged(nameof(Sorting)); 
+                OnPropertyChanged(nameof(ActiveMissions));
+                OnPropertyChanged(nameof(CompletedMissions));
+            }
         }
 
         private void OnStoreLive(object? sender, bool e)
@@ -63,7 +153,7 @@ namespace ODEliteTracker.ViewModels
                 AddMissionToStack(mission);
             }
 
-            var factionMissions = Stacks.Where(x => x.ActiveMissionCount > 0)
+            var factionMissions = stacks.Where(x => x.ActiveMissionCount > 0)
                                         .SelectMany(x => x.Missions)
                                         .Where(x => x.CurrentState <= MissionState.Completed)
                                         .GroupBy(x => x.TargetFaction)
@@ -75,25 +165,26 @@ namespace ODEliteTracker.ViewModels
             SetMissionCollections();
             OnPropertyChanged(nameof(FactionStacks));
             OnPropertyChanged(nameof(Stacks));
+            OnCurrentStationChanged(null, null);
         }
 
         private void SetMissionCollections()
         {
-            ActiveMissions = stacks.Where(x => x.ActiveMissionCount > 0)
+            activeMissions = stacks.Where(x => x.ActiveMissionCount > 0)
                                    .SelectMany(x => x.Missions)
                                    .Where(x => x.CurrentState < MissionState.Completed)
                                    .OrderBy(x => x.IssuingFaction)
                                    .ThenBy(m => m.AcceptedTime);
 
-            CompletedMissions = stacks.SelectMany(x => x.Missions)
+            completedMissions = stacks.SelectMany(x => x.Missions)
                                       .Where(x => x.CurrentState == MissionState.Completed)
                                       .OrderByDescending(x => x.CompletionTime);
 
-            if (Stacks.Any())
+            if (stacks.Count != 0)
             {
-                var maxKills = Stacks.Max(x => x.Kills);
+                var maxKills = stacks.Max(x => x.Kills);
 
-                foreach (var stack in Stacks)
+                foreach (var stack in stacks)
                 {
                     stack.KillDifference = maxKills - stack.Kills;
                 }
@@ -149,7 +240,6 @@ namespace ODEliteTracker.ViewModels
                 OnPropertyChanged(nameof(Stacks));
             }
 
-            var stackss = Stacks.ToList();
             var factionStack = FactionStacks.FirstOrDefault(x => string.Equals(x.TargetFaction, e.TargetFaction));
 
             if (factionStack == null)
@@ -176,7 +266,6 @@ namespace ODEliteTracker.ViewModels
         private MassacreMissionVM? AddMissionToStack(MassacreMission mission)
         {
             var stack = stacks.FirstOrDefault(x => string.Equals(x.IssuingFaction, mission.IssuingFaction)
-                                                && string.Equals(x.StarSystem, mission.OriginSystemName)
                                                 && string.Equals(x.TargetFaction, mission.TargetFaction));
 
             if (stack is null)
@@ -189,12 +278,12 @@ namespace ODEliteTracker.ViewModels
 
         private void OnUpdateExpiry(object? state)
         {
-            if (ActiveMissions.Any() == false)
+            if (activeMissions.Any() == false)
                 return;
 
-            lock (ActiveMissions)
+            lock (activeMissions)
             {
-                foreach (var mission in ActiveMissions)
+                foreach (var mission in activeMissions)
                 {
                     mission.UpdateExpiryTime();
                 }

@@ -34,7 +34,7 @@
                                 <TextBlock Text="{Binding Progress}"
                                            Foreground="#FFEC4126" />
                                 <TextBlock Text="{Binding Power}"
-                                           Margin="5,0"
+                                           Margin="10,0,0,0"
                                            Grid.Column="1" />
                             </Grid>
                         </DataTemplate>
@@ -72,7 +72,7 @@
                                Margin="10,5" />
                     <TextBlock Text="{Binding WinningPower.Progress}"
                                Grid.Column="1"
-                               Margin="10,5"
+                               Margin="10,5,0,0"
                                Foreground="#FF66ADEE" />
                 </Grid>
             </Border>

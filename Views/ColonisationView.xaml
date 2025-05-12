@@ -27,24 +27,24 @@
     </UserControl.Resources>
     <busyIndicator:BusyMask x:Name="BusyIndicator"
                             IsBusy="{Binding IsBusy}"
-                            Background="{DynamicResource IndicatorBackground}"                           
+                            Background="{DynamicResource IndicatorBackground}"
                             FontSize="30"
+                            Height="Auto"
                             BusyContent="Parsing Colonisation Logs"
                             IndicatorType="Cupertino"
                             BusyContentMargin="0,20,0,0">
-        <Grid TextBlock.FontSize="18">
-            <Grid>
+        <Grid TextBlock.FontSize="18"
+              Height="Auto">
+            <Grid Height="Auto">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="400" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
-                <Grid>
+                <Grid Height="Auto">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
-                        <RowDefinition MaxHeight="300"
-                                       MinHeight="100"
-                                       Height="Auto" />
+                        <RowDefinition Height="300" />
                     </Grid.RowDefinitions>
 
                     <TabControl BorderThickness="0"
@@ -270,11 +270,11 @@
                     </Border>
                 </Grid>
 
-                <Grid Grid.Column="1">
+                <Grid Grid.Column="1"
+                      Height="Auto">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition MaxHeight="300"
-                                       Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition Height="300"/>
                     </Grid.RowDefinitions>
                     <Border Background="{DynamicResource CardBackground}"
                             CornerRadius="5"
@@ -461,19 +461,24 @@
                                                         HeaderStyle="{DynamicResource DataGridHeaderLeft}"
                                                         ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
                                                         Binding="{Binding Category}" />
+                                    <DataGridTextColumn Header="Carrier Stock"
+                                                        MinWidth="100"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                        ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                        Binding="{Binding CarrierStock}" />
                                     <DataGridTextColumn Header="Total"
                                                         MinWidth="100"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderRight}"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
                                                         ElementStyle="{DynamicResource DataGridElementRightMargin}"
                                                         Binding="{Binding Required}" />
                                     <DataGridTextColumn Header="Delivered"
                                                         MinWidth="100"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderRight}"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
                                                         ElementStyle="{DynamicResource DataGridElementRightMargin}"
                                                         Binding="{Binding Delivered}" />
                                     <DataGridTextColumn Header="Remaining"
                                                         MinWidth="100"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderRight}"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
                                                         ElementStyle="{DynamicResource DataGridElementRightMargin}"
                                                         Binding="{Binding Remaining}" />
                                 </DataGrid.Columns>
@@ -484,10 +489,12 @@
                     <Border Background="{DynamicResource CardBackground}"
                             CornerRadius="5"
                             MinHeight="180"
+                            Height="Auto"
+                            VerticalAlignment="Stretch"
                             Margin="5,5,5,5"
                             Grid.Row="1"
                             Padding="5">
-                        <Grid>
+                        <Grid >
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition />
@@ -535,8 +542,8 @@
                                       AlternatingRowBackground="{DynamicResource RowAlternationColour}"
                                       HeadersVisibility="Column"
                                       AutoGenerateColumns="False"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Top">
+                                      HorizontalAlignment="Center" 
+                                      VerticalAlignment="Stretch">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Commodity"
                                                         Width="*"
