@@ -190,7 +190,11 @@ namespace ODEliteTracker.Stores
                         break;
                     }
 
-                    known ??= new CarrierCommodity(commodity, false);
+                    if (known == null)
+                    {
+                        known = new CarrierCommodity(commodity, false);
+                        carrierData.Stock.Add(known);
+                    }
 
                     known.BuyOrderCount = carrierTradeOrder.PurchaseOrder;
 
@@ -432,8 +436,6 @@ namespace ODEliteTracker.Stores
 
                 if (known == null)
                 {
-                    
-
                     known = new CarrierCommodity(commodity, stolen: false);
                     carrierData.Stock.Add(known);
                 }
@@ -455,6 +457,7 @@ namespace ODEliteTracker.Stores
                         BuyOrderCount = item.Demand
                     };
                     carrierData.Stock.Add(inStock);
+                    stockUpdated = true;
                 }
 
                 //The amount the order was set for minus the amount in demand now
