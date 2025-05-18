@@ -33,6 +33,10 @@
     <SolidColorBrush x:Key="Header"
                      Color="White" />
 
+    <Color x:Key="CarBackGrounColour">
+        #FF2D2D2D
+    </Color>
+    
     <SolidColorBrush x:Key="CardBackground"
                      Color="#FF2D2D2D" />
     <SolidColorBrush x:Key="CardBackgroundMouseOver"
@@ -88,4 +92,8 @@
 
     <SolidColorBrush x:Key="MasscreMissionHighlight"
                      Color="#FFD0B609" />
+
+
+    <SolidColorBrush x:Key="MasscreMissionStationHighlight"
+                     Color="GreenYellow" />
 </ResourceDictionary>

@@ -1,6 +1,5 @@
 ﻿using EliteJournalReader;
 using EliteJournalReader.Events;
-using ODEliteTracker.Database;
 using ODEliteTracker.Helpers;
 using ODEliteTracker.Managers;
 using ODEliteTracker.Models.BGS;
@@ -37,11 +36,13 @@ namespace ODEliteTracker.Stores
         private readonly IManageJournalEvents journalManager;
         private readonly NotificationService notificationService;
         private readonly SettingsStore settings;
-        private Dictionary<string, FactionData> factions = [];
-        private Dictionary<string, DateTime> previousShipTargets = [];
+        private readonly Dictionary<string, FactionData> factions = [];
+        private readonly Dictionary<string, DateTime> previousShipTargets = [];
         private string? commanderPower;
-        private BountiesManager bountiesManager;
+        private readonly BountiesManager bountiesManager;
         private readonly MaterialTraderService materialTraderService;
+        private readonly Dictionary<ODMVVM.Helpers.Commodity, List<CommodityPurchase>> marketPurchases = [];
+        private Station? currentStation;
         #endregion
 
         #region Public Properties
@@ -63,6 +64,7 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.ShipTargeted, false },
                 { JournalTypeEnum.Bounty, true },
                 { JournalTypeEnum.RedeemVoucher, true},
+                { JournalTypeEnum.MarketBuy, true},
             };
         }
         public Dictionary<string, FactionData> Factions => factions;
@@ -72,6 +74,7 @@ namespace ODEliteTracker.Stores
         public ulong CurrentMarketID { get; private set; } = 0;
         public ShipInfo? CurrentShipInfo { get; private set; }
         public IEnumerable<ShipCargo>? CurrentShipCargo { get; private set; }
+        public Dictionary<ODMVVM.Helpers.Commodity, List<CommodityPurchase>> MarketPurchases => marketPurchases;
         #endregion
 
         #region Events
@@ -81,6 +84,7 @@ namespace ODEliteTracker.Stores
         public EventHandler<ShipInfo?>? ShipChangedEvent;
         public EventHandler<IEnumerable<ShipCargo>?>? ShipCargoUpdatedEvent;
         public EventHandler? BountiesUpdated;
+        public EventHandler<CommodityPurchase>? PurchasesUpdated;
         #endregion
 
         public override void ClearData()
@@ -137,7 +141,7 @@ namespace ODEliteTracker.Stores
                     UpdateCurrentBody_Station(bodyStation);
                     AddFactions(location.Factions);
 
-                    if(location.Population == 0 || location.SystemFaction is null || location.Factions is null || location.Factions.Count == 0)
+                    if (location.Population == 0 || location.SystemFaction is null || location.Factions is null || location.Factions.Count == 0)
                     {
                         SystemNotification(location.StarSystem,
                         [
@@ -190,8 +194,8 @@ namespace ODEliteTracker.Stores
                     if (string.IsNullOrEmpty(carrierJump.StationName) == false)
                     {
                         bodyStn = carrierJump.StationName;
-                    }                    
-                    UpdateCurrentBody_Station(bodyStn);  
+                    }
+                    UpdateCurrentBody_Station(bodyStn);
                     AddFactions(carrierJump.Factions);
 
                     if (carrierJump.Population == 0 || carrierJump.SystemFaction is null || carrierJump.Factions is null || carrierJump.Factions.Count == 0)
@@ -217,7 +221,8 @@ namespace ODEliteTracker.Stores
                 case DockedEvent.DockedEventArgs docked:
                     CurrentMarketID = docked.MarketID;
                     UpdateCurrentBody_Station(string.IsNullOrEmpty(docked.StationName_Localised) ? docked.StationName : docked.StationName_Localised);
-
+                    if (CurrentSystem != null)
+                        currentStation = new(docked, new(CurrentSystem), CurrentSystem);
                     if (IsLive == false)
                         break;
 
@@ -235,6 +240,7 @@ namespace ODEliteTracker.Stores
                     break;
                 case UndockedEvent.UndockedEventArgs:
                     CurrentMarketID = 0;
+                    currentStation = null;
                     UpdateCurrentBody_Station(null);
                     break;
                 case ApproachBodyEvent.ApproachBodyEventArgs approachBody:
@@ -243,7 +249,7 @@ namespace ODEliteTracker.Stores
                 case EliteJournalReader.Events.MarketEvent.MarketEventArgs:
                     var market = journalManager.GetMarketInfo();
 
-                    if(market != null)
+                    if (market != null)
                     {
                         CurrentMarket = new(market);
                         MarketEvent?.Invoke(this, CurrentMarket);
@@ -252,8 +258,8 @@ namespace ODEliteTracker.Stores
                 case LoadoutEvent.LoadoutEventArgs loadOut:
                     //Sometimes the ship name comes though as a string with a single space so we trim it
                     CurrentShipInfo = new ShipInfo(string.IsNullOrEmpty(loadOut.ShipName.Trim()) ? EliteHelpers.ConvertShipName(loadOut.Ship) : loadOut.ShipName, loadOut.ShipIdent, loadOut.CargoCapacity);
-                    
-                    if(IsLive)
+
+                    if (IsLive)
                         ShipChangedEvent?.Invoke(this, CurrentShipInfo);
                     break;
                 case CargoEvent.CargoEventArgs:
@@ -336,6 +342,37 @@ namespace ODEliteTracker.Stores
 
                     if (fireEvent)
                         FireBountiesChangedIfLive();
+                    break;
+                case MarketBuyEvent.MarketBuyEventArgs marketBuy:
+                    if (currentStation == null
+                        || CurrentSystem == null
+                        || currentStation.StationType.Equals("FleetCarrier", StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    var commodity = EliteCommodityHelpers.GetCommodityFromPartial(marketBuy.Type, marketBuy.Type_Localised);
+
+                    var purchase = new CommodityPurchase(commodity, currentStation, marketBuy.BuyPrice, marketBuy.Timestamp);
+
+                    if (marketPurchases.TryGetValue(commodity, out var list))
+                    {
+                        var known = list.FirstOrDefault(x => x.Commodity == commodity && x.Station.MarketID == currentStation.MarketID);
+
+                        if (known != null)
+                        {
+                            //Remove the older entry
+                            list.Remove(known);
+                        }
+                        list.Add(purchase);
+                        if (IsLive)
+                            PurchasesUpdated?.Invoke(this, purchase);
+                        break;
+                    }
+
+                    marketPurchases.TryAdd(commodity, [purchase]);
+                    if (IsLive)
+                        PurchasesUpdated?.Invoke(this, purchase);
                     break;
             }
         }
@@ -423,7 +460,7 @@ namespace ODEliteTracker.Stores
         public void AddIgnoredBountyFaction(string factionName)
         {
             bountiesManager.AddIgnoredBounty(settings.SelectedCommanderID, factionName);
-            FireBountiesChangedIfLive();           
+            FireBountiesChangedIfLive();
         }
 
         public void RemoveIgnoreBountyFaction(string factionName)
@@ -441,7 +478,7 @@ namespace ODEliteTracker.Stores
         {
             if (IsLive)
             {
-                BountiesUpdated?.Invoke(this, EventArgs.Empty); 
+                BountiesUpdated?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -458,6 +495,14 @@ namespace ODEliteTracker.Stores
                 {
                     ShipCargoUpdatedEvent?.Invoke(this, CurrentShipCargo);
                 }
+            }
+
+            var market = journalManager.GetMarketInfo();
+
+            if (market != null)
+            {
+                CurrentMarket = new(market);
+                MarketEvent?.Invoke(this, CurrentMarket);
             }
         }
 

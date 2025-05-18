@@ -48,6 +48,7 @@ namespace ODEliteTracker.ViewModels
             massacreStore.StoreLive -= OnStoreLive;
             massacreStore.MissionAddedEvent -= OnMissionAdded;
             massacreStore.MissionUpdatedEvent -= OnMissionUpdated;
+            massacreStore.MissionsUpdatedEvent -= OnMissionsUpdated;
             sharedDataStore.CurrentBody_StationChanged -= OnCurrentStationChanged;
             expiryTimeUpdateTimer.Dispose();
         }
@@ -153,7 +154,7 @@ namespace ODEliteTracker.ViewModels
                 AddMissionToStack(mission);
             }
 
-            var factionMissions = stacks.Where(x => x.ActiveMissionCount > 0)
+            var factionMissions = Stacks.Where(x => x.ActiveMissionCount > 0)
                                         .SelectMany(x => x.Missions)
                                         .Where(x => x.CurrentState <= MissionState.Completed)
                                         .GroupBy(x => x.TargetFaction)
@@ -237,7 +238,6 @@ namespace ODEliteTracker.ViewModels
                     stacks.Remove(stack);
                 }
                 SetMissionCollections();
-                OnPropertyChanged(nameof(Stacks));
             }
 
             var factionStack = FactionStacks.FirstOrDefault(x => string.Equals(x.TargetFaction, e.TargetFaction));
@@ -254,6 +254,7 @@ namespace ODEliteTracker.ViewModels
 
             OnPropertyChanged(nameof(ActiveMissionCount));
             OnPropertyChanged(nameof(RedirectedMissionCount));
+            OnPropertyChanged(nameof(Stacks));
         }
 
         private void OnMissionsUpdated(object? sender, EventArgs e)

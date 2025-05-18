@@ -155,7 +155,11 @@ namespace ODEliteTracker.Stores
                     Add_UpdateSystem(pSystem, cycle);
                     break;
                 case PowerplayEvent.PowerplayEventArgs powerplay:
-                    PledgeData = new(powerplay);
+                    pledgeData ??= new(powerplay);
+                    pledgeData.Update(powerplay);
+                    
+                    if (IsLive)
+                        PledgeDataUpdated?.Invoke(this, pledgeData);
                     break;
                 case PowerplayRankEvent.PowerplayRankEventArgs rank:
                     if (PledgeData == null)
@@ -282,6 +286,10 @@ namespace ODEliteTracker.Stores
             if (PledgeData != null)
             {
                 PledgeData.Merits = merits.TotalMerits;
+
+                if (merits.Timestamp >= currentCycle)
+                    PledgeData.MeritsEarnedThisCycle += merits.MeritsGained;
+
                 if (IsLive)
                     PledgeDataUpdated?.Invoke(this, PledgeData);
             }

@@ -44,8 +44,8 @@ namespace ODEliteTracker.Models
     {
         Name,
         Category,
-
     }
+
     public enum TradeMissionType
     {
         SourceAndReturn,
@@ -115,5 +115,12 @@ namespace ODEliteTracker.Models
         Expiry,
         [Description("Wing Mission")]
         Wing
+    }
+
+    public enum LandingPadSize
+    {
+        Small,
+        Medium,
+        Large
     }
 }

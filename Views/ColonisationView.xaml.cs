@@ -1,4 +1,6 @@
-﻿using ODEliteTracker.ViewModels.ModelViews.Colonisation;
+﻿using ODEliteTracker.ViewModels;
+using ODEliteTracker.ViewModels.ModelViews.Colonisation;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -53,6 +55,14 @@ namespace ODEliteTracker.Views
         private void Popup_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             this.button.IsChecked = false;
+        }
+
+        private void PurchaseGrid_Click(object sender, RoutedEventArgs e)
+        {
+            if(DataContext is ColonisationViewModel model && e.OriginalSource is Button btn && btn.DataContext is MarketPurchaseVM market)
+            {
+                model.CopyToClipboard(market.SystemName);
+            }
         }
     }
 }

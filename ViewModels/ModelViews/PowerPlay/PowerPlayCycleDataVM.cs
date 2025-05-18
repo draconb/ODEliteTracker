@@ -81,7 +81,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.PowerPlay
             {
                 var opposing = Powers?.Where(x => string.Equals(ControllingPower, x) == false);
 
-                if (opposing is null || opposing.Count() == 0)
+                if (opposing is null || !opposing.Any())
                 {
                     return ["No Opposing Power"];
                 }

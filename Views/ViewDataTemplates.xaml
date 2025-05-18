@@ -1,0 +1,47 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels"
+                    xmlns:views="clr-namespace:ODEliteTracker.Views"
+                    xmlns:popouts="clr-namespace:ODEliteTracker.Views.PopOuts"
+                    xmlns:popoutsVMs="clr-namespace:ODEliteTracker.ViewModels.PopOuts">
+    <DataTemplate DataType="{x:Type viewmodels:LoadingViewModel}">
+        <views:LoadingView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type viewmodels:SettingsViewModel}">
+        <views:SettingsView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type viewmodels:ColonisationViewModel}">
+        <views:ColonisationView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type viewmodels:MassacreMissionsViewModel}">
+        <views:MassacreMissionView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type viewmodels:TradeMissionViewModel}">
+        <views:TradeMissionView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type viewmodels:BGSViewModel}">
+        <views:BGSDataView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type viewmodels:PowerPlayViewModel}">
+        <views:PowerPlayView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type viewmodels:NotificationSettingsViewModel}">
+        <views:NotificationSettingsView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type viewmodels:FleetCarrierViewModel}">
+        <views:FleetCarrierView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type viewmodels:PopOutControlViewModel}">
+        <views:PopOutControlView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type popoutsVMs:ColonisationPopOut}">
+        <popouts:ColonisationPopOut />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type popoutsVMs:MassacrePopOutViewModel}">
+        <popouts:MassacrePopOutView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type popoutsVMs:TradePopoutViewModel}">
+        <popouts:TradePopOutView />
+    </DataTemplate>
+</ResourceDictionary>

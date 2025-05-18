@@ -1,12 +1,14 @@
 ﻿using EliteJournalReader.Events;
+using ODEliteTracker.Models.Galaxy;
 
 namespace ODEliteTracker.Models.Colonisation
 {
-    public sealed class ConstructionDepot(ColonisationConstructionDepotEvent.ColonisationConstructionDepotEventArgs args, long systemAddress, string systemName, string stationName, bool inactive)
+    public sealed class ConstructionDepot(ColonisationConstructionDepotEvent.ColonisationConstructionDepotEventArgs args, StarSystem system, string stationName, bool inactive)
     {
+        public StarSystem StarSystem { get; private set; } = system;
         public bool Inactive { get; set; } = inactive;
-        public long SystemAddress { get; set; } = systemAddress;
-        public string SystemName { get; set; } = systemName;
+        public long SystemAddress => StarSystem.Address;
+        public string SystemName => StarSystem.Name;
         public long MarketID { get; set; } = args.MarketID;
         public string StationName { get; set; } = stationName;
         public double Progress { get; set; } = args.ConstructionProgress;
@@ -15,22 +17,20 @@ namespace ODEliteTracker.Models.Colonisation
         public List<ConstructionResource> Resources { get; set; } = [.. args.ResourcesRequired.Select(resource => new ConstructionResource(resource))];
 
         internal bool Update(ColonisationConstructionDepotEvent.ColonisationConstructionDepotEventArgs args,
-                             long currentSystemAddress,
-                             string currentSystemName,
+                             StarSystem system,
                              string currentStationName)
         {
-            bool updated = currentSystemAddress != SystemAddress || Progress != args.ConstructionProgress || Complete != args.ConstructionComplete || Failed != args.ConstructionFailed;
+            bool updated = system.Address != SystemAddress || Progress != args.ConstructionProgress || Complete != args.ConstructionComplete || Failed != args.ConstructionFailed;
 
             //If this happens then previous construction must be complete and it's on a new one maybe?
-            if (SystemAddress != currentSystemAddress)
+            if (SystemAddress != system.Address)
             {
                 Resources.Clear();
             }
 
             if (updated)
             {
-                SystemAddress = currentSystemAddress;
-                SystemName = currentSystemName;
+                this.StarSystem = system;
                 StationName = currentStationName;
                 Progress = args.ConstructionProgress;
                 Complete = args.ConstructionComplete;

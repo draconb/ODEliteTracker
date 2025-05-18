@@ -2,7 +2,7 @@
 
 namespace ODEliteTracker.Models.FleetCarrier
 {
-    public sealed class CarrierCommodity(Commodity commodity, bool stolen)
+    public sealed class CarrierCommodity(Commodity commodity, bool stolen, long salePrice)
     {
         public readonly Commodity commodity = commodity;
         public string FdevName => commodity.FdevName;
@@ -12,6 +12,7 @@ namespace ODEliteTracker.Models.FleetCarrier
         public bool Stolen { get; } = stolen;
         public bool BlackMarket { get; set; } = false;
         public bool Rare { get; set; } = commodity.Rare;
+        public long SalePrice { get; set; } = salePrice;
                 
         private long stockCount;
         public long StockCount 

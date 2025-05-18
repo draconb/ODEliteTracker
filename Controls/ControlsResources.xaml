@@ -1,5 +1,16 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:System="clr-namespace:System;assembly=netstandard"
+                    xmlns:models="clr-namespace:ODEliteTracker.Models">
+
+    <ObjectDataProvider x:Key="CommodityEnum"
+                        MethodName="GetValues"
+                        ObjectType="{x:Type System:Enum}">
+        <ObjectDataProvider.MethodParameters>
+            <x:Type TypeName="models:CommoditySorting" />
+        </ObjectDataProvider.MethodParameters>
+    </ObjectDataProvider>
+    
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Controls/Navigation/NavigationBtnStyle.xaml" />
         <ResourceDictionary Source="/Controls/Styles/ScrollbarStyle.xaml" />
@@ -16,5 +27,6 @@
         <ResourceDictionary Source="/Controls/Styles/PowerPlayStyles.xaml" />
         <ResourceDictionary Source="/Controls/Styles/BorderStyles.xaml" />
         <ResourceDictionary Source="/Controls/Styles/SliderStyles.xaml" />
+        <ResourceDictionary Source="/Controls/Styles/ToolTipStyle.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

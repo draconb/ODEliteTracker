@@ -12,9 +12,11 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="{DynamicResource TitleBarBackGround}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition  />
-            <ColumnDefinition  />
-            <ColumnDefinition  />
+            <ColumnDefinition  MinWidth="230"
+                               Width="Auto" />
+            <ColumnDefinition  Width="*"/>
+            <ColumnDefinition  MinWidth="230"
+                               Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <TextBlock Text="{Binding CurrentSystemName}"

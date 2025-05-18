@@ -37,6 +37,22 @@ namespace ODEliteTracker.Migrations
                     b.ToTable("TickData");
                 });
 
+            modelBuilder.Entity("ODEliteTracker.Database.DTOs.DepotShoppingListDTO", b =>
+                {
+                    b.Property<long>("MarketID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("SystemAddress")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StationName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("MarketID", "SystemAddress", "StationName");
+
+                    b.ToTable("DepotShoppingList");
+                });
+
             modelBuilder.Entity("ODEliteTracker.Database.DTOs.IgnoredBounties", b =>
                 {
                     b.Property<int>("CommanderID")

@@ -20,6 +20,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Massacre
         //Info
         public string MissionCount => $"{missions.Count}";
         public string ActiveMissions => $"{missions.Where(x => x.CurrentState == Models.Missions.MissionState.Active).Count()}";
+        public string MissionsRemaining => $"{missions.Count - missions.Where(x => x.CurrentState == Models.Missions.MissionState.Redirected).Count()}";
         public string KillCount => $"{killCount:N0}";
         public string TotalKills => $"{missions.Sum(x => x.KillCount)}";
         public string KillRatio => $"{missions.Sum(x => x.KillCount) / (double)killCount:N2}";
@@ -84,8 +85,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Massacre
             if (mission.CurrentState == Models.Missions.MissionState.Redirected)
             {
                 UpdateKillCounts();
-                OnPropertyChanged(nameof(TurnInStackValue));
-                OnPropertyChanged(nameof(TurnInShareValue));
+                UpdateAllStats();
                 return false;
             }
 
@@ -112,6 +112,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Massacre
             OnPropertyChanged(nameof(MissionCount));
             OnPropertyChanged(nameof(CurrentMissionCount));
             OnPropertyChanged(nameof(ActiveMissions));
+            OnPropertyChanged(nameof(MissionsRemaining));
             OnPropertyChanged(nameof(KillCount));
             OnPropertyChanged(nameof(TotalKills));
             OnPropertyChanged(nameof(KillRatio));

@@ -2,7 +2,9 @@
 using ODEliteTracker.Models.Settings;
 using ODEliteTracker.Notifications.Themes;
 using ODEliteTracker.Themes;
+using ODEliteTracker.Themes.Overlay;
 using ODEliteTracker.ViewModels;
+using ODEliteTracker.ViewModels.PopOuts;
 using ODJournalDatabase.Database.DTOs;
 using ODJournalDatabase.Database.Interfaces;
 using ODMVVM.Navigation;
@@ -15,12 +17,14 @@ namespace ODEliteTracker.Stores
         public SettingsStore(IODDatabaseProvider databaseProvider,
                              ThemeManager themeManager,
                              IODNavigationService navigationService,
-                             NotificationThemeManager notificationTheme)
+                             NotificationThemeManager notificationTheme,
+                             OverlayThemeManager overlayThemeManager)
         {
             this.databaseProvider = databaseProvider;
             this.themeManager = themeManager;
             this.navigationService = navigationService;
             this.notificationTheme = notificationTheme;
+            this.overlayThemeManager = overlayThemeManager;
             this.navigationService.CurrentViewChanged += NavigationService_CurrentViewChanged;
         }
 
@@ -40,6 +44,7 @@ namespace ODEliteTracker.Stores
         private readonly ThemeManager themeManager;
         private readonly IODNavigationService navigationService;
         private readonly NotificationThemeManager notificationTheme;
+        private readonly OverlayThemeManager overlayThemeManager;
 
         public int SelectedCommanderID { get; set; } = 0;
         public Type CurrentViewModel { get; set; } = typeof(MassacreMissionsViewModel);
@@ -64,12 +69,15 @@ namespace ODEliteTracker.Stores
             }
         }
 
-        public CommoditySorting ColonisationCommoditySorting { get; internal set; } = CommoditySorting.Category;
         public double UiScale { get; set; } = 1;
         public BGSViewSettings BGSViewSettings { get; internal set; } = new();
         public PowerPlaySettings PowerPlaySettings { get; internal set; } = new();
+        public ColonisationSettings ColonisationSettings { get; internal set; } = new();
         public CarrierSettings CarrierSettings { get; internal set; } = new();
+        public OverlaySettings OverlaySettings { get; internal set; } = new();
+        public Dictionary<int, List<PopOutParams>> PopOutParams { get; set; } = [];
 
+        #region Persistance
         public void LoadSettings()
         {
             var settings = databaseProvider.GetAllSettings();
@@ -79,7 +87,7 @@ namespace ODEliteTracker.Stores
                 SelectedCommanderID = SettingsDTOHelpers.SettingsDtoToInt(settings.GetSettingDTO(nameof(SelectedCommanderID)));
                 CurrentTheme = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(CurrentTheme)), Theme.OD);
                 UiScale = SettingsDTOHelpers.SettingsDtoToDouble(settings.GetSettingDTO(nameof(UiScale)), 1);
-                ColonisationCommoditySorting = SettingsDTOHelpers.SettingDtoToEnum(settings.GetSettingDTO(nameof(ColonisationCommoditySorting)), CommoditySorting.Category);
+                ColonisationSettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(ColonisationSettings)), ColonisationSettings);
                 CurrentViewModel = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(CurrentViewModel)), typeof(ColonisationViewModel));
                 BGSViewSettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(BGSViewSettings)), new BGSViewSettings());
                 PowerPlaySettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(PowerPlaySettings)), new PowerPlaySettings());
@@ -88,11 +96,14 @@ namespace ODEliteTracker.Stores
                 NotificationSettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(NotificationSettings)), NotificationSettings.GetDefault());
                 CarrierSettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(CarrierSettings)), CarrierSettings.GetDefault());
                 MassacreSettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(MassacreSettings)), MassacreSettings.GetDefault());
+                PopOutParams = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(PopOutParams)), new Dictionary<int, List<PopOutParams>>());
+                OverlaySettings = SettingsDTOHelpers.SettingDtoToObject(settings.GetSettingDTO(nameof(OverlaySettings)), OverlaySettings);
             }
 
             //Apply Themes
             themeManager.SetTheme(CurrentTheme);
             notificationTheme.SetTheme(NotificationSettings.CurrentTheme);
+            overlayThemeManager.SetTheme(OverlaySettings.CurrentTheme);
 
             if (MainWindowPosition.IsZero)
             {
@@ -108,18 +119,102 @@ namespace ODEliteTracker.Stores
                 SettingsDTOHelpers.IntToSettingsDTO(nameof(SelectedCommanderID), SelectedCommanderID > 0 ? SelectedCommanderID : 0),
                 SettingsDTOHelpers.EnumToSettingsDto(nameof(CurrentTheme), CurrentTheme),
                 SettingsDTOHelpers.DoubleToSettingsDTO(nameof(UiScale), UiScale),
-                SettingsDTOHelpers.EnumToSettingsDto(nameof(ColonisationCommoditySorting), ColonisationCommoditySorting),
                 SettingsDTOHelpers.EnumToSettingsDto(nameof(JournalAge), JournalAge),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(CurrentViewModel), CurrentViewModel),
+                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(ColonisationSettings), ColonisationSettings),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(BGSViewSettings), BGSViewSettings),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(PowerPlaySettings), PowerPlaySettings),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(MainWindowPosition), MainWindowPosition),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(NotificationSettings), NotificationSettings),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(CarrierSettings), CarrierSettings),
                 SettingsDTOHelpers.ObjectToJsonStringDto(nameof(MassacreSettings), MassacreSettings),
+                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(PopOutParams), PopOutParams),
+                SettingsDTOHelpers.ObjectToJsonStringDto(nameof(OverlaySettings), OverlaySettings),
             };
 
             databaseProvider.AddSettings(settings);
         }
+        #endregion
+
+        #region Popouts
+        public List<PopOutParams> GetCommanderPopOutParams(int commanderId)
+        {
+            if (PopOutParams.TryGetValue(commanderId, out var outParams))
+            {
+                return outParams;
+            }
+            var list = new List<PopOutParams>();
+
+            if (PopOutParams.TryAdd(commanderId, list))
+            {
+                return list;
+            }
+            return [];
+        }
+
+        public PopOutParams GetParams(PopOutViewModel popOut, int knownCount, int commanderId)
+        {
+            var popOutParams = GetCommanderPopOutParams(commanderId);
+
+            var count = popOutParams.Count(x => x.Type == popOut.GetType());
+
+            if (count == 0)
+            {
+                var ret = Models.Settings.PopOutParams.CreateParams(popOut, 1, true);
+                ODWindowPosition.ResetWindowPosition(ret.Position, 800, 450);
+                popOutParams.Add(ret);
+                return ret;
+            }
+
+            if (knownCount > 0)
+            {
+                var known = popOutParams.FirstOrDefault(x => x.Type == popOut.GetType() && x.Count == knownCount);
+
+                if (known != null)
+                {
+                    return known;
+                }
+            }
+            var haveParams = popOutParams.FirstOrDefault(x => x.Type == popOut.GetType() && x.Active == false);
+
+            if (haveParams != null)
+            {
+                if (haveParams.Position.IsZero)
+                    ODWindowPosition.ResetWindowPosition(haveParams.Position, 800, 450);
+                haveParams.Active = true;
+                return haveParams;
+            }
+
+            haveParams = Models.Settings.PopOutParams.CreateParams(popOut, count + 1, true);
+            if (haveParams.Position.IsZero)
+                ODWindowPosition.ResetWindowPosition(haveParams.Position, 800, 450);
+            popOutParams.Add(haveParams);
+            PopOutParams.TryAdd(commanderId, popOutParams);
+            return haveParams;
+        }
+
+        public void SaveParams(PopOutViewModel popOut, bool active, int commanderId)
+        {
+            var popOutParams = GetCommanderPopOutParams(commanderId);
+
+            var known = popOutParams.FirstOrDefault(x => x.Type == popOut.GetType() && x.Count == popOut.Count);
+
+            if (known != null)
+            {
+                known.UpdateParams(popOut, active);
+                return;
+            }
+
+            known = Models.Settings.PopOutParams.CreateParams(popOut, popOut.Count, active);
+            popOutParams.Add(known);
+            PopOutParams.TryAdd(commanderId, popOutParams);
+        }
+
+        public event EventHandler? OnSystemGridSettingsUpdatedEvent;
+        internal void OnSystemGridSettingsUpdated()
+        {
+            OnSystemGridSettingsUpdatedEvent?.Invoke(this, EventArgs.Empty);
+        }
+        #endregion
     }
 }

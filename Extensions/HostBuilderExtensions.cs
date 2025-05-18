@@ -1,17 +1,21 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using ODCapi.Services;
 using ODEliteTracker.Database;
+using ODEliteTracker.Notifications.Themes;
 using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
 using ODEliteTracker.Themes;
+using ODEliteTracker.Themes.Overlay;
 using ODEliteTracker.ViewModels;
+using ODEliteTracker.ViewModels.PopOuts;
 using ODEliteTracker.Views;
 using ODJournalDatabase.Database.Interfaces;
 using ODJournalDatabase.JournalManagement;
 using ODMVVM.Navigation;
-using System.Net.Http.Headers;
+using ODMVVM.Navigation.Controls;
+using ODMVVM.ViewModels;
 using System.Net.Http;
-using ODEliteTracker.Notifications.Themes;
-using ODCapi.Services;
+using System.Net.Http.Headers;
 
 namespace ODEliteTracker.Extensions
 {
@@ -35,6 +39,22 @@ namespace ODEliteTracker.Extensions
             });
         }
 
+        public static void AddNavigation(this IServiceCollection services)
+        {
+            services.AddSingleton<IODNavigationService, ODNavigationService>();
+            services.AddSingleton<Func<Type, ODViewModel>>(provider => viewModelType => (ODViewModel)provider.GetRequiredService(viewModelType));
+        }
+
+        public static void AddPopOuts(this IServiceCollection services)
+        {
+            services.AddSingleton<PopOutService>();
+            services.AddSingleton<Func<Type, PopOutViewModel>>(provider => popOutType => (PopOutViewModel)provider.GetRequiredService(popOutType));
+
+            services.AddTransient<ColonisationPopOut>();
+            services.AddTransient<MassacrePopOutViewModel>();
+            services.AddTransient<TradePopoutViewModel>();
+        }
+
         public static void AddViewModels(this IServiceCollection services)
         {
             services.AddSingleton<MainViewModel>();
@@ -49,12 +69,14 @@ namespace ODEliteTracker.Extensions
             services.AddTransient<LoaderViewModel>();
             services.AddTransient<NotificationSettingsViewModel>();
             services.AddTransient<FleetCarrierViewModel>();
+            services.AddTransient<PopOutControlViewModel>();
         }
 
         public static void AddServices(this IServiceCollection services, string basePath)
         {
             services.AddSingleton<ThemeManager>();
             services.AddSingleton<NotificationThemeManager>();
+            services.AddSingleton<OverlayThemeManager>();
             services.AddSingleton<JournalEventParser>();
             services.AddSingleton<NotificationService>();
             services.AddSingleton<IManageJournalEvents, JournalManager>();

@@ -41,7 +41,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="25" />
-                        <RowDefinition Height="120" />
+                        <RowDefinition Height="130" />
                     </Grid.RowDefinitions>
 
                     <TextBox Text="Pledge"
@@ -72,10 +72,11 @@
                           Margin="5"
                           Grid.Row="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="130" />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="25" />
                             <RowDefinition Height="25" />
                             <RowDefinition Height="25" />
                             <RowDefinition Height="25" />
@@ -116,9 +117,19 @@
                         <TextBlock Grid.Column="0"
                                    Grid.Row="3"
                                    VerticalAlignment="Center"
-                                   Text="Time Pledged" />
+                                   Text="Earned This Cycle" />
                         <TextBlock Grid.Column="1"
                                    Grid.Row="3"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   Text="{Binding MeritsEarnThisCycle}" />
+                        
+                        <TextBlock Grid.Column="0"
+                                   Grid.Row="4"
+                                   VerticalAlignment="Center"
+                                   Text="Time Pledged" />
+                        <TextBlock Grid.Column="1"
+                                   Grid.Row="4"
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Center"
                                    Text="{Binding TimePledged}" />

@@ -4,7 +4,9 @@ using Microsoft.Extensions.Hosting;
 using NLog;
 using ODCapi.Services;
 using ODEliteTracker.Extensions;
+using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
+using ODEliteTracker.ViewModels.PopOuts;
 using ODEliteTracker.Views;
 using ODMVVM.Navigation;
 using ODMVVM.Navigation.Controls;
@@ -21,9 +23,9 @@ namespace ODEliteTracker
     /// </summary>
     public partial class App
     {
-        public static Version AppVersion { get; internal set; } = new Version(1, 2, 1);
+        public static Version AppVersion { get; internal set; } = new Version(1, 3, 0);
 
-#if INSTALL
+#if INSTALL || DEBUG
         public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ODEliteTracker");
 #else
         public readonly static string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -42,8 +44,9 @@ namespace ODEliteTracker
                 //Windows
                 services.AddWindows();
                 //Navigation
-                services.AddSingleton<IODNavigationService, ODNavigationService>();
-                services.AddSingleton<Func<Type, ODViewModel>>(provider => viewModelType => (ODViewModel)provider.GetRequiredService(viewModelType));
+                services.AddNavigation();
+                //Popout
+                services.AddPopOuts();
                 //View Models
                 services.AddViewModels();
                 //Services

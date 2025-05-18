@@ -1,0 +1,462 @@
+﻿<UserControl x:Class="ODEliteTracker.Views.PopOutControlView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ODEliteTracker.Views"
+             xmlns:popouts="clr-namespace:ODEliteTracker.ViewModels.PopOuts"
+             xmlns:overlay="clr-namespace:ODEliteTracker.Themes.Overlay"
+             xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels"
+             xmlns:wpfconverters="clr-namespace:ODEliteTracker.WPFConverters"
+             d:DataContext="{d:DesignInstance viewmodels:PopOutControlViewModel}"
+             mc:Ignorable="d"
+             d:DesignHeight="1920"
+             d:DesignWidth="1080">
+    <UserControl.Resources>
+        <wpfconverters:OverlayThemeToBool x:Key="OverlayThemeToBool" />
+
+        <Style x:Key="CaptionButtonStyle"
+               TargetType="{x:Type Button}">
+            <Setter Property="Foreground"
+                    Value="{Binding ElementName=Root, Path=TitleBarForeground}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="LayoutRoot"
+                              Background="Transparent"
+                              Width="44"
+                              Height="Auto">
+                            <TextBlock x:Name="txt"
+                                       Text="{TemplateBinding Content}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="10"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       RenderOptions.ClearTypeHint="Auto"
+                                       TextOptions.TextRenderingMode="Aliased"
+                                       TextOptions.TextFormattingMode="Display" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="LayoutRoot"
+                                        Property="Background"
+                                        Value="{Binding ElementName=Root, Path=TitleBarMouseOver}" />
+                                <Setter TargetName="txt"
+                                        Property="Foreground"
+                                        Value="{Binding ElementName=Root, Path=TitleBarForeground}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CloseButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content"
+                    Value="&#xE106;" />
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="250" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Background="{DynamicResource CardBackground}"
+                CornerRadius="5"
+                MinHeight="180"
+                Height="Auto"
+                Grid.ColumnSpan="2"
+                VerticalAlignment="Stretch"
+                Margin="5"
+                Padding="5">
+            <WrapPanel x:Name="Panels"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Orientation="Horizontal"
+                       Margin="5"
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                       ScrollViewer.VerticalScrollBarVisibility="Disabled">
+
+                <Button Style="{DynamicResource EliteStyleButton}"
+                        Height="140"
+                        Width="140"
+                        Command="{Binding OpenPopOut}"
+                        CommandParameter="{x:Type popouts:MassacrePopOutViewModel}"
+                        Margin="5">
+                    <Grid Height="120"
+                          Width="120">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                   Height="48"
+                                   Width="48">
+                            <Rectangle.OpacityMask>
+                                <VisualBrush>
+                                    <VisualBrush.Visual>
+                                        <Image Source="/Assets/Icons/assassin.png" />
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Massacre Overlay"
+                                   TextWrapping="Wrap"
+                                   Margin="5"
+                                   TextAlignment="Center"
+                                   Grid.Row="1" />
+                    </Grid>
+                </Button>
+
+                <Button Style="{DynamicResource EliteStyleButton}"
+                        Height="140"
+                        Width="140"
+                        Command="{Binding OpenPopOut}"
+                        CommandParameter="{x:Type popouts:TradePopoutViewModel}"
+                        Margin="5">
+                    <Grid Height="120"
+                          Width="120">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                   Height="48"
+                                   Width="48">
+                            <Rectangle.OpacityMask>
+                                <VisualBrush>
+                                    <VisualBrush.Visual>
+                                        <Image Source="/Assets/Icons/trade.png" />
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Trade&#x0a;Overlay"
+                                   TextWrapping="Wrap"
+                                   Margin="5"
+                                   TextAlignment="Center"
+                                   Grid.Row="1" />
+                    </Grid>
+                </Button>
+                
+                <Button Style="{DynamicResource EliteStyleButton}"
+                        Height="140"
+                        Width="140"
+                        Command="{Binding OpenPopOut}"
+                        CommandParameter="{x:Type popouts:ColonisationPopOut}"
+                        Margin="5">
+                    <Grid Height="120"
+                          Width="120">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                   Height="48"
+                                   Width="48">
+                            <Rectangle.OpacityMask>
+                                <VisualBrush>
+                                    <VisualBrush.Visual>
+                                        <Image Source="/Assets/Icons/ColonisationBtn.png" />
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock Text="Colonisation Overlay"
+                                   TextWrapping="Wrap"
+                                   Margin="5"
+                                   TextAlignment="Center"
+                                   Grid.Row="1" />
+                    </Grid>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <Border Background="{DynamicResource CardBackground}"
+                Grid.Row="1"
+                MinHeight="180"
+                CornerRadius="5"
+                VerticalAlignment="Top"
+                Margin="5"
+                Padding="5">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Overlay Theme"
+                           FontSize="22"
+                           Grid.ColumnSpan="2"
+                           Foreground="{DynamicResource Header}" />
+
+                <StackPanel Grid.Row="1">
+                    <RadioButton GroupName="ThemeButtons"
+                                 Command="{Binding SetTheme}"
+                                 CommandParameter="{x:Static overlay:OverlayTheme.ODBright}"
+                                 Content="OD Bright"
+                                 Margin="10"
+                                 Style="{StaticResource EliteStyleRadioButton}"
+                                 HorizontalAlignment="Left"
+                                 FontSize="24"
+                                 Foreground="{DynamicResource PrimaryForeground}"
+                                 IsChecked="{Binding Settings.CurrentTheme, Converter={StaticResource OverlayThemeToBool}, ConverterParameter={x:Static overlay:OverlayTheme.ODBright}, Mode=Oneway}" />
+                    <RadioButton GroupName="ThemeButtons"
+                                 Command="{Binding SetTheme}"
+                                 CommandParameter="{x:Static overlay:OverlayTheme.OD}"
+                                 Content="OD"
+                                 Margin="10"
+                                 Style="{StaticResource EliteStyleRadioButton}"
+                                 HorizontalAlignment="Left"
+                                 FontSize="24"
+                                 Foreground="{DynamicResource PrimaryForeground}"
+                                 IsChecked="{Binding Settings.CurrentTheme, Converter={StaticResource OverlayThemeToBool}, ConverterParameter={x:Static overlay:OverlayTheme.OD}, Mode=Oneway}" />
+                    <RadioButton GroupName="ThemeButtons"
+                                 Command="{Binding SetTheme}"
+                                 CommandParameter="{x:Static overlay:OverlayTheme.Dark}"
+                                 Content="DARK"
+                                 HorizontalAlignment="Left"
+                                 Margin="10"
+                                 FontSize="24"
+                                 Style="{StaticResource EliteStyleRadioButton}"
+                                 Foreground="{DynamicResource PrimaryForeground}"
+                                 IsChecked="{Binding Settings.CurrentTheme, Converter={StaticResource OverlayThemeToBool}, ConverterParameter={x:Static overlay:OverlayTheme.Dark}, Mode=Oneway}" />
+                    <RadioButton GroupName="ThemeButtons"
+                                 Command="{Binding SetTheme}"
+                                 CommandParameter="{x:Static overlay:OverlayTheme.Light}"
+                                 Content="LIGHT"
+                                 HorizontalAlignment="Left"
+                                 Margin="10"
+                                 FontSize="24"
+                                 Style="{StaticResource EliteStyleRadioButton}"
+                                 Foreground="{DynamicResource PrimaryForeground}"
+                                 IsChecked="{Binding Settings.CurrentTheme, Converter={StaticResource OverlayThemeToBool}, ConverterParameter={x:Static overlay:OverlayTheme.Light}, Mode=Oneway}" />
+                </StackPanel>
+
+                <Border BorderBrush="{DynamicResource Overlay_BorderBrush}"
+                        Background="{DynamicResource Overlay_CardBackground}"
+                        BorderThickness="3"
+                        Width="400"
+                        Height="180"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Grid.Column="1"
+                        Grid.Row="1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid Height="30"
+                              Grid.Row="0"
+                              Grid.ColumnSpan="4"
+                              Background="{DynamicResource Overlay_TitleBarBrush}">
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Margin="5,0,0,0">
+                                <!--App icon-->
+                                <Rectangle Fill="{DynamicResource Overlay_ForegroundBrush}"
+                                           Width="24"
+                                           Height="24"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center">
+                                    <Rectangle.OpacityMask>
+                                        <ImageBrush  Stretch="Uniform"
+                                                     ImageSource="/Assets/Icons/PopOutBtn.png" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                                <TextBlock Text="Overlay"
+                                           Margin="5,0"
+                                           VerticalAlignment="Center"
+                                           FontSize="16"
+                                           Foreground="{DynamicResource Overlay_ForegroundBrush}" />
+                            </StackPanel>
+
+                            <!--Caption buttons-->
+                            <Button Style="{StaticResource CloseButtonStyle}"
+                                    Foreground="{DynamicResource Overlay_ForegroundBrush}"
+                                    HorizontalAlignment="Right" />
+                        </Grid>
+
+
+                        <TextBlock Text="Overlay Foreground"
+                                   Grid.ColumnSpan="2"
+                                   Grid.Column="1"
+                                   Grid.RowSpan="3"
+                                   FontSize="22"
+                                   Grid.Row="1"
+                                   Margin="5"
+                                   Foreground="{DynamicResource Overlay_ForegroundBrush}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Border Background="{DynamicResource CardBackground}"
+                Grid.Row="1"
+                Grid.Column="1"
+                MinHeight="180"
+                CornerRadius="5"
+                Margin="5"
+                Padding="5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Toolbar Icon Reference"
+                           FontSize="22"
+                           Margin="5"
+                           Foreground="{DynamicResource Header}" />
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Visible"
+                              Grid.Row="1">
+                    <WrapPanel>
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10">
+                            <Border Background="{DynamicResource EliteBtnBG}"
+                                    Margin="10,10"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="3">
+                                <Rectangle Fill="{DynamicResource EliteBtnFG}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush>
+                                            <VisualBrush.Visual>
+                                                <Image Source="/Assets/Icons/ShowInTaskBar.png" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Border>
+
+                            <TextBlock Text="Show In Task Bar"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="22"
+                                       Margin="10,5" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10">
+                            <Border Background="{DynamicResource EliteBtnBG}"
+                                    Margin="10,10"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="3">
+                                <Rectangle Fill="{DynamicResource EliteBtnFG}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush>
+                                            <VisualBrush.Visual>
+                                                <Image Source="/Assets/Icons/TopMost.png" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Border>
+
+                            <TextBlock Text="Always On Top"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="22"
+                                       Margin="10,5" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10">
+                            <Border Background="{DynamicResource EliteBtnBG}"
+                                    Margin="10,10"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="3">
+                                <Rectangle Fill="{DynamicResource EliteBtnFG}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush>
+                                            <VisualBrush.Visual>
+                                                <Image Source="/Assets/Icons/Transparency.png" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Border>
+
+                            <TextBlock Text="Background Transparency"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="22"
+                                       Margin="10,5" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10">
+                            <Border Background="{DynamicResource EliteBtnBG}"
+                                    Margin="10,10"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="3">
+                                <Rectangle Fill="{DynamicResource EliteBtnFG}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush>
+                                            <VisualBrush.Visual>
+                                                <Image Source="/Assets/Icons/zoom.png" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Border>
+
+                            <TextBlock Text="UI Scale"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="22"
+                                       Margin="10,5" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10">
+                            <Border Background="{DynamicResource EliteBtnBG}"
+                                    Margin="10,10"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="3">
+                                <Rectangle Fill="{DynamicResource EliteBtnFG}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush>
+                                            <VisualBrush.Visual>
+                                                <Image Source="/Assets/Icons/ClickThrough.png" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Border>
+
+                            <TextBlock Text="Click Through&#x0a;When activate the window is made transparent to the mouse cursor.&#x0a;Hold Left Shift when the cursor is over the window to re-activate"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="22"
+                                       Margin="10,5" />
+                        </StackPanel>
+
+                    </WrapPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

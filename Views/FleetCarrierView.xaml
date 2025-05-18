@@ -6,10 +6,21 @@
              xmlns:local="clr-namespace:ODEliteTracker.Views"
              xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels"
              xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
+             xmlns:System="clr-namespace:System;assembly=netstandard"
+             xmlns:models="clr-namespace:ODEliteTracker.Models"
              d:DataContext="{d:DesignInstance viewmodels:FleetCarrierViewModel}"
              mc:Ignorable="d"
              d:DesignHeight="450"
              d:DesignWidth="800">
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="CarrierCommoditySorting"
+                            MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:CarrierCommoditySorting" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
     <busyIndicator:BusyMask x:Name="BusyIndicator"
                             IsBusy="{Binding IsBusy}"
                             Background="{DynamicResource IndicatorBackground}"
@@ -23,264 +34,14 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="200" />
+                <RowDefinition Height="140" />
+                <RowDefinition Height="350" />
+                <RowDefinition MinHeight="260" />
+            </Grid.RowDefinitions>
 
-                <Border Background="{DynamicResource CardBackground}"
-                        CornerRadius="5"
-                        Margin="5"
-                        Padding="5">
-                    <Grid Margin="5">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="Carrier Info"
-                                   FontSize="22"
-                                   Foreground="{DynamicResource Header}" />
-
-                        <TextBlock Text="{Binding CarrierData.Name}"
-                                   Margin="5"
-                                   Grid.Row="1" />
-
-                        <TextBlock Text="{Binding CarrierData.Callsign}"
-                                   Margin="5"
-                                   Grid.Row="2" />
-
-                        <TextBlock Text="{Binding CarrierData.StarSystem}"
-                                   Margin="5"
-                                   Grid.Row="3" />
-
-                        <Grid Grid.Row="4">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            
-                            <TextBlock Text="Fuel"
-                                       Margin="5" />
-                            <TextBlock Text="{Binding CarrierData.Fuel}"
-                                       Margin="5"
-                                       Grid.Row="0"
-                                       Grid.Column="1" />
-
-                            <TextBlock Text="Balance"
-                                       Margin="5"
-                                       Grid.Row="1" />
-                            <TextBlock Text="{Binding CarrierData.Balance, StringFormat={}{0:N0}}"
-                                       Margin="5"
-                                       Grid.Row="1"
-                                       Grid.Column="1" />
-                        </Grid>
-                    </Grid>
-                </Border>
-
-                <Border Background="{DynamicResource CardBackground}"
-                        Grid.Row="1"
-                        CornerRadius="5"
-                        Margin="5"
-                        Padding="5">
-                    <Grid Margin="5">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="80" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Destination"
-                                   FontSize="22"
-                                   Grid.ColumnSpan="2"
-                                   Foreground="{DynamicResource Header}" />
-
-                        <TextBlock Text="System"
-                                   Margin="5"
-                                   Grid.Column="0"
-                                   Grid.Row="1" />                        
-                        <TextBlock Text="{Binding CarrierData.Destination}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="1" />
-
-
-                        <TextBlock Text="Body"
-                                   Margin="5"
-                                   Grid.Column="0"
-                                   Grid.Row="2" />
-                        <TextBlock Text="{Binding CarrierData.DestinationBody}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="2" />
-
-                        <TextBlock Text="{Binding CarrierData.DepartTime}"
-                                   Margin="5"
-                                   Grid.ColumnSpan="2"
-                                   Grid.Row="3" />
-                    </Grid>
-                </Border>
-
-                <Border Background="{DynamicResource CardBackground}"
-                        Grid.Row="2"
-                        CornerRadius="5"
-                        Margin="5"
-                        Padding="5">
-                    <Grid Margin="5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="Services"
-                                   FontSize="22"
-                                   Foreground="{DynamicResource Header}" />
-
-                        <TextBlock Text="Rearm"
-                                   Margin="5"
-                                   Grid.Row="1" />
-                        <TextBlock Text="{Binding CarrierData.Rearm}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="1" />
-
-                        <TextBlock Text="Refuel"
-                                   Margin="5"
-                                   Grid.Row="2" />
-                        <TextBlock Text="{Binding CarrierData.Refuel}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="2" />
-
-                        <TextBlock Text="Repair"
-                                   Margin="5"
-                                   Grid.Row="3" />
-                        <TextBlock Text="{Binding CarrierData.Repair}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="3" />
-
-                        <TextBlock Text="Shipyard"
-                                   Margin="5"
-                                   Grid.Row="4" />
-                        <TextBlock Text="{Binding CarrierData.Shipyard}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="4" />
-
-                        <TextBlock Text="Outfitting"
-                                   Margin="5"
-                                   Grid.Row="5" />
-                        <TextBlock Text="{Binding CarrierData.Outfitting}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="5" />
-
-                        <TextBlock Text="Black Market"
-                                   Margin="5"
-                                   Grid.Row="6" />
-                        <TextBlock Text="{Binding CarrierData.BlackMarket}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="6" />
-
-                        <TextBlock Text="Redemption Office"
-                                   Margin="5"
-                                   Grid.Row="7" />
-                        <TextBlock Text="{Binding CarrierData.VoucherRedemption}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="7" />
-
-                        <TextBlock Text="Pioneer Supplies"
-                                   Margin="5"
-                                   Grid.Row="8" />
-                        <TextBlock Text="{Binding CarrierData.PioneerSupplies}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="8" />
-
-                        <TextBlock Text="Bartender"
-                                   Margin="5"
-                                   Grid.Row="9" />
-                        <TextBlock Text="{Binding CarrierData.Bartender}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="9" />
-
-                        <TextBlock Text="Vista Genomics"
-                                   Margin="5"
-                                   Grid.Row="10" />
-                        <TextBlock Text="{Binding CarrierData.Vista}"
-                                   Margin="5"
-                                   Grid.Column="1"
-                                   Grid.Row="10" />
-                    </Grid>
-                </Border>
-
-                <Border Background="{DynamicResource CardBackground}"
-                        Grid.Row="3"
-                        CornerRadius="5"
-                        Margin="5"
-                        Padding="5">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="10" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="CAPI"
-                                   FontSize="22"
-                                   Foreground="{DynamicResource Header}" />
-
-                        <Button Content="Refresh Stock From CAPI"
-                                Command="{Binding RefreshCarrierStockCommand}"
-                                Style="{DynamicResource EliteStyleButton}"
-                                HorizontalAlignment="Center"
-                                Height="30"
-                                Width="250"
-                                Margin="5"
-                                Grid.Row="2" />
-
-                        <TextBlock Text="Note that CAPI data can be outdated.&#x0a;It is not recommend to update if your carrier cargo has canged in the last 15 minutes&#x0a;&#x0a;Using this option will replace all carrier stock data with that from Frontiers servers&#x0a;&#x0a;This option is only available once every 10 minutes"
-                                   TextWrapping="Wrap"
-                                   TextAlignment="Center"
-                                   Foreground="{DynamicResource Header}"
-                                   FontSize="16"
-                                   Margin="10"
-                                   Grid.Row="3"/>
-                    </Grid>
-                </Border>
-            </Grid>         
-            
             <Border Background="{DynamicResource CardBackground}"
-                    Grid.Column="1"
                     CornerRadius="5"
                     Margin="5"
                     Padding="5">
@@ -288,13 +49,281 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
+                    <TextBlock Text="Carrier Info"
+                               FontSize="22"
+                               Foreground="{DynamicResource Header}" />
+
+                    <TextBlock Text="{Binding CarrierData.Name}"
+                               Margin="5"
+                               Grid.Row="1" />
+
+                    <TextBlock Text="{Binding CarrierData.Callsign}"
+                               Margin="5"
+                               Grid.Row="2" />
+
+                    <TextBlock Text="{Binding CarrierData.StarSystem}"
+                               Margin="5"
+                               Grid.Row="3" />
+
+                    <Grid Grid.Row="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Fuel"
+                                   Margin="5" />
+                        <TextBlock Text="{Binding CarrierData.Fuel}"
+                                   Margin="5"
+                                   Grid.Row="0"
+                                   Grid.Column="1" />
+
+                        <TextBlock Text="Balance"
+                                   Margin="5"
+                                   Grid.Row="1" />
+                        <TextBlock Text="{Binding CarrierData.Balance, StringFormat={}{0:N0}}"
+                                   Margin="5"
+                                   Grid.Row="1"
+                                   Grid.Column="1" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Border Background="{DynamicResource CardBackground}"
+                    Grid.Row="1"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="5">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Destination"
+                               FontSize="22"
+                               Grid.ColumnSpan="2"
+                               Foreground="{DynamicResource Header}" />
+
+                    <TextBlock Text="System"
+                               Margin="5"
+                               Grid.Column="0"
+                               Grid.Row="1" />
+                    <TextBlock Text="{Binding CarrierData.Destination}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="1" />
+
+
+                    <TextBlock Text="Body"
+                               Margin="5"
+                               Grid.Column="0"
+                               Grid.Row="2" />
+                    <TextBlock Text="{Binding CarrierData.DestinationBody}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="2" />
+
+                    <TextBlock Text="{Binding CarrierData.DepartTime}"
+                               Margin="5"
+                               Grid.ColumnSpan="2"
+                               Grid.Row="3" />
+                </Grid>
+            </Border>
+
+            <Border Background="{DynamicResource CardBackground}"
+                    Grid.Row="2"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="5">
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Services"
+                               FontSize="22"
+                               Foreground="{DynamicResource Header}" />
+
+                    <TextBlock Text="Rearm"
+                               Margin="5"
+                               Grid.Row="1" />
+                    <TextBlock Text="{Binding CarrierData.Rearm}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="1" />
+
+                    <TextBlock Text="Refuel"
+                               Margin="5"
+                               Grid.Row="2" />
+                    <TextBlock Text="{Binding CarrierData.Refuel}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="2" />
+
+                    <TextBlock Text="Repair"
+                               Margin="5"
+                               Grid.Row="3" />
+                    <TextBlock Text="{Binding CarrierData.Repair}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="3" />
+
+                    <TextBlock Text="Shipyard"
+                               Margin="5"
+                               Grid.Row="4" />
+                    <TextBlock Text="{Binding CarrierData.Shipyard}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="4" />
+
+                    <TextBlock Text="Outfitting"
+                               Margin="5"
+                               Grid.Row="5" />
+                    <TextBlock Text="{Binding CarrierData.Outfitting}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="5" />
+
+                    <TextBlock Text="Black Market"
+                               Margin="5"
+                               Grid.Row="6" />
+                    <TextBlock Text="{Binding CarrierData.BlackMarket}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="6" />
+
+                    <TextBlock Text="Redemption Office"
+                               Margin="5"
+                               Grid.Row="7" />
+                    <TextBlock Text="{Binding CarrierData.VoucherRedemption}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="7" />
+
+                    <TextBlock Text="Pioneer Supplies"
+                               Margin="5"
+                               Grid.Row="8" />
+                    <TextBlock Text="{Binding CarrierData.PioneerSupplies}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="8" />
+
+                    <TextBlock Text="Bartender"
+                               Margin="5"
+                               Grid.Row="9" />
+                    <TextBlock Text="{Binding CarrierData.Bartender}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="9" />
+
+                    <TextBlock Text="Vista Genomics"
+                               Margin="5"
+                               Grid.Row="10" />
+                    <TextBlock Text="{Binding CarrierData.Vista}"
+                               Margin="5"
+                               Grid.Column="1"
+                               Grid.Row="10" />
+                </Grid>
+            </Border>
+
+            <Border Background="{DynamicResource CardBackground}"
+                    Grid.Row="3"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="CAPI"
+                               FontSize="22"
+                               Foreground="{DynamicResource Header}" />
+
+                    <Button Content="Refresh Stock From CAPI"
+                            Command="{Binding RefreshCarrierStockCommand}"
+                            Style="{DynamicResource EliteStyleButton}"
+                            HorizontalAlignment="Center"
+                            Height="30"
+                            Width="250"
+                            Margin="5"
+                            Grid.Row="2" />
+
+                    <TextBlock Text="Note that CAPI data can be outdated.&#x0a;It is not recommend to update if your carrier cargo has canged in the last 15 minutes&#x0a;&#x0a;Using this option will replace all carrier stock data with that from Frontiers servers&#x0a;&#x0a;This option is only available once every 10 minutes"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Foreground="{DynamicResource Header}"
+                               FontSize="16"
+                               Margin="10"
+                               Grid.Row="3" />
+                </Grid>
+            </Border>
+
+            <Border Background="{DynamicResource CardBackground}"
+                    Grid.Column="1"
+                    Grid.RowSpan="3"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="5">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     <TextBlock Text="Commodities"
                                FontSize="22"
                                Foreground="{DynamicResource Header}" />
 
+                    <StackPanel Orientation="Horizontal"
+                                Grid.Column="1">
+                        <TextBlock Text="Commodity Sorting "
+                                   VerticalAlignment="Center" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource CarrierCommoditySorting}}"
+                                  SelectedItem="{Binding CommoditySorting}"
+                                  Margin="5,0,10,0"
+                                  MinWidth="180"
+                                  FontSize="18"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center"
+                                  IsReadOnly="True"
+                                  IsSynchronizedWithCurrentItem="False" />
+                    </StackPanel>
                     <DataGrid ItemsSource="{Binding CarrierStock}"
                               Grid.Row="1"
+                              Grid.ColumnSpan="2"
                               Margin="5"
                               Style="{DynamicResource ConstructionResourcesDataGrid}"
                               RowStyle="{DynamicResource NoSelectRowStyle}"
@@ -329,6 +358,63 @@
                                                 HeaderStyle="{DynamicResource DataGridHeaderRight}"
                                                 ElementStyle="{DynamicResource DataGridElementRightMargin}"
                                                 Binding="{Binding Stock}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <Border Background="{DynamicResource CardBackground}"
+                    Grid.Column="1"
+                    Grid.Row="4"
+                    CornerRadius="5"
+                    Margin="5"
+                    Padding="5">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Sell Orders"
+                               FontSize="22"
+                               Foreground="{DynamicResource Header}" />
+
+                    <DataGrid ItemsSource="{Binding SellOrders}"
+                              Grid.Row="1"
+                              Margin="5"
+                              Style="{DynamicResource ConstructionResourcesDataGrid}"
+                              RowStyle="{DynamicResource NoSelectRowStyle}"
+                              CellStyle="{DynamicResource NoSelectCellNoMargin}"
+                              Foreground="{DynamicResource PrimaryForeground}"
+                              FontSize="20"
+                              ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                              ScrollViewer.VerticalScrollBarVisibility="Visible"
+                              AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                              HeadersVisibility="Column"
+                              AutoGenerateColumns="False"
+                              HorizontalAlignment="Center">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Commodity"
+                                                Width="SizeToCells"
+                                                MinWidth="250"
+                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                Binding="{Binding Name}" />
+                            <DataGridTextColumn Header="Category"
+                                                MinWidth="180"
+                                                Width="*"
+                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                Binding="{Binding Category}" />
+                            <DataGridTextColumn Header="Stock"
+                                                MinWidth="100"
+                                                HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                Binding="{Binding SellOrderStockString}" />
+                            <DataGridTextColumn Header="Sale Price"
+                                                MinWidth="100"
+                                                HeaderStyle="{DynamicResource DataGridHeaderRight}"
+                                                ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                Binding="{Binding SalePrice}" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

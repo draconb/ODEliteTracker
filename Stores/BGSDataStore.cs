@@ -129,7 +129,8 @@ namespace ODEliteTracker.Stores
                     if (location.Factions is null || location.Factions.Count < 2)
                         break;
 
-                    TryAddSystem(new BGSStarSystem(location), location.Timestamp);
+                    var system = new BGSStarSystem(location);
+                    TryAddSystem(system, location.Timestamp);
 
                     if (string.IsNullOrEmpty(location.StationName)
                         || location.StationFaction is null
@@ -138,7 +139,7 @@ namespace ODEliteTracker.Stores
                         break;
                     }
 
-                    currentStation = new Station(location, faction);
+                    currentStation = new Station(location, faction, system);
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
                     CurrentSystemAddress = fsdJump.SystemAddress;
@@ -175,7 +176,7 @@ namespace ODEliteTracker.Stores
                         break;
                     }
 
-                    currentStation = new Station(carrierJump, fctn);
+                    currentStation = new Station(carrierJump, fctn, cSystem);
                     break;
                 case MissionAcceptedEvent.MissionAcceptedEventArgs accepted:
                     if (string.IsNullOrEmpty(CurrentStationName))
@@ -280,9 +281,11 @@ namespace ODEliteTracker.Stores
                     {
                         break;
                     }
-
-                    currentStation = new Station(docked, statinFaction);
-                    UpdateStationIfLive(currentStation);
+                    if (currentSystem != null)
+                    {
+                        currentStation = new Station(docked, statinFaction, currentSystem);
+                        UpdateStationIfLive(currentStation);
+                    }
                     break;
                 case UndockedEvent.UndockedEventArgs undocked:
                     CurrentStationName = string.Empty;

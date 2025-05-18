@@ -46,19 +46,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.FleetCarrier
         {
             OnPropertyChanged(nameof(DepartTime));
         }
-        internal void TestTime()
-        {
-            carrier.Destination = new Models.FleetCarrier.FleetCarrierDestination()
-            {
-                DepartureTime = DateTime.UtcNow + TimeSpan.FromSeconds(10),
-                SystemName = "Sol",
-                BodyName = "Earth"
-            };
 
-            OnPropertyChanged(nameof(Destination));
-            OnPropertyChanged(nameof(DestinationBody));
-            OnPropertyChanged(nameof(DepartTime));
-        }
         internal void UpdateDestination(Models.FleetCarrier.FleetCarrier e)
         {
             //Update the reference just in case
@@ -90,6 +78,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.FleetCarrier
             OnPropertyChanged(nameof(VoucherRedemption));
             OnPropertyChanged(nameof(Vista));
             OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(Stock));
         }
     }
 }

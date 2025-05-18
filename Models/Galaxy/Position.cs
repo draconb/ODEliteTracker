@@ -33,7 +33,8 @@ namespace ODEliteTracker.Models.Galaxy
 
         public double DistanceFrom(Position a)
         {
-            return Distance(this, a);
+            var ret = Distance(this, a);
+            return ret;
         }
 
         public static double Angle(Position from, Position to)

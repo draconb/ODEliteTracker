@@ -2,6 +2,7 @@
 using ODEliteTracker.Models;
 using ODEliteTracker.Models.Colonisation;
 using ODEliteTracker.Models.FleetCarrier;
+using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Models.Market;
 using ODEliteTracker.Models.Ship;
 using ODEliteTracker.Services;
@@ -13,6 +14,7 @@ using ODMVVM.Commands;
 using ODMVVM.Extensions;
 using ODMVVM.ViewModels;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ODEliteTracker.ViewModels
@@ -39,6 +41,8 @@ namespace ODEliteTracker.ViewModels
             this.sharedData.MarketEvent += OnMarketEvent;
             this.sharedData.ShipChangedEvent += OnShipChanged;
             this.sharedData.ShipCargoUpdatedEvent += OnCargoUpdated;
+            this.sharedData.PurchasesUpdated += OnPurchasesUpdated;
+            this.sharedData.CurrentSystemChanged += OnCurrentSystemChanged;
 
             if (this.sharedData.IsLive)
             {
@@ -52,6 +56,8 @@ namespace ODEliteTracker.ViewModels
             SetSelectedCommanderSystemCommand = new ODRelayCommand<CommanderSystemVM?>(SetSelectedCommanderSystem);
             SetActiveStateCommand = new ODRelayCommand<ConstructionDepotVM>(SetDepotActiveState);
             CreatePostCommand = new ODRelayCommand<ColonisationPostType>(CreatePost);
+            SetClipboardCommand = new ODRelayCommand<string>(CopyToClipboard);
+            AddShoppingListCommand = new ODRelayCommand<ConstructionDepotVM?>(OnAddShoppingList);
 
             Depots.CollectionChanged += Depots_CollectionChanged;
 
@@ -67,6 +73,8 @@ namespace ODEliteTracker.ViewModels
             {
                 OnFcStoreLive(null, true);
             }
+
+            this.settings.ColonisationSettings.CommoditySortingChanged += ColonisationSettings_CommoditySortingChanged;
         }
 
         public override void Dispose()
@@ -80,9 +88,13 @@ namespace ODEliteTracker.ViewModels
             this.sharedData.MarketEvent -= OnMarketEvent;
             this.sharedData.ShipChangedEvent -= OnShipChanged;
             this.sharedData.ShipCargoUpdatedEvent -= OnCargoUpdated;
+            this.sharedData.PurchasesUpdated -= OnPurchasesUpdated;
+            this.sharedData.CurrentSystemChanged -= OnCurrentSystemChanged;
 
             this.fcDataStore.CarrierStockUpdated -= OnCarrierStockUpdated;
             this.fcDataStore.StoreLive -= OnFcStoreLive;
+
+            this.settings.ColonisationSettings.CommoditySortingChanged -= ColonisationSettings_CommoditySortingChanged;
         }
 
         #region Private fields
@@ -98,6 +110,8 @@ namespace ODEliteTracker.ViewModels
         public ICommand SetActiveStateCommand { get; }
         public ICommand SetSelectedCommanderSystemCommand { get; }
         public ICommand CreatePostCommand { get; }
+        public ICommand SetClipboardCommand { get; }
+        public ICommand AddShoppingListCommand { get; }
         #endregion
 
         #region Public properties
@@ -116,16 +130,38 @@ namespace ODEliteTracker.ViewModels
 
         public CommoditySorting CommoditySorting
         {
-            get => settings.ColonisationCommoditySorting;
+            get => settings.ColonisationSettings.ColonisationCommoditySorting;
             set
             {
-                settings.ColonisationCommoditySorting = value;
+                settings.ColonisationSettings.ColonisationCommoditySorting = value;
                 OnPropertyChanged(nameof(SelectedDepotResources));
                 OnPropertyChanged(nameof(CurrentMarketItems));
             }
         }
 
+        public CommoditySorting ShoppingListCommoditySorting
+        {
+            get => settings.ColonisationSettings.ShoppingListSorting;
+            set
+            {
+                settings.ColonisationSettings.ShoppingListSorting = value;
+                OnPropertyChanged(nameof(ShoppingListResources));
+            }
+        }
+
+        private int tabIndex;
+        public int TabIndex
+        {
+            get => tabIndex;
+            set
+            {
+                tabIndex = value;
+                OnPropertyChanged(nameof(TabIndex));
+            }
+        }
+
         public ObservableCollection<ConstructionDepotVM> Depots { get; } = [];
+        public ColonisationShoppingList ShoppingList { get; } = new();
         public IEnumerable<ConstructionDepotVM> ActiveDepots => Depots.Where(x => x.Inactive == false);
         public IEnumerable<ConstructionDepotVM> InactiveDepots => Depots.Where(x => x.Inactive == true);
         public IEnumerable<ConstructionResourceVM>? SelectedDepotResources
@@ -145,6 +181,40 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
+        public IEnumerable<ConstructionResourceVM>? ShoppingListResources
+        {
+            get
+            {
+                if (ShoppingList.Depots.Count == 0)
+                    return null;
+
+                return ShoppingListCommoditySorting switch
+                {
+                    CommoditySorting.ShowAll => ShoppingList.Resources,
+                    CommoditySorting.Category => ShoppingList.Resources.Where(x => x.RemainingCount > 0).OrderBy(x => x.Category).ThenBy(x => x.LocalName),
+                    CommoditySorting.Remaining => ShoppingList.Resources.Where(x => x.RemainingCount > 0).OrderByDescending(x => x.RemainingCount),
+                    _ => ShoppingList.Resources.Where(x => x.RemainingCount > 0).OrderBy(x => x.LocalName),
+                };
+            }
+        }
+
+        private ConstructionResourceVM? selectedResource;
+        public ConstructionResourceVM? SelectedResource
+        {
+            get
+            {
+                return selectedResource;
+            }
+            set
+            {
+                selectedResource = value;
+                if(selectedResource != null)
+                    TabIndex = 3;
+                OnPropertyChanged(nameof(SelectedResource));
+                OnPropertyChanged(nameof(Purchases));
+            }
+        }
+
         private ConstructionDepotVM? selectedDepot;
         public ConstructionDepotVM? SelectedDepot
         {
@@ -157,15 +227,29 @@ namespace ODEliteTracker.ViewModels
                     selectedDepot.IsSelected = false;
                 selectedDepot = value;
                 if (selectedDepot != null)
+                {
                     selectedDepot.IsSelected = true;
+                    selectedDepot.UpdateMostRecentPurchase(sharedData.MarketPurchases);
+                }
                 CheckMarket();
                 OnFcStoreLive(null, true);
                 OnPropertyChanged(nameof(SelectedDepot));
                 OnPropertyChanged(nameof(ActiveButtonText));
                 OnPropertyChanged(nameof(SelectedDepotResources));
+                if (selectedDepot != null)
+                {
+                    selectedResource = selectedDepot.Resources.FirstOrDefault();
+                }
+                OnPropertyChanged(nameof(SelectedResource));
             }
         }
-        public ObservableCollection<CommanderSystemVM> CommanderSystems { get; } = [];
+
+        public IEnumerable<MarketPurchaseVM>? Purchases => sharedData.MarketPurchases.FirstOrDefault(x => x.Key == SelectedResource?.commodity).Value?
+                                                                                     .OrderByDescending(x => x.PurchaseDate)
+                                                                                     .Select(x => new MarketPurchaseVM(x, sharedData.CurrentSystem));
+
+        private readonly ObservableCollection<CommanderSystemVM> commanderSystems = [];
+        public IEnumerable<CommanderSystemVM> CommanderSystems => commanderSystems.Where(x => x.Depots.Count > 0);
 
         private CommanderSystemVM? selectedCommanderSystem;
         public CommanderSystemVM? SelectedCommanderSystem
@@ -228,6 +312,17 @@ namespace ODEliteTracker.ViewModels
                 OnPropertyChanged(nameof(DiscordButtonText));
             }
         }
+
+        public int SelectedDepotTab
+        {
+            get => settings.ColonisationSettings.SelectedDepotTab;
+            set
+            {
+                settings.ColonisationSettings.SelectedDepotTab = value;
+                CheckMarket();
+                OnPropertyChanged(nameof(SelectedDepotTab));
+            }
+        }
         #endregion
 
         private void CreatePost(ColonisationPostType type)
@@ -274,7 +369,7 @@ namespace ODEliteTracker.ViewModels
             Depots.AddItem(newDepot);
             SelectedDepot = newDepot;
 
-            var cmdrSystem = CommanderSystems.FirstOrDefault(x => x.SystemAddress == newDepot.SystemAddress);
+            var cmdrSystem = commanderSystems.FirstOrDefault(x => x.SystemAddress == newDepot.SystemAddress);
             cmdrSystem?.Depots.Add(newDepot);
 
             OnPropertyChanged(nameof(Depots));
@@ -298,6 +393,11 @@ namespace ODEliteTracker.ViewModels
                 }
                 OnPropertyChanged(nameof(SelectedDepotResources));
                 CheckMarket();
+                if (colonisationStore.ShoppingList.Contains(Tuple.Create(known.MarketID, known.SystemAddress, known.StationName)))
+                {
+                    ShoppingList.PopulateResources(fcDataStore.CarrierData, sharedData.MarketPurchases);
+                    OnPropertyChanged(nameof(ShoppingListResources));
+                }
                 return;
             }
 
@@ -314,8 +414,8 @@ namespace ODEliteTracker.ViewModels
             {
                 foreach (var system in colonisationStore.CommanderSystems)
                 {
-                    var newSystem = new CommanderSystemVM(system.SystemAddress, system.SystemName);
-                    CommanderSystems.AddItem(newSystem);
+                   var newSystem = new CommanderSystemVM(system.SystemAddress, system.SystemName);
+                    commanderSystems.AddItem(newSystem);
                 }
             }
 
@@ -330,14 +430,28 @@ namespace ODEliteTracker.ViewModels
                     }
                     var newDepot = new ConstructionDepotVM(depot);
                     Depots.AddItem(newDepot);
-                    var cmdrSystem = CommanderSystems.FirstOrDefault(x => x.SystemAddress == newDepot.SystemAddress);
+
+                    if (depot.Inactive)
+                        continue;
+                    var cmdrSystem = commanderSystems.FirstOrDefault(x => x.SystemAddress == newDepot.SystemAddress);
                     cmdrSystem?.Depots.AddItem(newDepot);
                 }
                 OnPropertyChanged(nameof(ActiveDepots));
                 OnPropertyChanged(nameof(InactiveDepots));
             }
+
+            if (colonisationStore.ShoppingList.Count > 0)
+            {
+                var depots = Depots.Where(x => colonisationStore.ShoppingList.Contains(Tuple.Create(x.MarketID, x.SystemAddress, x.StationName)));
+
+                if (depots.Any())
+                {
+                    ShoppingList.AddDepots(depots, fcDataStore.CarrierData, sharedData.MarketPurchases);
+                    OnPropertyChanged(nameof(ShoppingListResources));
+                }
+            }
             SelectedDepot = Depots.LastOrDefault();
-            SelectedCommanderSystem = CommanderSystems.LastOrDefault();
+            SelectedCommanderSystem = commanderSystems.LastOrDefault();
             OnModelLive(true);
         }
 
@@ -348,24 +462,48 @@ namespace ODEliteTracker.ViewModels
 
         private void CheckMarket()
         {
-            if(selectedDepot == null || sharedData.CurrentMarket == null)
+            if(SelectedDepotTab == 0 && selectedDepot == null  || SelectedDepotTab == 1 && ShoppingList.Resources.Count == 0 || sharedData.CurrentMarket == null)
                 return; 
 
             var market = StationMarketVM.CreateEmptyItemMarket(sharedData.CurrentMarket);
 
             foreach(var item in sharedData.CurrentMarket.ItemsForSale)
             {
-                var required = selectedDepot.FilteredResources.FirstOrDefault(x => x.FDEVName == item.Name);
+                //Carrier market data includes items which are sold out as it doesn't cancel the sell order when you do
+                //So if the stock level is 0 then we just ignore it
+                if (item.Stock <= 0)
+                    continue;
 
-                var commodity = new StationCommodityVM(item, required != null)
+                if (SelectedDepotTab == 0 && selectedDepot != null)
                 {
-                    Required = required?.RemainingCount ?? 0
+                    var required = selectedDepot.FilteredResources.FirstOrDefault(x => x.FDEVName == item.Name && x.RemainingCount > 0);
+
+                    if (required == null)
+                        continue;
+                    var commodity = new StationCommodityVM(item, required != null)
+                    {
+                        Required = required?.RemainingCount ?? 0
+                    };
+
+                    market.ItemsForSale.Add(commodity);
+                    continue;
+                }
+
+                var required1 = ShoppingList.Resources.FirstOrDefault(x => x.FDEVName == item.Name && x.RemainingCount > 0);
+
+                if (required1 == null)
+                    continue;
+
+                var commodity1 = new StationCommodityVM(item, required1 != null)
+                {
+                    Required = required1?.RemainingCount ?? 0
                 };
 
-                market.ItemsForSale.Add(commodity);
-            }            
+                market.ItemsForSale.Add(commodity1);
 
-            CurrentMarket = market;
+            }
+
+            Application.Current.Dispatcher.Invoke(() => CurrentMarket = market);
         }
 
         private void OnShipChanged(object? sender, ShipInfo? e)
@@ -381,23 +519,23 @@ namespace ODEliteTracker.ViewModels
 
         private void OnReleaseCommandSystem(object? sender, CommanderSystem e)
         {
-            var cmdrSystem = CommanderSystems.FirstOrDefault(x => x.SystemAddress == e.SystemAddress);
+            var cmdrSystem = commanderSystems.FirstOrDefault(x => x.SystemAddress == e.SystemAddress);
 
             if (cmdrSystem != null)
             {
-                CommanderSystems.RemoveItem(cmdrSystem);
-                SelectedCommanderSystem = CommanderSystems.LastOrDefault();
+                commanderSystems.RemoveItem(cmdrSystem);
+                SelectedCommanderSystem = commanderSystems.LastOrDefault();
             }
         }
 
         private void OnNewCommanderSystem(object? sender, CommanderSystem e)
         {
-            var cmdrSystem = CommanderSystems.FirstOrDefault(x => x.SystemAddress == e.SystemAddress);
+            var cmdrSystem = commanderSystems.FirstOrDefault(x => x.SystemAddress == e.SystemAddress);
 
             if (cmdrSystem == null)
             {
                 cmdrSystem = new(e.SystemAddress, e.SystemName);
-                CommanderSystems.AddItem(cmdrSystem);
+                commanderSystems.AddItem(cmdrSystem);
                 SelectedCommanderSystem = cmdrSystem;
             }
         }
@@ -416,24 +554,70 @@ namespace ODEliteTracker.ViewModels
 
         private void OnCarrierStockUpdated(object? sender, FleetCarrier e)
         {
-            if(SelectedDepot == null || SelectedDepotResources == null || e.Stock.Count == 0)
+            if(SelectedDepot == null || SelectedDepotResources == null)
             {
                 return;
             }
 
-            var updated = false;
             foreach(var item in SelectedDepotResources)
             {
                 var onCarrier = e.Stock.FirstOrDefault(x => string.Equals(x.commodity.FdevName, item.FDEVName, StringComparison.OrdinalIgnoreCase));
 
                 if (onCarrier == null)
+                {
+                    item.SetCarrierStock(0);
                     continue;
-                item.SetCarrierStock(onCarrier);            
-                updated = true;
+                }
+                item.SetCarrierStock(onCarrier.StockCount);
             }
 
-            if (updated)
-                OnPropertyChanged(nameof(SelectedDepotResources));
+            ShoppingList.UpdateCarrierStock(e);
+            OnPropertyChanged(nameof(ShoppingListResources));
+            OnPropertyChanged(nameof(SelectedDepotResources));
+        }
+
+        public void CopyToClipboard(string? value)
+        {
+            notification.SetClipboard(value);
+        }
+
+        private void ColonisationSettings_CommoditySortingChanged(object? sender, CommoditySorting e)
+        {
+            OnPropertyChanged(nameof(CommoditySorting));
+            OnPropertyChanged(nameof(SelectedDepotResources));
+        }
+
+        private void OnAddShoppingList(ConstructionDepotVM? depot)
+        {
+            if (depot == null)
+            {
+                return;
+            }
+
+            if(colonisationStore.SetDepotShoppingState(depot))
+            {
+                ShoppingList.AddDepot(depot, fcDataStore.CarrierData, sharedData.MarketPurchases);
+                OnPropertyChanged(nameof(ShoppingListResources));
+                return;
+            }
+
+            ShoppingList.RemoveDepot(depot, fcDataStore.CarrierData, sharedData.MarketPurchases);
+            OnPropertyChanged(nameof(ShoppingListResources));
+        }
+
+        private void OnPurchasesUpdated(object? sender, CommodityPurchase e)
+        {
+            foreach(var depot in Depots)
+            {
+                depot.UpdateMostRecentPurchase(sharedData.MarketPurchases);
+            }
+
+            ShoppingList.UpdateMostRecentPurchase(sharedData.MarketPurchases);
+        }
+
+        private void OnCurrentSystemChanged(object? sender, StarSystem? e)
+        {
+            OnPropertyChanged(nameof(Purchases));
         }
     }
 }

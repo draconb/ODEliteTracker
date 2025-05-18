@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="Overlay_CardBackGrounColour">#FF2D2D2D</Color>
+    <SolidColorBrush x:Key="Overlay_CardBackground"
+                     Color="{StaticResource Overlay_CardBackGrounColour}" />
+
+    <Color x:Key="Overlay_Border">#FFD37D00</Color>
+    <SolidColorBrush x:Key="Overlay_BorderBrush"
+                     Color="{StaticResource Overlay_Border}" />
+
+    <Color x:Key="Overlay_TitleBar">#FF202020</Color>
+    <SolidColorBrush x:Key="Overlay_TitleBarBrush"
+                     Color="{StaticResource Overlay_TitleBar}" />
+
+    <Color x:Key="Overlay_Foreground">Yellow</Color>
+    <SolidColorBrush x:Key="Overlay_ForegroundBrush"
+                     Color="{StaticResource Overlay_Foreground}" />
+</ResourceDictionary>

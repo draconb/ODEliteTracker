@@ -35,10 +35,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Shared
 
         private void OnCopyToClipboard(string name)
         {
-            if(ODMVVM.Helpers.OperatingSystem.SetStringToClipboard(name))
-            {
-                notification.ShowBasicNotification(new("Clipboard", [name, "Copied To Clipboard"], Models.Settings.NotificationOptions.CopyToClipboard));
-            }
+            notification.SetClipboard(name);
         }
     }
 }

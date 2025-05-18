@@ -345,6 +345,36 @@ namespace ODEliteTracker.Database
                 context.SaveChanges();
             }
         }
+
+        public HashSet<Tuple<long, long, string>> GetDepotShoppingList()
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            return [.. context.DepotShoppingList.Select(x => Tuple.Create(x.MarketID, x.SystemAddress, x.StationName))];
+        }
+
+        public void AddShoppingListDepot(long marketID, long systemAddress, string stationName)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            context.DepotShoppingList.
+                Upsert(new DTOs.DepotShoppingListDTO(marketID, systemAddress, stationName))
+                .Run();
+
+            context.SaveChanges();
+        }
+
+        public void RemoveShoppingListDepot(long marketID, long systemAddress, string stationName)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var knownDepot = context.DepotShoppingList.FirstOrDefault(x => x.MarketID == marketID && x.SystemAddress == systemAddress && x.StationName == stationName);
+
+            if (knownDepot != null)
+            {
+                context.DepotShoppingList.Remove(knownDepot);
+                context.SaveChanges();
+            }
+        }
         #endregion
 
         #region TickData

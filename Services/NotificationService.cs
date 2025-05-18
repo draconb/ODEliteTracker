@@ -92,6 +92,18 @@ namespace ODEliteTracker.Services
             notifier.Notify(() => new TestNotification(string.Empty, messageOptions, notificationSettings));
         }
 
+        internal void SetClipboard(string? value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+
+            if (ODMVVM.Helpers.OperatingSystem.SetStringToClipboard(value))
+            {
+                ShowBasicNotification(new("Clipboard", [value, "Copied To Clipboard"], NotificationOptions.CopyToClipboard));
+            }
+        }
 
         internal void ShowBasicNotification(NotificationArgs args)
         {

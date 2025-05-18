@@ -1,0 +1,285 @@
+﻿<views:ODWindowBase  xmlns:views="clr-namespace:ODMVVM.Views;assembly=ODMVVM"
+                     x:Class="ODEliteTracker.Views.PopOutWindow"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:local="clr-namespace:ODEliteTracker.Views"
+                     xmlns:viewmodels="clr-namespace:ODEliteTracker.ViewModels.PopOuts"
+                     mc:Ignorable="d"
+                     WindowStyle="None"
+                     AllowsTransparency="True"
+                     Background="Transparent"
+                     ShowInTaskbar="{Binding ShowInTaskBar, Mode=OneWay}"
+                     Topmost="{Binding AlwaysOnTop, Mode=OneWay}"
+                     d:DataContext="{d:DesignInstance Type=viewmodels:PopOutViewModel}"
+                     Foreground="{DynamicResource Overlay_ForegroundBrush}"
+                     FontFamily="{DynamicResource Eurostile}"
+                     FontSize="18"
+                     Title="{Binding Title}"
+                     SizeChanged="PopOut_SizeChanged"
+                     ResizeMode="CanResize"
+                     LocationChanged="PopOut_LocationChanged"
+                     MouseEnter="PopOut_MouseEnter"
+                     MouseLeave="PopOut_MouseLeave"
+                     x:Name="PopOut"
+                     MinWidth="250"
+                     MinHeight="200"
+                     Top="{Binding Position.Top, Mode=TwoWay}"
+                     Left="{Binding Position.Left, Mode=TwoWay}"
+                     Height="{Binding Position.Height, Mode=TwoWay}"
+                     Width="{Binding Position.Width, Mode=TwoWay}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <SolidColorBrush x:Key="IndicatorForeground"
+                         Color="{DynamicResource Overlay_Foreground}" />
+        <SolidColorBrush x:Key="IndicatorBackground"
+                         Color="{DynamicResource Overlay_CardBackGrounColour}" />
+    </Window.Resources>
+    <Border BorderThickness="{Binding BorderThickness}"
+            CornerRadius="5"
+            x:Name="MainBorder"
+            BorderBrush="{DynamicResource Overlay_BorderBrush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <views:ODTitleBar TitleBarIcon="/Assets/Icons/ColonisationBtn.png"
+                              ColourImageIcon="True"
+                              WindowChrome.IsHitTestVisibleInChrome="True"
+                              Visibility="{Binding DataContext.TitleBarVisibility, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                              TitleBarForeground="{DynamicResource Overlay_ForegroundBrush}"
+                              TitleBarBackground="{DynamicResource Overlay_TitleBarBrush}"
+                              TitleBarMouseOver="{DynamicResource TitlebarMouseOver}" />
+            <Grid Grid.Row="1">
+                <Grid.LayoutTransform>
+                    <ScaleTransform ScaleX="{Binding UiScale}"
+                                    ScaleY="{Binding UiScale}" />
+                </Grid.LayoutTransform>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <!--<Grid.Background>
+                        <SolidColorBrush Color="{DynamicResource CarBackGrounColour}"
+                                         Opacity="{Binding Opacity, Mode=OneWay}" />
+                    </Grid.Background>-->
+                    <ContentControl Content="{Binding }" />
+                </Grid>
+            </Grid>
+            <Popup IsOpen="{Binding IsMouseOver, Mode=OneWay}"
+                   Placement="Top"
+                   Width="225"
+                   x:Name="ToolBarPopUp"
+                   AllowsTransparency="True"
+                   VerticalOffset="80"
+                   PopupAnimation="Slide"
+                   PlacementTarget="{Binding ElementName=PopOut}">
+                <Popup.Style>
+                    <Style TargetType="{x:Type Popup}">
+                        <Setter Property="HorizontalOffset">
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource CentreToolTipConverter}">
+                                    <Binding RelativeSource="{RelativeSource Self}"
+                                             Path="PlacementTarget.ActualWidth" />
+                                    <Binding RelativeSource="{RelativeSource Self}"
+                                             UpdateSourceTrigger="PropertyChanged"
+                                             Path="Width" />
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Popup.Style>
+                <Border Grid.Row="1"
+                        Margin="0,15"
+                        Height="50"
+                        HorizontalAlignment="Center"
+                        CornerRadius="10"
+                        BorderBrush="{DynamicResource Overlay_BorderBrush}"
+                        BorderThickness="1"
+                        Background="{DynamicResource Overlay_CardBackground}"
+                        Visibility="{Binding ToolButtonVisibility}">
+                    <DockPanel>
+                        <ToggleButton Style="{DynamicResource NavigationImageToggleBtn}"
+                                      IsChecked="{Binding ShowInTaskBar}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      ToolTip="Show In Taskbar"
+                                      Margin="10,10"
+                                      Width="25"
+                                      Height="25">
+                            <Image Source="/Assets/Icons/ShowInTaskBar.png" />
+                        </ToggleButton>
+
+                        <ToggleButton Style="{DynamicResource NavigationImageToggleBtn}"
+                                      IsChecked="{Binding AlwaysOnTop}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      ToolTip="Always On Top"
+                                      Margin="10,10"
+                                      Width="25"
+                                      Height="25">
+                            <Image Source="/Assets/Icons/TopMost.png" />
+                        </ToggleButton>
+
+                        <ToggleButton Style="{DynamicResource NavigationImageToggleBtn}"
+                                      IsChecked="{Binding ClickThrough}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      ToolTip="Click Through&#x0a;&#x0a;When activate the window is made transparent to the mouse cursor.&#x0a;&#x0a;Hold Left Shift when the cursor is over the window to re-activate"
+                                      Margin="10,10"
+                                      Width="25"
+                                      Height="25">
+                            <Image Source="/Assets/Icons/ClickThrough.png" />
+                        </ToggleButton>
+
+                        <ToggleButton Style="{DynamicResource NavigationImageToggleBtn}"
+                                      IsChecked="{Binding OpacityBtn, Mode=TwoWay}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      x:Name="OpacityBtn"
+                                      ToolTip="Opacity"
+                                      Margin="10,10"
+                                      Width="25"
+                                      Height="25">
+                            <Image Source="/Assets/Icons/Transparency.png" />
+                        </ToggleButton>
+
+                        <ToggleButton Style="{DynamicResource NavigationImageToggleBtn}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      x:Name="UiScaleBtn"
+                                      ToolTip="UI Scale"
+                                      Margin="10,10"
+                                      Width="25"
+                                      Height="25">
+                            <Image Source="/Assets/Icons/zoom.png" />
+                        </ToggleButton>
+
+                        <Popup  IsOpen="{Binding IsChecked, ElementName=UiScaleBtn}"
+                                PlacementTarget="{Binding ElementName=UiScaleBtn}"
+                                PopupAnimation="Scroll"
+                                StaysOpen="False"
+                                Width="300"
+                                VerticalOffset="15"
+                                AllowsTransparency="True"
+                                HorizontalAlignment="Center"
+                                Placement="Bottom">
+                            <Popup.Style>
+                                <Style TargetType="{x:Type Popup}">
+                                    <Setter Property="HorizontalOffset">
+                                        <Setter.Value>
+                                            <MultiBinding Converter="{StaticResource CentreToolTipConverter}">
+                                                <Binding RelativeSource="{RelativeSource Self}"
+                                                         Path="PlacementTarget.ActualWidth" />
+                                                <Binding RelativeSource="{RelativeSource Self}"
+                                                         UpdateSourceTrigger="PropertyChanged"
+                                                         Path="Width" />
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Popup.Style>
+                            <Grid  Margin="10">
+                                <Border Background="{DynamicResource Overlay_CardBackground}"
+                                        BorderBrush="{DynamicResource Overlay_BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="5"
+                                        Padding="5"
+                                        Grid.ColumnSpan="2"
+                                        Margin="10">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Text="UI Scale"
+                                                   Margin="5"
+                                                   Foreground="{DynamicResource Header}"
+                                                   FontSize="14" />
+
+                                        <Button Style="{DynamicResource EliteStyleButton}"
+                                                HorizontalAlignment="Right"
+                                                Margin="5"
+                                                Content="Reset"
+                                                Width="45"
+                                                FontSize="14"
+                                                Command="{Binding ResetUIScaleCommand}" />
+                                        <Slider Value="{Binding UiScale, Mode=TwoWay}"
+                                                Margin="5"
+                                                Grid.Row="1"
+                                                Width="200"
+                                                SmallChange="0.1"
+                                                LargeChange="0.2"
+                                                Minimum="0.1"
+                                                Maximum="2" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Popup>
+
+                        <Popup  IsOpen="{Binding IsChecked, ElementName=OpacityBtn}"
+                                PlacementTarget="{Binding ElementName=OpacityBtn}"
+                                PopupAnimation="Scroll"
+                                StaysOpen="False"
+                                VerticalOffset="15"
+                                AllowsTransparency="True"
+                                HorizontalAlignment="Center"
+                                Placement="Bottom">
+                            <Popup.Style>
+                                <Style TargetType="{x:Type Popup}">
+                                    <Setter Property="HorizontalOffset">
+                                        <Setter.Value>
+                                            <MultiBinding Converter="{StaticResource CentreToolTipConverter}">
+                                                <Binding RelativeSource="{RelativeSource Self}"
+                                                         Path="PlacementTarget.ActualWidth" />
+                                                <Binding RelativeSource="{RelativeSource Self}"
+                                                         UpdateSourceTrigger="PropertyChanged"
+                                                         Path="Width" />
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Popup.Style>
+                            <Grid  Margin="10">
+                                <Border Background="{DynamicResource Overlay_CardBackground}"
+                                        BorderBrush="{DynamicResource Overlay_BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="5"
+                                        Padding="5"
+                                        Grid.ColumnSpan="2"
+                                        Margin="10">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Text="Background Opacity"
+                                                   Margin="5"
+                                                   Foreground="{DynamicResource Header}"
+                                                   FontSize="14" />
+                                        <Slider Value="{Binding Opacity, Mode=TwoWay}"
+                                                Margin="5"
+                                                Grid.Row="1"
+                                                Width="200"
+                                                LargeChange="0.1"
+                                                Minimum="0.00000001"
+                                                Maximum="1" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Popup>
+                    </DockPanel>
+                </Border>
+            </Popup>
+        </Grid>
+    </Border>
+</views:ODWindowBase>

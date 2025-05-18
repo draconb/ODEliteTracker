@@ -71,6 +71,75 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style TargetType="{x:Type Button}"
+           x:Key="ClipboardBtn">
+        <Setter Property="SnapsToDevicePixels"
+                Value="True" />
+        <Setter Property="OverridesDefaultStyle"
+                Value="True" />
+        <Setter Property="BorderThickness"
+                Value="0" />
+        <Setter Property="VerticalContentAlignment"
+                Value="Center" />
+        <Setter Property="HorizontalContentAlignment"
+                Value="Center" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource PrimaryForeground}" />
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource EliteBtnFG}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed"
+                                 Value="True">
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource PrimaryControlPressed}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled"
+                                 Value="False">
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource PrimaryControlForeground}" />
+                            <Setter Property="BorderThickness"
+                                    Value="0" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            MinWidth="{TemplateBinding MinWidth}">
+                        <Grid>
+                            <ContentPresenter x:Name="MyContentPresenter"
+                                              Content="{TemplateBinding Content}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}" />
+                            <Border Background="{TemplateBinding Background}"
+                                    x:Name="ContentBackground">
+                                <Rectangle Fill="{TemplateBinding Foreground}"
+                                           Margin="{TemplateBinding Padding}"
+                                           Width="{Binding ElementName=MyContentPresenter, Path=ActualWidth}"
+                                           Height="{Binding ElementName=MyContentPresenter, Path=ActualHeight}"
+                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush Stretch="None"
+                                                     Visual="{Binding ElementName=MyContentPresenter}" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     
     <Style TargetType="{x:Type Button}"
            x:Key="EliteStyleButton">
@@ -82,10 +151,7 @@
                 Value="Center" />
         <Setter Property="BorderThickness"
                 Value="0" />
-        <Setter Property="Background"
-                Value="{DynamicResource EliteBtnBG}" />
-        <Setter Property="Foreground"
-                Value="{DynamicResource EliteBtnFG}" />
+
         <Setter Property="BorderBrush"
                 Value="{DynamicResource EliteBtnBorder}" />
         <Setter Property="BorderThickness"
@@ -103,6 +169,10 @@
                         </Trigger>
                         <Trigger Property="IsMouseOver"
                                  Value="False">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource EliteBtnBG}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource EliteBtnFG}" />
                         </Trigger>
                         <Trigger Property="IsPressed"
                                  Value="True">
@@ -130,6 +200,86 @@
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               Name="content" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type Button}"
+           x:Key="EliteStyleImageButton">
+        <Setter Property="SnapsToDevicePixels"
+                Value="True" />
+        <Setter Property="VerticalContentAlignment"
+                Value="Center" />
+        <Setter Property="HorizontalContentAlignment"
+                Value="Center" />
+        <Setter Property="BorderThickness"
+                Value="0" />
+
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource EliteBtnBorder}" />
+        <Setter Property="BorderThickness"
+                Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource EliteBtnBGMouseOver}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource EliteBtnFGMouseOver}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver"
+                                 Value="False">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource EliteBtnBG}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource EliteBtnFG}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed"
+                                 Value="True">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource EliteBtnBGPressed}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled"
+                                 Value="False">
+                            <Setter Property="Background"
+                                    Value="{DynamicResource NavBtnBackgroundDisabled}" />
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource NavBtnForegroundDisabled}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled"
+                                 Value="True">
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            MinWidth="{TemplateBinding MinWidth}">
+                        <Grid>
+                            <ContentPresenter x:Name="MyContentPresenter"
+                                              Content="{TemplateBinding Content}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}" />
+                            <Border Background="{TemplateBinding Background}"
+                                    x:Name="ContentBackground">
+                                <Rectangle Fill="{TemplateBinding Foreground}"
+                                           Margin="{TemplateBinding Padding}"
+                                           Width="{Binding ElementName=MyContentPresenter, Path=ActualWidth}"
+                                           Height="{Binding ElementName=MyContentPresenter, Path=ActualHeight}"
+                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush Stretch="None"
+                                                     Visual="{Binding ElementName=MyContentPresenter}" />
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                            </Border>
                         </Grid>
                     </Border>
                 </ControlTemplate>

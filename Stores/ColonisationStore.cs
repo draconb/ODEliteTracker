@@ -2,6 +2,7 @@
 using EliteJournalReader.Events;
 using ODEliteTracker.Database;
 using ODEliteTracker.Models.Colonisation;
+using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.ViewModels.ModelViews.Colonisation;
 using ODJournalDatabase.Database.Interfaces;
 using ODJournalDatabase.JournalManagement;
@@ -22,16 +23,19 @@ namespace ODEliteTracker.Stores
         private readonly Dictionary<Tuple<long, long, string>, ConstructionDepot> depots = [];
         private readonly Dictionary<long, CommanderSystem> commanderSystems = [];
         private HashSet<Tuple<long, long, string>> inactiveDepots = [];
+        private HashSet<Tuple<long, long, string>> shoppingListDepots = [];
 
         //When the colonisation events were added to the game
         private readonly DateTime colonisationEventUpdate = new(2025, 4, 7);
 
+        private StarSystem? currentSystem;
         private long CurrentSystemAddress;
         private string CurrentSystemName = "Unknown";
         private string CurrentStationName = "Unknown";
 
         public override string StoreName => "Colonisation";
         public IEnumerable<ConstructionDepot> Depots => depots.Values.OrderBy(x => x.SystemName);
+        public HashSet<Tuple<long, long, string>> ShoppingList => shoppingListDepots;
         public IEnumerable<CommanderSystem> CommanderSystems => commanderSystems.Values.OrderBy(x => x.SystemName);
 
         public override Dictionary<JournalTypeEnum, bool> EventsToParse
@@ -61,6 +65,7 @@ namespace ODEliteTracker.Stores
             depots.Clear();
             commanderSystems.Clear();
             inactiveDepots.Clear();
+            shoppingListDepots.Clear();
             CurrentSystemAddress = 0;
             CurrentSystemName = "Unknown";
             CurrentStationName = "Unknown";
@@ -75,7 +80,9 @@ namespace ODEliteTracker.Stores
         public override void RunBeforeParsingHistory(int currentCmdrId)
         {
             inactiveDepots = databaseProvider.GetInactiveDepots();
+            shoppingListDepots = databaseProvider.GetDepotShoppingList();
         }
+
         public override DateTime GetJournalAge(DateTime defaultAge)
         {
             var ret = defaultAge > colonisationEventUpdate ? defaultAge : colonisationEventUpdate;
@@ -93,14 +100,17 @@ namespace ODEliteTracker.Stores
                 case LocationEvent.LocationEventArgs location:
                     CurrentSystemAddress = location.SystemAddress;
                     CurrentSystemName = location.StarSystem;
+                    currentSystem = new(location);
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
                     CurrentSystemAddress = fsdJump.SystemAddress;
                     CurrentSystemName = fsdJump.StarSystem;
+                    currentSystem = new(fsdJump);
                     break;
                 case CarrierJumpEvent.CarrierJumpEventArgs carrierJump:
                     CurrentSystemAddress = carrierJump.SystemAddress;
                     CurrentSystemName = carrierJump.StarSystem;
+                    currentSystem = new(carrierJump);
                     break;
                 case ColonisationBeaconDeployedEvent.ColonisationBeaconDeployedEventArgs:
                     if (commanderSystems.ContainsKey(CurrentSystemAddress) == false)
@@ -127,13 +137,15 @@ namespace ODEliteTracker.Stores
                     }
                     break;
                 case ColonisationConstructionDepotEvent.ColonisationConstructionDepotEventArgs depot:
+                    if (currentSystem == null)
+                        break;
                     var key = Tuple.Create(depot.MarketID, CurrentSystemAddress, CurrentStationName);
-                    if (depots.TryGetValue(key, out ConstructionDepot? value) && value.Update(depot, CurrentSystemAddress, CurrentSystemName, CurrentStationName))
+                    if (depots.TryGetValue(key, out ConstructionDepot? value) && value.Update(depot, currentSystem, CurrentStationName))
                     {
                         TriggerDepotUpdateIfLive(value);
                         break;
                     }
-                    var newDepot = new ConstructionDepot(depot, CurrentSystemAddress, CurrentSystemName, CurrentStationName, inactiveDepots.Contains(key));
+                    var newDepot = new ConstructionDepot(depot, currentSystem, CurrentStationName, inactiveDepots.Contains(key));
                     if (depots.TryAdd(key, newDepot))
                     {
                         TriggerNewDepotIfLive(newDepot);
@@ -189,6 +201,26 @@ namespace ODEliteTracker.Stores
             }
 
             databaseProvider.RemoveInactiveDepot(vM.MarketID, vM.SystemAddress, vM.StationName);
+        }
+
+        internal bool SetDepotShoppingState(ConstructionDepotVM vM)
+        {
+            var tuple = Tuple.Create(vM.MarketID, vM.SystemAddress, vM.StationName);
+            var add = !shoppingListDepots.Contains(tuple);
+            SetDepotShopping(vM,add);
+            shoppingListDepots = databaseProvider.GetDepotShoppingList();
+            return add;
+        }
+
+        private void SetDepotShopping(ConstructionDepotVM vM, bool add)
+        {
+            if (add)
+            {
+                databaseProvider.AddShoppingListDepot(vM.MarketID, vM.SystemAddress, vM.StationName);
+                return;
+            }
+
+            databaseProvider.RemoveShoppingListDepot(vM.MarketID, vM.SystemAddress, vM.StationName);
         }
     }
 }

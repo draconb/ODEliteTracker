@@ -34,6 +34,10 @@
                 Value="Visible" />
         <Setter Property="VirtualizingPanel.ScrollUnit"
                 Value="Pixel" />
+        <Setter Property="GridLinesVisibility"
+                Value="Vertical" />
+        <Setter Property="VerticalGridLinesBrush"
+                Value="{DynamicResource ViewBackground}" />
     </Style>
     
     <Style TargetType="{x:Type DataGrid}"
@@ -162,6 +166,10 @@
                 Value="Transparent" />
         <Setter Property="VerticalGridLinesBrush"
                 Value="Transparent" />
+        <Setter Property="GridLinesVisibility"
+                Value="Vertical" />
+        <Setter Property="VerticalGridLinesBrush"
+                Value="{DynamicResource ViewBackground}" />
     </Style>
 
     <Style x:Key="ConstructionResourcesStyle"
@@ -289,7 +297,7 @@
             <DataTrigger Binding="{Binding AtStation}"
                          Value="True">
                 <Setter Property="Foreground"
-                        Value="{DynamicResource MasscreMissionHighlight}" />
+                        Value="{DynamicResource MasscreMissionStationHighlight}" />
             </DataTrigger>       
             <Trigger Property="IsSelected"
                      Value="True">
@@ -330,6 +338,29 @@
 
     <Style TargetType="{x:Type DataGridCell}"
            x:Key="NoSelectCellNoMargin">
+        <Setter Property="BorderThickness"
+                Value="0" />
+        <Setter Property="IsHitTestVisible"
+                Value="True" />
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="BorderBrush"
+                Value="Transparent" />
+        <Setter Property="FocusVisualStyle"
+                Value="{x:Null}" />
+        <Style.Triggers>
+            <Trigger Property="IsSelected"
+                     Value="True">
+                <Setter Property="Foreground"
+                        Value="{DynamicResource PrimaryForeground}" />
+                <Setter Property="Background"
+                        Value="Transparent" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="{x:Type DataGridCell}"
+           x:Key="OverlayCell">
         <Setter Property="BorderThickness"
                 Value="0" />
         <Setter Property="IsHitTestVisible"
@@ -420,7 +451,21 @@
                 Value="{DynamicResource ScrollBarLine}" />
     </Style>
 
-
+    <Style x:Key="OverlayDataGridHeaderLeft"
+           TargetType="{x:Type DataGridColumnHeader}">
+        <Setter Property="HorizontalContentAlignment"
+                Value="Left" />
+        <Setter Property="VerticalAlignment"
+                Value="Center" />
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="Padding"
+                Value="0,0,0,0" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource Overlay_ForegroundBrush}" />
+        <Setter Property="BorderThickness"
+                Value="0" />
+    </Style>
 
     <Style x:Key="DataGridHeaderRight"
            TargetType="{x:Type DataGridColumnHeader}">
@@ -454,6 +499,20 @@
                 Value="{DynamicResource PrimaryForeground}" />
     </Style>
 
+    <Style x:Key="OverDataGridHeaderCenter"
+           TargetType="{x:Type DataGridColumnHeader}">
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="HorizontalContentAlignment"
+                Value="Center" />
+        <Setter Property="Padding"
+                Value="0,0,0,0" />
+        <Setter Property="BorderThickness"
+                Value="0" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource Overlay_ForegroundBrush}" />
+
+    </Style>
     <Style TargetType="{x:Type DataGridRow}"
            x:Key="CommanderRowStyle">
         <Setter Property="BorderThickness"
@@ -682,4 +741,5 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
+
 </ResourceDictionary>

@@ -33,12 +33,55 @@
                                 Tag="1"
                                 Grid.Column="1"
                                 Style="{DynamicResource EliteStyleButton}"
-                                HorizontalContentAlignment="Left"
+                                HorizontalContentAlignment="Stretch"
                                 Command="{Binding ElementName=DepotListBox, Path=SelectDepotCommand}"
-                                CommandParameter="{Binding }" >
-                            <TextBlock Text="{Binding SystemName}"
-                                       FontWeight="SemiBold"
-                                       Margin="10,5" />
+                                CommandParameter="{Binding }">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding SystemName}"
+                                           FontWeight="SemiBold"
+                                           Margin="10,2,0,0" />
+                                <TextBlock Text="{Binding StationNameSplit}"
+                                           Grid.Row="1"
+                                           FontSize="16"
+                                           Margin="10,2,0,2" />
+
+                                <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type Button}}, Path=Foreground}"
+                                           Grid.Column="1"
+                                           Grid.RowSpan="2"
+                                           Margin="2"
+                                           Width="36"
+                                           Height="36">
+                                    <Rectangle.OpacityMask>
+                                        <VisualBrush>
+                                            <VisualBrush.Visual>
+                                                <Image SnapsToDevicePixels="True">
+                                                    <Image.Style>
+                                                        <Style TargetType="{x:Type Image}">
+                                                            <Setter Property="Source"
+                                                                    Value="/Assets/Icons/Mega-Ship_Icon.png" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding PlanetBuild}"
+                                                                             Value="True">
+                                                                    <Setter Property="Source"
+                                                                            Value="/Assets/Icons/settlement_pm.png" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Image.Style>
+                                                </Image>
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>   
+                            </Grid>
                         </Button>
                     </Grid>
                 </DataTemplate>

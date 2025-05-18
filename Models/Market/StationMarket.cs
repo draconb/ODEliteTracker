@@ -9,7 +9,7 @@ namespace ODEliteTracker.Models.Market
             MarketID = marketInfo.MarketID;
             StationName = marketInfo.StationName;
             StarSystem = marketInfo.StarSystem;
-            ItemsForSale = [.. marketInfo.Items.Where(x => x.Stock > 0).Select(x => new StationCommodity(x))];
+            ItemsForSale = [.. marketInfo.Items.Where(x => x.BuyPrice > 0).Select(x => new StationCommodity(x))];
             ItemsForPurchase = [.. marketInfo.Items.Where(x => x.Demand > 0).Select(x => new StationCommodity(x))];
         }
 

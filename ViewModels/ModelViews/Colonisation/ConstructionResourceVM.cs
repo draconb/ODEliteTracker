@@ -1,6 +1,5 @@
 ﻿using ODEliteTracker.Models.Colonisation;
 using ODEliteTracker.Models.FleetCarrier;
-using ODEliteTracker.ViewModels.ModelViews.FleetCarrier;
 using ODMVVM.Helpers;
 using ODMVVM.ViewModels;
 
@@ -11,17 +10,27 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
         public ConstructionResourceVM(ConstructionResource resource)
         {
             FDEVName = resource.FDEVName;
-            details = EliteCommodityHelpers.GetCommodityDetails(resource.FDEVName);
-            LocalName = resource.LocalName ?? details.EnglishName;
+            commodity = EliteCommodityHelpers.GetCommodityDetails(resource.FDEVName);
+            LocalName = resource.LocalName ?? commodity.EnglishName;
             RequiredAmount = resource.RequiredAmount;
             ProvidedAmount = resource.ProvidedAmount;
             Payment = resource.Payment;
         }
 
-        private Commodity details;
+        public ConstructionResourceVM(ConstructionResourceVM resource)
+        {
+            FDEVName = resource.FDEVName;
+            commodity = resource.commodity;
+            LocalName = resource.LocalName ?? commodity.EnglishName;
+            RequiredAmount = resource.RequiredAmount;
+            ProvidedAmount = resource.ProvidedAmount;
+            Payment = resource.Payment;
+        }
+
+        public Commodity commodity { get; private set; }
         public string FDEVName { get; set; }
         public string LocalName { get; set; }
-        public string Category => details.EnglishCategory;
+        public string Category => commodity.EnglishCategory;
         public int RequiredAmount { get; set; }
         public int ProvidedAmount { get; set; }
         public int RemainingCount => RequiredAmount - ProvidedAmount;
@@ -29,8 +38,12 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
         public string Delivered => ProvidedAmount > 0 ? $"{ProvidedAmount:N0} t" : string.Empty;
         public string Remaining => $"{RemainingCount:N0} t";
         public int Payment { get; set; }
-        public long CarrierStockValue { get; private set; }
+        public long CarrierStockValue { get; set; }
         public string CarrierStock => CarrierStockValue > 0 ? $"{CarrierStockValue:N0} t" : string.Empty;
+        public long MarketStockValue { get; private set; }
+        public string MarketStock => MarketStockValue > 0 ? $"{MarketStockValue:N0} t" : string.Empty;
+
+        public MarketPurchaseVM? FirstPurchase { get; set; }
 
         internal void Update(ConstructionResource resource)
         {
@@ -47,9 +60,32 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
             OnPropertyChanged(nameof(RemainingCount));
         }
 
-        internal void SetCarrierStock(CarrierCommodity carrierCommodity)
+        internal void UpdateShoppingList()
         {
-            CarrierStockValue = carrierCommodity.StockCount;
+            OnPropertyChanged(nameof(Remaining));
+        }
+
+        internal void UpdateMarketStock(long value)
+        {
+            MarketStockValue = value;
+            OnPropertyChanged(nameof(MarketStock));
+        }
+
+        internal void UpdatePurchase(MarketPurchaseVM marketPurchaseVM)
+        {
+            FirstPurchase = marketPurchaseVM;
+            OnPropertyChanged(nameof(FirstPurchase));
+        }
+
+        internal void SetCarrierStock(long value)
+        {
+            CarrierStockValue = value;
+            OnPropertyChanged(nameof(CarrierStock));
+        }
+
+        internal void UpdateCarrierStock(CarrierCommodity? item)
+        {
+            CarrierStockValue = item?.StockCount ?? 0;
             OnPropertyChanged(nameof(CarrierStock));
         }
     }

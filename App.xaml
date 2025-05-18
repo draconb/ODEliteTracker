@@ -8,53 +8,29 @@
              xmlns:converters="clr-namespace:ODMVVM.WpfConverters;assembly=ODMVVM"
              xmlns:wpfconverters="clr-namespace:ODEliteTracker.WPFConverters"
              xmlns:notification="clr-namespace:ODEliteTracker.Notifications.Themes"
+             xmlns:overlay="clr-namespace:ODEliteTracker.Themes.Overlay"
              DispatcherUnhandledException="OnDispatcherUnhandledException"
              Exit="OnExit"
              Startup="OnStartup">
     <Application.Resources>
-        <ResourceDictionary>
-            <DataTemplate DataType="{x:Type viewmodels:LoadingViewModel}">
-                <views:LoadingView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:SettingsViewModel}">
-                <views:SettingsView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:ColonisationViewModel}">
-                <views:ColonisationView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:MassacreMissionsViewModel}">
-                <views:MassacreMissionView />
-            </DataTemplate>    
-            <DataTemplate DataType="{x:Type viewmodels:TradeMissionViewModel}">
-                <views:TradeMissionView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:BGSViewModel}">
-                <views:BGSDataView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:PowerPlayViewModel}">
-                <views:PowerPlayView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:NotificationSettingsViewModel}">
-                <views:NotificationSettingsView />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:FleetCarrierViewModel}">
-                <views:FleetCarrierView />
-            </DataTemplate>
-            
+        <ResourceDictionary>            
             <BooleanToVisibilityConverter x:Key="BoolToVis" />
             <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
             <wpfconverters:NullToVisibilityConverter x:Key="NullToVis" />
             <converters:FlagsEnumValueConverter x:Key="EnumFlagConverter" />
-            
+            <wpfconverters:CentreToolTipConverter x:Key="CentreToolTipConverter" />
             <FontFamily x:Key="Eurostile">pack://application:,,,/Assets/Fonts/#Eurostile</FontFamily>
             
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Views/ViewDataTemplates.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/BusyIndicator;component/Theme/Default.xaml" />
                 <ResourceDictionary Source="/Controls/ControlsResources.xaml" />             
                 <themes:ThemeDictionary DefaultSource="pack://application:,,,/ODEliteTracker;component/Themes/DefaultTheme.xaml" 
                                         Source="/Themes/DefaultTheme.xaml"/>
                 <notification:NotificationThemeDictionary DefaultSource="pack://application:,,,/ODEliteTracker;component/Notifications/Themes/EliteStyleNotificationTheme.xaml"
                                                           Source="pack://application:,,,/ODEliteTracker;component/Notifications/Themes/EliteStyleNotificationTheme.xaml" />
+                <overlay:OverlayThemeDictionary DefaultSource="pack://application:,,,/ODEliteTracker;component/Themes/Overlay/ODBrightTheme.xaml"
+                                                Source="pack://application:,,,/ODEliteTracker;component/Themes/Overlay/ODBrightTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>            
         </ResourceDictionary>
     </Application.Resources>

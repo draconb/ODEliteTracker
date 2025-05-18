@@ -1,4 +1,5 @@
-﻿using ODEliteTracker.Models;
+﻿using ODCapi.Models;
+using ODEliteTracker.Models;
 using ODEliteTracker.Models.FleetCarrier;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews.FleetCarrier;
@@ -53,6 +54,7 @@ namespace ODEliteTracker.ViewModels
             {
                 settings.CarrierSettings.Sorting = value;
                 OnPropertyChanged(nameof(CarrierStock));
+                OnPropertyChanged(nameof(SellOrders));
             }
         }
 
@@ -67,12 +69,27 @@ namespace ODEliteTracker.ViewModels
 
                 return CommoditySorting switch
                 {
-                    CarrierCommoditySorting.Category => CarrierData.Stock.OrderBy(x => x.Category).ThenBy(x => x.Name),
-                    _ => CarrierData.Stock.OrderBy(x => x.Name),
+                    CarrierCommoditySorting.Category => CarrierData.Stock.Where(x => x.StockCount > 0 || x.DemandValue > 0).OrderBy(x => x.Category).ThenBy(x => x.Name),
+                    _ => CarrierData.Stock.Where(x => x.StockCount > 0 || x.DemandValue > 0).OrderBy(x => x.Name),
                 };
             }
         }
 
+        public IEnumerable<CarrierCommodityVM>? SellOrders
+        {
+            get
+            {
+                if (CarrierData == null)
+                    return null;
+
+                return CommoditySorting switch
+                {
+                    CarrierCommoditySorting.Category => CarrierData.Stock.Where(x => x.SalePriceValue > 0).OrderBy(x => x.Category).ThenBy(x => x.Name),
+                    _ => CarrierData.Stock.Where(x => x.SalePriceValue > 0).OrderBy(x => x.Name),
+                };
+            }
+
+        }
         public ICommand RefreshCarrierStockCommand { get; }
 
         private async Task OnRefreshCarrierStock()
@@ -112,6 +129,7 @@ namespace ODEliteTracker.ViewModels
                 CarrierData?.UpdateStock(e);
                 OnPropertyChanged(nameof(CarrierData));
                 OnPropertyChanged(nameof(CarrierStock));
+                OnPropertyChanged(nameof(SellOrders));
             });
         }
 

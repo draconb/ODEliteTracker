@@ -177,7 +177,7 @@ namespace ODEliteTracker.Stores
                         if (known != null)
                         {
                             known.BuyOrderCount = 0;
-
+                            known.SalePrice = 0;
                             if (known.StockCount <= 0)
                             { 
                                 carrierData.Stock.Remove(known);
@@ -189,13 +189,13 @@ namespace ODEliteTracker.Stores
                         }
                         break;
                     }
-
+                    var salePrice = carrierTradeOrder.SaleOrder > 0 ? carrierTradeOrder.Price : 0;
                     if (known == null)
                     {
-                        known = new CarrierCommodity(commodity, false);
+                        known = new CarrierCommodity(commodity, false, salePrice);
                         carrierData.Stock.Add(known);
                     }
-
+                    known.SalePrice = salePrice;
                     known.BuyOrderCount = carrierTradeOrder.PurchaseOrder;
 
                     if(IsLive)
@@ -326,8 +326,9 @@ namespace ODEliteTracker.Stores
         {
             if (e == false)
                 return;
-
+#if !DEBUG
             await UpdateCarrierCargo();
+#endif
         }
 
         public async Task UpdateCarrierCargo()
@@ -357,13 +358,31 @@ namespace ODEliteTracker.Stores
 
                 if (known == null)
                 {
-                    known = new(value, item.Stolen);
+                    known = new(value, item.Stolen, 0);
                     cargo.Add(known);
                 }
                 known.StockCount += item.Qty;
             }
 
-            foreach(var item in capiCarrier.Orders.Commodities.Purchases)
+            foreach (var item in capiCarrier.Orders.Commodities.Sales)
+            {
+                //We don't care about black market items
+                if (item.BlackMarket)
+                    continue;
+                var value = EliteCommodityHelpers.GetCommodityFromPartial(item.Name, item.Name);
+
+                var known = cargo.FirstOrDefault(x => x.commodity == value);
+
+                if (known == null)
+                {
+                    known = new(value, false, item.Price);
+                    cargo.Add(known);
+                }
+
+                known.BuyOrderCount += item.Outstanding;
+            }
+
+            foreach (var item in capiCarrier.Orders.Commodities.Purchases)
             {
                 //We don't care about black market items
                 if (item.BlackMarket)
@@ -374,7 +393,7 @@ namespace ODEliteTracker.Stores
 
                 if(known == null)
                 {
-                    known = new(value, false);
+                    known = new(value, false, 0);
                     cargo.Add(known);
                 }
 
@@ -397,14 +416,14 @@ namespace ODEliteTracker.Stores
             if (known != null)
             {
                 known.StockCount += value;
-                if (known.StockCount <= 0)
+                if (known.StockCount <= 0 && known.SalePrice <= 0)
                     CarrierData?.Stock.Remove(known);
                 return true;
             }
 
             if (known == null && value > 0)
             {
-                carrierData.Stock.Add(new CarrierCommodity(commodity, stolen) { StockCount = value });
+                carrierData.Stock.Add(new CarrierCommodity(commodity, stolen, 0) { StockCount = value });
                 return true;
             }
             //If we are still null then check for stolen shite on board as the transfere event doesn't tell us if it is
@@ -436,23 +455,32 @@ namespace ODEliteTracker.Stores
 
                 if (known == null)
                 {
-                    known = new CarrierCommodity(commodity, stolen: false);
+                    known = new CarrierCommodity(commodity, stolen: false, item.SellPrice);
                     carrierData.Stock.Add(known);
                 }
 
                 known.StockCount = item.Stock;
-                stockUpdated = true;
+                stockUpdated = true;     
+                
+                //If the item is now out of stock
+                //if(known.StockCount <= 0)
+                //{
+                //    carrierData.Stock.Remove(known);
+                //}
             }
+
+            //Make a copy of the current carrier items for purchase
+            var carrierPurchases = carrierData.Stock.Where(x => x.BuyOrderCount > 0).ToList();
 
             foreach (var item in e.ItemsForPurchase)
             {
                 var commodity = EliteCommodityHelpers.GetCommodityDetails(item.Name);
 
                 var inStock = carrierData.Stock.FirstOrDefault(x => x.commodity == commodity && x.Stolen == false);
-
+                //If we somehow missed the purchase order creation
                 if (inStock == null)
                 {
-                    inStock = new CarrierCommodity(commodity, stolen: false)
+                    inStock = new CarrierCommodity(commodity, stolen: false, 0)
                     {
                         BuyOrderCount = item.Demand
                     };
@@ -463,6 +491,9 @@ namespace ODEliteTracker.Stores
                 //The amount the order was set for minus the amount in demand now
                 var stockToAdd = inStock.BuyOrderCount - item.Demand;
                 inStock.BuyOrderCount = item.Demand;
+
+                //remove the item from our copied list
+                carrierPurchases.Remove(inStock);
                 //If nothing has been sold, carry on
                 if (stockToAdd <= 0)
                 {
@@ -471,6 +502,19 @@ namespace ODEliteTracker.Stores
                 inStock.StockCount = inStock.StockCount + stockToAdd;
                 stockUpdated = true;
             }
+
+            //If we still have outstanding purchases that were not found in the market event
+            //then another commander must have filled the order
+            if(carrierPurchases.Count > 0)
+            {
+                foreach (var item in carrierPurchases)
+                {
+                    item.StockCount += item.BuyOrderCount;
+                    item.BuyOrderCount = 0;
+                }
+                stockUpdated = true;
+            }
+
             if (IsLive && CarrierData != null && stockUpdated)
                 CarrierStockUpdated?.Invoke(this, CarrierData);
         }

@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style TargetType="{x:Type ToolTip}">
+        <Setter Property="Foreground"
+                Value="{DynamicResource PrimaryForeground}" />
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource PrimaryControlBorder}" />
+        <Setter Property="Background"
+                Value="{DynamicResource CardBackground}" />
+        <Setter Property="FontFamily"
+                Value="{StaticResource Eurostile}" />
+        <Setter Property="FontSize"
+                Value="18" />
+    </Style>
+</ResourceDictionary>

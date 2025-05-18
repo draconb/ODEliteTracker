@@ -8,7 +8,6 @@
              xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
              xmlns:wpfconverters="clr-namespace:ODEliteTracker.WPFConverters"
              xmlns:colonisation="clr-namespace:ODEliteTracker.Controls.Colonisation"
-             xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:models="clr-namespace:ODEliteTracker.Models"
              xmlns:helpers="clr-namespace:ODEliteTracker.Helpers"
              d:DataContext="{d:DesignInstance viewmodels:ColonisationViewModel}"
@@ -16,15 +15,6 @@
              x:Name="Root"
              d:DesignHeight="450"
              d:DesignWidth="800">
-    <UserControl.Resources>
-        <ObjectDataProvider x:Key="CommodityEnum"
-                            MethodName="GetValues"
-                            ObjectType="{x:Type System:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="models:CommoditySorting" />
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-    </UserControl.Resources>
     <busyIndicator:BusyMask x:Name="BusyIndicator"
                             IsBusy="{Binding IsBusy}"
                             Background="{DynamicResource IndicatorBackground}"
@@ -48,6 +38,7 @@
                     </Grid.RowDefinitions>
 
                     <TabControl BorderThickness="0"
+                                SelectedIndex="{Binding TabIndex, Mode=TwoWay}"
                                 Background="{DynamicResource CardBackground}"
                                 FontSize="18"
                                 Margin="5"
@@ -193,13 +184,52 @@
                                                         Margin="5,0"
                                                         Tag="1"
                                                         Style="{DynamicResource EliteStyleButton}"
-                                                        HorizontalContentAlignment="Left"
+                                                        HorizontalContentAlignment="Stretch"
                                                         Command="{Binding ElementName=Root, Path=DataContext.SetSelectedDepotCommand}"
                                                         CommandParameter="{Binding }"
                                                         Grid.Column="0">
-                                                    <TextBlock Text="{Binding StationName}"
-                                                               FontWeight="SemiBold"
-                                                               Margin="10,5" />
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                        </Grid.RowDefinitions>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding StationNameSplit}"
+                                                                   Grid.Row="1"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="10,2,0,2" />
+
+                                                        <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type Button}}, Path=Foreground}"
+                                                                   Grid.Column="1"
+                                                                   Grid.RowSpan="2"
+                                                                   Margin="2"
+                                                                   Width="36"
+                                                                   Height="36">
+                                                            <Rectangle.OpacityMask>
+                                                                <VisualBrush>
+                                                                    <VisualBrush.Visual>
+                                                                        <Image SnapsToDevicePixels="True">
+                                                                            <Image.Style>
+                                                                                <Style TargetType="{x:Type Image}">
+                                                                                    <Setter Property="Source"
+                                                                                            Value="/Assets/Icons/Mega-Ship_Icon.png" />
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding PlanetBuild}"
+                                                                                                     Value="True">
+                                                                                            <Setter Property="Source"
+                                                                                                    Value="/Assets/Icons/settlement_pm.png" />
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </Image.Style>
+                                                                        </Image>
+                                                                    </VisualBrush.Visual>
+                                                                </VisualBrush>
+                                                            </Rectangle.OpacityMask>
+                                                        </Rectangle>
+                                                    </Grid>
                                                 </Button>
                                             </Grid>
                                         </DataTemplate>
@@ -207,8 +237,86 @@
                                 </ListBox>
                             </Grid>
                         </TabItem>
+                        <TabItem Header="Resource">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="20" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{Binding SelectedResource.LocalName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                           FontSize="22"
+                                           Foreground="{DynamicResource Header}" />
+                                <TextBlock Text="{Binding SelectedResource.Category, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                           Grid.Row="1"
+                                           FontSize="20"
+                                           Foreground="{DynamicResource Header}" />
+                                <TextBlock Text="Previously Purchased Locations"
+                                           Grid.Row="3"
+                                           FontSize="14"
+                                           Foreground="{DynamicResource Header}" />
+                                <DataGrid ItemsSource="{Binding Purchases, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                          RowStyle="{DynamicResource NoSelectRowStyle}"
+                                          CellStyle="{DynamicResource NoSelectCellNoMargin}"
+                                          Foreground="{DynamicResource PrimaryForeground}"
+                                          Background="Transparent"
+                                          FontSize="18"
+                                          IsReadOnly="True"
+                                          AutoGenerateColumns="False"
+                                          GridLinesVisibility="None"
+                                          BorderThickness="0"
+                                          SelectionMode="Single"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                          ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                          AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                                          HeadersVisibility="Column"
+                                          Grid.Row="4">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Width="30">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Style="{DynamicResource ClipboardBtn}"
+                                                            Click="PurchaseGrid_Click">
+                                                        <Image Source="/Assets/Icons/Clipboard.png"
+                                                               Margin="3" />
+                                                    </Button>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Location"
+                                                                Width="*"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Background="Transparent">
+                                                        <TextBlock Text="{Binding SystemName}" />
+                                                        <TextBlock Text="{Binding StationName}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Info"
+                                                                Width="100"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderCenter}">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Background="Transparent">
+                                                        <TextBlock Text="{Binding DistanceString}"
+                                                                   HorizontalAlignment="Right" />
+                                                        <TextBlock Text="{Binding Price}"
+                                                                   HorizontalAlignment="Right" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </TabItem>
                     </TabControl>
-                    
+
                     <Border Background="{DynamicResource CardBackground}"
                             Grid.Row="1"
                             MinHeight="180"
@@ -274,216 +382,376 @@
                       Height="Auto">
                     <Grid.RowDefinitions>
                         <RowDefinition />
-                        <RowDefinition Height="300"/>
+                        <RowDefinition Height="300" />
                     </Grid.RowDefinitions>
                     <Border Background="{DynamicResource CardBackground}"
                             CornerRadius="5"
                             Margin="5,5,5,5"
                             Padding="5">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
+                        <TabControl SelectedIndex="{Binding SelectedDepotTab}">
+                            <TabItem Header="Selected Depot">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
 
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="{Binding SelectedDepot.SystemName}"
-                                           FontSize="30"
-                                           Foreground="{DynamicResource Header}"
-                                           Grid.Column="0" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Grid.Column="0"
+                                                    Orientation="Horizontal">
+                                            <TextBlock Text="{Binding SelectedDepot.SystemName}"
+                                                       FontSize="30"
+                                                       Foreground="{DynamicResource Header}"
+                                                       Grid.Column="0" />
+                                            <Button Style="{DynamicResource ClipboardBtn}"
+                                                    Command="{Binding SetClipboardCommand}"
+                                                    CommandParameter="{Binding SelectedDepot.SystemName}"
+                                                    Margin="5,0"
+                                                    Height="25"
+                                                    Width="25">
+                                                <Image Source="/Assets/Icons/Clipboard.png"
+                                                       Margin="3" />
+                                            </Button>
+                                        </StackPanel>
 
-                                <StackPanel Grid.Column="1">
-                                    
-                                </StackPanel>
+                                        <StackPanel Grid.Column="2"
+                                                    Orientation="Horizontal"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Center">
+                                            <ToggleButton Name="button"
+                                                          Width="120"
+                                                          FontSize="12"
+                                                          BorderBrush="#FF707BF3"
+                                                          Content="{Binding DiscordButtonText}"
+                                                          FontFamily="Unispace"
+                                                          Margin="10,0">
+                                                <ToggleButton.Resources>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="CornerRadius"
+                                                                Value="5" />
+                                                    </Style>
+                                                    <Style TargetType="{x:Type ToggleButton}">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver"
+                                                                     Value="False">
+                                                                <Setter Property="Foreground"
+                                                                        Value="White" />
+                                                                <Setter Property="Background"
+                                                                        Value="#FF5865F2" />
+                                                            </Trigger>
+                                                            <Trigger Property="IsMouseOver"
+                                                                     Value="True">
+                                                                <Setter Property="Background"
+                                                                        Value="White" />
+                                                                <Setter Property="Foreground"
+                                                                        Value="#FF5865F2" />
+                                                            </Trigger>
+                                                            <Trigger Property="IsPressed"
+                                                                     Value="True">
+                                                                <Setter Property="Background"
+                                                                        Value="White" />
+                                                                <Setter Property="Foreground"
+                                                                        Value="#FF5865F2" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ToggleButton.Resources>
+                                            </ToggleButton>
+                                            <Popup IsOpen="{Binding IsChecked, ElementName=button}"
+                                                   Closed="Popup_Closed"
+                                                   ButtonBase.Click="Popup_Click"
+                                                   Placement="Mouse"
+                                                   StaysOpen="False">
+                                                <Border Background="{DynamicResource ViewBackground}"
+                                                        BorderBrush="{DynamicResource PrimaryControlBorder}"
+                                                        Padding="5"
+                                                        BorderThickness="1">
+                                                    <StackPanel>
+                                                        <Button Content="Table in Discord Code Block"
+                                                                HorizontalAlignment="Stretch"
+                                                                Margin="0,2"
+                                                                HorizontalContentAlignment="Left"
+                                                                Command="{Binding CreatePostCommand}"
+                                                                CommandParameter="{x:Static helpers:ColonisationPostType.DiscordTable}"
+                                                                Style="{DynamicResource CartoSelectionBtn}" />
+                                                        <Button Content="Table"
+                                                                HorizontalAlignment="Stretch"
+                                                                Margin="0,2"
+                                                                HorizontalContentAlignment="Left"
+                                                                Command="{Binding CreatePostCommand}"
+                                                                CommandParameter="{x:Static helpers:ColonisationPostType.Table}"
+                                                                Style="{DynamicResource CartoSelectionBtn}" />
+                                                        <Button Content="List"
+                                                                HorizontalAlignment="Stretch"
+                                                                Margin="0,2"
+                                                                HorizontalContentAlignment="Left"
+                                                                Command="{Binding CreatePostCommand}"
+                                                                CommandParameter="{x:Static helpers:ColonisationPostType.List}"
+                                                                Style="{DynamicResource CartoSelectionBtn}" />
 
-                                <StackPanel Grid.Column="2"
-                                            Orientation="Horizontal"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Center">
-                                    <ToggleButton Name="button"
-                                                  Width="120"
-                                                  FontSize="12"
-                                                  BorderBrush="#FF707BF3"
-                                                  Content="{Binding DiscordButtonText}"
-                                                  FontFamily="Unispace"
-                                                  Margin="10,0">
-                                        <ToggleButton.Resources>
-                                            <Style TargetType="Border">
-                                                <Setter Property="CornerRadius"
-                                                        Value="5" />
-                                            </Style>
-                                            <Style TargetType="{x:Type ToggleButton}">
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver"
-                                                             Value="False">
-                                                        <Setter Property="Foreground"
-                                                                Value="White" />
-                                                        <Setter Property="Background"
-                                                                Value="#FF5865F2" />
-                                                    </Trigger>
-                                                    <Trigger Property="IsMouseOver"
-                                                             Value="True">
-                                                        <Setter Property="Background"
-                                                                Value="White" />
-                                                        <Setter Property="Foreground"
-                                                                Value="#FF5865F2" />
-                                                    </Trigger>
-                                                    <Trigger Property="IsPressed"
-                                                             Value="True">
-                                                        <Setter Property="Background"
-                                                                Value="White" />
-                                                        <Setter Property="Foreground"
-                                                                Value="#FF5865F2" />
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ToggleButton.Resources>
-                                    </ToggleButton>
-                                    <Popup IsOpen="{Binding IsChecked, ElementName=button}"
-                                           Closed="Popup_Closed"
-                                           ButtonBase.Click="Popup_Click"
-                                           Placement="Mouse"
-                                           StaysOpen="False">
-                                        <Border Background="{DynamicResource ViewBackground}"
-                                                BorderBrush="{DynamicResource PrimaryControlBorder}"
-                                                Padding="5"
-                                                BorderThickness="1">
-                                            <StackPanel>
-                                                <Button Content="Table in Discord Code Block"
-                                                        HorizontalAlignment="Stretch"
-                                                        Margin="0,2"
-                                                        HorizontalContentAlignment="Left"
-                                                        Command="{Binding CreatePostCommand}"
-                                                        CommandParameter="{x:Static helpers:ColonisationPostType.DiscordTable}"
-                                                        Style="{DynamicResource CartoSelectionBtn}" />
-                                                <Button Content="Table"
-                                                        HorizontalAlignment="Stretch"
-                                                        Margin="0,2"
-                                                        HorizontalContentAlignment="Left"
-                                                        Command="{Binding CreatePostCommand}"
-                                                        CommandParameter="{x:Static helpers:ColonisationPostType.Table}"
-                                                        Style="{DynamicResource CartoSelectionBtn}" />
-                                                <Button Content="List"
-                                                        HorizontalAlignment="Stretch"
-                                                        Margin="0,2"
-                                                        HorizontalContentAlignment="Left"
-                                                        Command="{Binding CreatePostCommand}"
-                                                        CommandParameter="{x:Static helpers:ColonisationPostType.List}"
-                                                        Style="{DynamicResource CartoSelectionBtn}" />
+                                                    </StackPanel>
+                                                </Border>
+                                            </Popup>
 
-                                            </StackPanel>
-                                        </Border>
-                                    </Popup>
-                                    
-                                    <TextBlock Text="Commodity Sorting "
-                                               VerticalAlignment="Center" />
-                                    <ComboBox ItemsSource="{Binding Source={StaticResource CommodityEnum}}"
-                                              SelectedItem="{Binding CommoditySorting}"
-                                              Margin="5,0,10,0"
-                                              Grid.Column="2"
-                                              MinWidth="180"
-                                              FontSize="18"
-                                              HorizontalAlignment="Right"
-                                              VerticalAlignment="Center"
+                                            <TextBlock Text="Commodity Sorting "
+                                                       VerticalAlignment="Center" />
+                                            <ComboBox ItemsSource="{Binding Source={StaticResource CommodityEnum}}"
+                                                      SelectedItem="{Binding CommoditySorting}"
+                                                      Margin="5,0,10,0"
+                                                      Grid.Column="2"
+                                                      MinWidth="180"
+                                                      FontSize="18"
+                                                      HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center"
+                                                      IsReadOnly="True"
+                                                      IsSynchronizedWithCurrentItem="False" />
+                                            <Button Command="{Binding AddShoppingListCommand}"
+                                                    CommandParameter="{Binding SelectedDepot}"
+                                                    Style="{DynamicResource EliteStyleImageButton}"
+                                                    Width="35"
+                                                    Margin="5,0"
+                                                    Padding="2,0,0,0"
+                                                    ToolTip="Add/Remove From Shopping List" >
+                                                <Image Source="/Assets/Icons/ShoppingCart.png" />
+                                            </Button>
+                                            <Button Content="{Binding ActiveButtonText}"
+                                                    Command="{Binding SetActiveStateCommand}"
+                                                    CommandParameter="{Binding SelectedDepot}"
+                                                    Style="{DynamicResource EliteStyleButton}"
+                                                    Width="120"
+                                                    Height="35"
+                                                    Grid.ColumnSpan="2"
+                                                    FontSize="20" />
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding SelectedDepot.StationName}"
+                                                   Grid.ColumnSpan="2"
+                                                   FontSize="20"
+                                                   Grid.Row="1" />
+
+                                        <Grid Grid.Row="2"
+                                              Grid.ColumnSpan="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition  Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Progress"
+                                                       Margin="0,0,10,0"
+                                                       FontSize="20"
+                                                       Grid.Column="0" />
+                                            <TextBlock Text="{Binding SelectedDepot.Progress}"
+                                                       FontSize="20"
+                                                       Grid.Column="1" />
+
+                                            <TextBlock Text="Total"
+                                                       Margin="0,0,10,0"
+                                                       FontSize="20"
+                                                       Grid.Column="2" />
+                                            <TextBlock Text="{Binding SelectedDepot.TotalRemaining}"
+                                                       FontSize="20"
+                                                       Margin="0,0,10,0"
+                                                       Grid.Column="3" />
+                                        </Grid>
+
+                                    </Grid>
+
+                                    <DataGrid ItemsSource="{Binding SelectedDepotResources}"
+                                              Grid.Row="1"
+                                              Style="{DynamicResource ConstructionResourcesDataGrid}"
+                                              RowStyle="{DynamicResource NoSelectRowStyle}"
+                                              CellStyle="{DynamicResource NoSelectCellNoMargin}"
+                                              Foreground="{DynamicResource PrimaryForeground}"
+                                              FontSize="20"
                                               IsReadOnly="True"
-                                              IsSynchronizedWithCurrentItem="False" />
-                                    <Button Content="{Binding ActiveButtonText}"
-                                            Command="{Binding SetActiveStateCommand}"
-                                            CommandParameter="{Binding SelectedDepot}"
-                                            Style="{DynamicResource EliteStyleButton}"
-                                            Width="120"
-                                            Grid.ColumnSpan="2"
-                                            FontSize="20" />
-                                </StackPanel>
-                                <TextBlock Text="{Binding SelectedDepot.StationName}"
-                                           Grid.ColumnSpan="2"
-                                           FontSize="20"
-                                           Grid.Row="1" />
-
-                                <Grid Grid.Row="2"
-                                      Grid.ColumnSpan="2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition  Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Progress"
-                                               Margin="0,0,10,0"
-                                               FontSize="20"
-                                               Grid.Column="0" />
-                                    <TextBlock Text="{Binding SelectedDepot.Progress}"
-                                               FontSize="20"
-                                               Grid.Column="1" />
-
-                                    <TextBlock Text="Total"
-                                               Margin="0,0,10,0"
-                                               FontSize="20"
-                                               Grid.Column="2" />
-                                    <TextBlock Text="{Binding SelectedDepot.TotalRemaining}"
-                                               FontSize="20"
-                                               Margin="0,0,10,0"
-                                               Grid.Column="3" />
+                                              SelectionMode="Single"
+                                              SelectedItem="{Binding SelectedResource, Mode=TwoWay}"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                              AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                                              HeadersVisibility="Column"
+                                              AutoGenerateColumns="False"
+                                              HorizontalAlignment="Center">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Commodity"
+                                                                MinWidth="250"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                                Binding="{Binding LocalName}" />
+                                            <DataGridTextColumn Header="Category"
+                                                                MinWidth="180"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                                Binding="{Binding Category}" />
+                                            <DataGridTextColumn Header="Previously Purchased From"
+                                                                MinWidth="250"
+                                                                Width="*"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                                Binding="{Binding FirstPurchase}" />
+                                            <DataGridTextColumn Header="Carrier Stock"
+                                                                MinWidth="100"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                                ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                                Binding="{Binding CarrierStock}" />
+                                            <DataGridTextColumn Header="Total"
+                                                                MinWidth="100"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                                ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                                Binding="{Binding Required}" />
+                                            <DataGridTextColumn Header="Delivered"
+                                                                MinWidth="100"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                                ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                                Binding="{Binding Delivered}" />
+                                            <DataGridTextColumn Header="Remaining"
+                                                                MinWidth="100"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                                ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                                Binding="{Binding Remaining}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
                                 </Grid>
+                            </TabItem>
+                            <TabItem Header="Shopping List">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
 
-                            </Grid>
-                            <DataGrid ItemsSource="{Binding SelectedDepotResources}"
-                                      Grid.Row="1"
-                                      Style="{DynamicResource ConstructionResourcesDataGrid}"
-                                      RowStyle="{DynamicResource NoSelectRowStyle}"
-                                      CellStyle="{DynamicResource NoSelectCellNoMargin}"
-                                      Foreground="{DynamicResource PrimaryForeground}"
-                                      FontSize="20"
-                                      ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                                      ScrollViewer.VerticalScrollBarVisibility="Visible"
-                                      AlternatingRowBackground="{DynamicResource RowAlternationColour}"
-                                      HeadersVisibility="Column"
-                                      AutoGenerateColumns="False"
-                                      HorizontalAlignment="Center">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Commodity"
-                                                        Width="*"
-                                                        MinWidth="250"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderLeft}"
-                                                        ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
-                                                        Binding="{Binding LocalName}" />
-                                    <DataGridTextColumn Header="Category"
-                                                        MinWidth="180"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderLeft}"
-                                                        ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
-                                                        Binding="{Binding Category}" />
-                                    <DataGridTextColumn Header="Carrier Stock"
-                                                        MinWidth="100"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
-                                                        ElementStyle="{DynamicResource DataGridElementRightMargin}"
-                                                        Binding="{Binding CarrierStock}" />
-                                    <DataGridTextColumn Header="Total"
-                                                        MinWidth="100"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
-                                                        ElementStyle="{DynamicResource DataGridElementRightMargin}"
-                                                        Binding="{Binding Required}" />
-                                    <DataGridTextColumn Header="Delivered"
-                                                        MinWidth="100"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
-                                                        ElementStyle="{DynamicResource DataGridElementRightMargin}"
-                                                        Binding="{Binding Delivered}" />
-                                    <DataGridTextColumn Header="Remaining"
-                                                        MinWidth="100"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
-                                                        ElementStyle="{DynamicResource DataGridElementRightMargin}"
-                                                        Binding="{Binding Remaining}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Text="Depots"
+                                                   FontSize="22"
+                                                   Margin="5"
+                                                   Foreground="{DynamicResource Header}" />
+
+                                        <StackPanel Grid.Column="1"
+                                                    Orientation="Horizontal">
+                                            <TextBlock Text="Commodity Sorting "
+                                                       VerticalAlignment="Center" />
+                                            <ComboBox ItemsSource="{Binding Source={StaticResource CommodityEnum}}"
+                                                      SelectedItem="{Binding ShoppingListCommoditySorting}"
+                                                      Margin="5,0,10,0"
+                                                      Grid.Column="2"
+                                                      MinWidth="180"
+                                                      FontSize="18"
+                                                      HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center"
+                                                      IsReadOnly="True"
+                                                      IsSynchronizedWithCurrentItem="False" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <DataGrid ItemsSource="{Binding ShoppingList.Depots}"
+                                              Grid.Row="1"
+                                              Margin="10"
+                                              Style="{DynamicResource ConstructionResourcesDataGrid}"
+                                              RowStyle="{DynamicResource NoSelectRowStyle}"
+                                              CellStyle="{DynamicResource NoSelectCellNoMargin}"
+                                              Foreground="{DynamicResource PrimaryForeground}"
+                                              FontSize="20"
+                                              IsReadOnly="True"
+                                              SelectionMode="Single"                                             
+                                              ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                              AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                                              HeadersVisibility="Column"
+                                              AutoGenerateColumns="False"
+                                              HorizontalAlignment="Center">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="System Name"
+                                                                MinWidth="250"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                                Binding="{Binding SystemNameText}" />
+                                            <DataGridTextColumn Header="Station Name"
+                                                                MinWidth="250"
+                                                                Width="*"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                                Binding="{Binding StationNameSplit}" />
+                                            <DataGridTemplateColumn Width="30">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Button Command="{Binding ElementName=Root, Path=DataContext.AddShoppingListCommand}"
+                                                                CommandParameter="{Binding }"
+                                                                Style="{DynamicResource EliteStyleButton}"
+                                                                Content="X"
+                                                                Margin="2"
+                                                                Width="25"
+                                                                Height="25"
+                                                                ToolTip="Remove From Shopping List"
+                                                                FontSize="16" />
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+
+                                    <DataGrid ItemsSource="{Binding ShoppingListResources}"
+                                              Grid.Row="3"
+                                              Margin="10"
+                                              Style="{DynamicResource ConstructionResourcesDataGrid}"
+                                              RowStyle="{DynamicResource NoSelectRowStyle}"
+                                              CellStyle="{DynamicResource NoSelectCellNoMargin}"
+                                              Foreground="{DynamicResource PrimaryForeground}"
+                                              SelectedItem="{Binding SelectedResource, Mode=TwoWay}"
+                                              FontSize="20"
+                                              IsReadOnly="True"                        
+                                              SelectionMode="Single"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                              ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                              AlternatingRowBackground="{DynamicResource RowAlternationColour}"
+                                              HeadersVisibility="Column"
+                                              AutoGenerateColumns="False">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Commodity"
+                                                                MinWidth="250"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                                Binding="{Binding LocalName}" />                         
+                                            <DataGridTextColumn Header="Category"
+                                                                MinWidth="180"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                                Binding="{Binding Category}" />
+                                            <DataGridTextColumn Header="Previously Purchased From"
+                                                                MinWidth="250"
+                                                                Width="*"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderLeft}"
+                                                                ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                                                Binding="{Binding FirstPurchase}" />
+                                            <DataGridTextColumn Header="Carrier Stock"
+                                                                MinWidth="150"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                                ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                                Binding="{Binding CarrierStock}" />
+                                            <DataGridTextColumn Header="Remaining"
+                                                                MinWidth="100"
+                                                                HeaderStyle="{DynamicResource DataGridHeaderCenter}"
+                                                                ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                                                Binding="{Binding Remaining}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </TabItem>
+                        </TabControl>
                     </Border>
 
                     <Border Background="{DynamicResource CardBackground}"
@@ -494,7 +762,7 @@
                             Margin="5,5,5,5"
                             Grid.Row="1"
                             Padding="5">
-                        <Grid >
+                        <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition />
@@ -517,7 +785,7 @@
                                            Grid.Row="0"
                                            Foreground="{DynamicResource Header}"
                                            Grid.ColumnSpan="2" />
-                                
+
                                 <TextBlock Text="{Binding CurrentMarket.StationName}"
                                            FontSize="30"
                                            Grid.Row="1"
@@ -542,30 +810,30 @@
                                       AlternatingRowBackground="{DynamicResource RowAlternationColour}"
                                       HeadersVisibility="Column"
                                       AutoGenerateColumns="False"
-                                      HorizontalAlignment="Center" 
+                                      HorizontalAlignment="Center"
                                       VerticalAlignment="Stretch">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Commodity"
-                                                        Width="*"
                                                         MinWidth="250"
                                                         HeaderStyle="{DynamicResource DataGridHeaderLeft}"
                                                         ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
                                                         Binding="{Binding Name_Localised}" />
                                     <DataGridTextColumn Header="Category"
+                                                        Width="*"
                                                         MinWidth="100"
                                                         HeaderStyle="{DynamicResource DataGridHeaderLeft}"
                                                         ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
                                                         Binding="{Binding Category_Localised}" />
                                     <DataGridTextColumn Header="Stock"
                                                         MinWidth="100"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderRight}"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
                                                         ElementStyle="{DynamicResource DataGridElementRightMargin}"
-                                                        Binding="{Binding Stock, StringFormat=N0}" />
+                                                        Binding="{Binding Stock, StringFormat={}{0:N0} t}" />
                                     <DataGridTextColumn Header="Required"
                                                         MinWidth="100"
-                                                        HeaderStyle="{DynamicResource DataGridHeaderRight}"
+                                                        HeaderStyle="{DynamicResource DataGridHeaderCenter}"
                                                         ElementStyle="{DynamicResource DataGridElementRightMargin}"
-                                                        Binding="{Binding Required}" />
+                                                        Binding="{Binding Required, StringFormat={}{0:N0} t}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

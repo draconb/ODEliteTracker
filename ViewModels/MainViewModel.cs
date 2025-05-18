@@ -24,7 +24,8 @@ namespace ODEliteTracker.ViewModels
                                       NotificationService notificationService,
                                       SettingsStore settings,
                                       TickDataStore tickDataStore,
-                                      FleetCarrierDataStore carrierDataStore)
+                                      FleetCarrierDataStore carrierDataStore,
+                                      PopOutService popOutService)
         {
             navigationService = oDNavigationService;
             this.journalManager = journalManager;
@@ -33,6 +34,7 @@ namespace ODEliteTracker.ViewModels
             this.settings = settings;
             this.tickDataStore = tickDataStore;
             this.carrierDataStore = carrierDataStore;
+            this.popOutService = popOutService;
             this.sharedData.StoreLive += OnStoreLive;
             this.sharedData.CurrentSystemChanged += OnCurrentSystemChanged;
             this.sharedData.CurrentBody_StationChanged += OnCurrentBody_StationChanged;
@@ -42,8 +44,6 @@ namespace ODEliteTracker.ViewModels
             navigationService.CurrentViewLive += NavigationService_CurrentViewLive;
 
             ResetWindowPositionCommand = new ODRelayCommand(OnResetWindow);
-
-            //UtilButtons.AddItem(new UiScaleButton() { DataContext = this });
         }
 
         public override bool IsLive => true;
@@ -54,6 +54,7 @@ namespace ODEliteTracker.ViewModels
         private readonly SettingsStore settings;
         private readonly TickDataStore tickDataStore;
         private readonly FleetCarrierDataStore carrierDataStore;
+        private readonly PopOutService popOutService;
 
         public ICommand ResetWindowPositionCommand { get; }
 
@@ -104,6 +105,11 @@ namespace ODEliteTracker.ViewModels
         [
             new EliteStyleNavigationButton()
             {
+                ButtonImage = new BitmapImage(new Uri("/Assets/Icons/PopOutBtn.png", UriKind.Relative)),
+                TargetView = typeof(PopOutControlViewModel),
+            },
+            new EliteStyleNavigationButton()
+            {
                 ButtonImage = new BitmapImage(new Uri("/Assets/Notifications/monitor.png", UriKind.Relative)),
                 TargetView = typeof(NotificationSettingsViewModel),
             },
@@ -124,9 +130,11 @@ namespace ODEliteTracker.ViewModels
             {
                 if (value == selectedCommander)
                     return;
+                var currentId = selectedCommander?.Id ?? 0;
                 selectedCommander = value;
                 if (UiEnabled && selectedCommander != null && selectedCommander.Id != settings.SelectedCommanderID)
                 {
+                    popOutService.CloseViews(currentId);
                     settings.SelectedCommanderID = selectedCommander.Id;
                     _ = ChangeCommander();
                 }
@@ -237,6 +245,7 @@ namespace ODEliteTracker.ViewModels
                     JournalCommanders.ClearCollection();
                     JournalCommanders.AddRange(cmdrs);
                     SelectedCommander = JournalCommanders.FirstOrDefault(x => x.Id == settings.SelectedCommanderID);
+                    popOutService.OpenSavedViews(settings.SelectedCommanderID);
                     OnPropertyChanged(nameof(JournalCommanders));
                     OnPropertyChanged(nameof(SelectedCommander));
                     OnPropertyChanged(nameof(CurrentSystemName));
@@ -264,6 +273,7 @@ namespace ODEliteTracker.ViewModels
 
         internal void OnClose()
         {
+            popOutService.CloseViews(settings.SelectedCommanderID);
             notificationService.Dispose();
         }
     }

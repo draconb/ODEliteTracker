@@ -1,28 +1,22 @@
-﻿using EliteJournalReader.Events;
+﻿using EliteJournalReader;
+using EliteJournalReader.Events;
 
 namespace ODEliteTracker.Models.Galaxy
 {
     public sealed class Station
     {
-        public Station(CarrierJumpEvent.CarrierJumpEventArgs e, FactionData data)
+        public Station(CarrierJumpEvent.CarrierJumpEventArgs e, FactionData data, StarSystem system)
         {
+            StarSystem = system;
             StationName = e.StationName;
             StationFaction = data;
             MarketID = e.MarketID;
             StationType = e.StationType;
         }
 
-        public Station(LocationEvent.LocationEventArgs e, FactionData data)
+        public Station(LocationEvent.LocationEventArgs e, FactionData data, StarSystem system)
         {
-            StationName = e.StationName;
-            StationFaction = data;
-            MarketID = e.MarketID;
-            StationType = e.StationType;
-            DistanceToArrival = e.DistFromStarLS;
-        }
-
-        public Station(DockedEvent.DockedEventArgs e, FactionData data)
-        {
+            StarSystem = system;
             StationName = e.StationName;
             StationFaction = data;
             MarketID = e.MarketID;
@@ -30,10 +24,33 @@ namespace ODEliteTracker.Models.Galaxy
             DistanceToArrival = e.DistFromStarLS;
         }
 
-        public string StationName { get; set; }
-        public FactionData StationFaction { get; set; }
-        public ulong MarketID { get; set; }
-        public string StationType { get; set; }
-        public double DistanceToArrival { get; set; }
+        public Station(DockedEvent.DockedEventArgs e, FactionData data, StarSystem system)
+        {
+            StarSystem = system;
+            StationName = e.StationName;
+            StationFaction = data;
+            MarketID = e.MarketID;
+            StationType = e.StationType;
+            DistanceToArrival = e.DistFromStarLS;
+            PadSize = GetPadSize(e.LandingPads);
+
+        }
+
+        public StarSystem StarSystem { get; }
+        public string StationName { get; }
+        public FactionData StationFaction { get; }
+        public ulong MarketID { get;  }
+        public string StationType { get; }
+        public double DistanceToArrival { get;  }
+        public LandingPadSize PadSize { get;  } = LandingPadSize.Small;
+
+        private static LandingPadSize GetPadSize(LandingPads landingPads)
+        {
+            if (landingPads.Large > 0)
+                return LandingPadSize.Large;
+            if (landingPads.Medium > 0)
+                return LandingPadSize.Medium;
+            return LandingPadSize.Small;
+        }
     }
 }
