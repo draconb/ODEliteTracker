@@ -290,8 +290,9 @@ namespace ODEliteTracker.Stores
                         return;
                     }
 
-                    if (CanNotifyOfTarget(pilotName) == false)
-                        break;
+                    //Updated to a system managed by the notification store
+                    //if (CanNotifyOfTarget(pilotName) == false)
+                    //    break;
 
                     if (string.IsNullOrEmpty(shipTargeted.Power) && shipTargeted.Bounty <= 0)
                     {
@@ -337,7 +338,7 @@ namespace ODEliteTracker.Stores
                     var fireEvent = false;
                     foreach (var faction in redeemVoucher.Factions)
                     {
-                        fireEvent = bountiesManager.FactionBountiesClaimed(faction.Faction) | fireEvent;
+                        fireEvent = bountiesManager.FactionBountiesClaimed(faction, redeemVoucher.BrokerPercentage) | fireEvent;
                     }
 
                     if (fireEvent)

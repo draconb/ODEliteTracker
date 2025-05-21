@@ -89,9 +89,15 @@ namespace ODEliteTracker.Notifications.ScanNotification
         public string Faction { get; }
         public string TargetType { get; }
         public Visibility BountyVis { get; }
-        public string BountyString { get; }
+        public string BountyString { get; private set; }
         public Visibility PowerVis { get; }
         public string? PowerString { get; }
+
+        public void UpdateBountyString(int value)
+        {
+            BountyString = $"{value:N0} cr";
+            OnPropertyChanged(nameof(BountyString));
+        }
 
         private void OnClick(object? obj)
         {

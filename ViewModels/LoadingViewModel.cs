@@ -1,5 +1,4 @@
-﻿using ODEliteTracker.Database;
-using ODJournalDatabase.JournalManagement;
+﻿using ODJournalDatabase.JournalManagement;
 using ODMVVM.Commands;
 using ODMVVM.ViewModels;
 using System.Windows.Input;

@@ -48,7 +48,7 @@ namespace ODEliteTracker.Database
         {
             using var context = _contextFactory.CreateDbContext();
 
-            var known = context.JournalCommanders.FirstOrDefault(x => x.Name == cmdr.Name);
+            var known = context.JournalCommanders.FirstOrDefault(x => string.Equals(x.Name, cmdr.Name));
 
             if (known == null)
             {

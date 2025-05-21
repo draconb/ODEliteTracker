@@ -5,6 +5,9 @@ using ODMVVM.Helpers.IO;
 using ODMVVM.Models;
 using ODMVVM.Services.MessageBox;
 using ODMVVM.ViewModels;
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
 
 namespace ODEliteTracker.ViewModels
 {
@@ -43,11 +46,21 @@ namespace ODEliteTracker.ViewModels
 
                 if (updateInfo.Version > App.AppVersion)
                 {
-                    var update = ODDialogService.ShowWithOwner(null, $"Version {updateInfo.Version} is available", "Would you like to open the download page?", System.Windows.MessageBoxButton.YesNo);
+                    var filename = Path.GetFileName(updateInfo.FileUrl);
+                    var tempPath = Path.GetTempPath();
+                    var filePath = Path.Combine(tempPath, filename);
+                    
+                    var update = ODDialogService.ShowUpdateBox(null, updateInfo, filePath);
 
-                    if(update == System.Windows.MessageBoxResult.Yes)
+                    if(update == MessageBoxResult.Yes || update == MessageBoxResult.OK)
                     {
-                        ODMVVM.Helpers.OperatingSystem.OpenUrl(updateInfo.Url);
+                        StatusText = "Closing";
+                        await Task.Delay(1000);
+                        if (update == MessageBoxResult.Yes) 
+                            Process.Start(filePath);
+
+                        Application.Current.Shutdown();
+                        return;
                     }                    
                 }
 

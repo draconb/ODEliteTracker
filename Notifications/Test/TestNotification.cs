@@ -1,7 +1,6 @@
 ﻿using ODEliteTracker.Models.Settings;
 using ODMVVM.Commands;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
 using ToastNotifications.Core;
 using Application = System.Windows.Application;

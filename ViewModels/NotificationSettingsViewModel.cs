@@ -2,7 +2,6 @@
 using ODEliteTracker.Notifications.Themes;
 using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
-using ODEliteTracker.Themes;
 using ODEliteTracker.ViewModels.ModelViews.Notifications;
 using ODMVVM.Commands;
 using ODMVVM.ViewModels;

@@ -34,7 +34,7 @@
     <SolidColorBrush x:Key="Header"
                      Color="White" />
 
-    <Color x:Key="CarBackGrounColour">
+    <Color x:Key="CardBackGroundColour">
         #FF2D2D2D
     </Color>
     <SolidColorBrush x:Key="CardBackground"

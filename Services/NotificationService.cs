@@ -3,6 +3,7 @@ using ODEliteTracker.Notifications;
 using ODEliteTracker.Notifications.ScanNotification;
 using ODEliteTracker.Notifications.Test;
 using ODEliteTracker.Stores;
+using System.Collections.Concurrent;
 using System.Windows;
 using ToastNotifications;
 using ToastNotifications.Core;
@@ -16,6 +17,8 @@ namespace ODEliteTracker.Services
         private readonly SettingsStore settingsStore;
         private Notifier notifier;
         private MessageOptions messageOptions;
+
+        private readonly ConcurrentDictionary<string, ShipScannedNotification> shipScanNotifications = [];
 
         private bool NotificationsEnabled => settingsStore.NotificationSettings.NotificationsEnabled;
 
@@ -62,6 +65,8 @@ namespace ODEliteTracker.Services
                 cfg.PositionProvider = provider;
                 cfg.DisplayOptions.Width = GetNotificationWidth(settings.Size);
                 cfg.DisplayOptions.TopMost = true;
+
+                cfg.Dispatcher = Application.Current.Dispatcher;
             });
 
             messageOptions = new MessageOptions()
@@ -85,7 +90,13 @@ namespace ODEliteTracker.Services
             notificationBase.Close();
         }
 
-        private void OnNotificationClose(NotificationBase notificationBase) { }
+        private void OnNotificationClose(NotificationBase notificationBase) 
+        { 
+            if (notificationBase is ShipScannedNotification notification)
+            {
+                _ = shipScanNotifications.TryRemove(notification.Message, out _);
+            }
+        }
 
         internal void ShowTestNotification(NotificationSettings notificationSettings)
         {
@@ -123,7 +134,15 @@ namespace ODEliteTracker.Services
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                notifier.Notify(() => new ShipScannedNotification(name, messageOptions, settingsStore.NotificationSettings, type, targetType, bounty, faction, power));
+                if (shipScanNotifications.TryGetValue(name, out var notification))
+                {
+                    notification.UpdateBountyString(bounty);
+                    return;
+                }
+
+                var newNotification = new ShipScannedNotification(name, messageOptions, settingsStore.NotificationSettings, type, targetType, bounty, faction, power);
+                shipScanNotifications.TryAdd(name, newNotification);
+                notifier.Notify(() => newNotification);
             });
         }
 

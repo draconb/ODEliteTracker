@@ -66,10 +66,6 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
-                    <!--<Grid.Background>
-                        <SolidColorBrush Color="{DynamicResource CarBackGrounColour}"
-                                         Opacity="{Binding Opacity, Mode=OneWay}" />
-                    </Grid.Background>-->
                     <ContentControl Content="{Binding }" />
                 </Grid>
             </Grid>

@@ -11,6 +11,15 @@ namespace ODEliteTracker.Notifications.ScanNotification
         {
             InitializeComponent();
             Bind(notification);
+            Unloaded += ShipScannedNotificationPart_Unloaded;
+        }
+
+        private void ShipScannedNotificationPart_Unloaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if(DataContext is ShipScannedNotification notification)
+            {
+                notification.Close();
+            }
         }
     }
 }

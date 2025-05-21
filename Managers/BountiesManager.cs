@@ -1,4 +1,5 @@
-﻿using ODEliteTracker.Database;
+﻿using EliteJournalReader.Events;
+using ODEliteTracker.Database;
 using ODEliteTracker.Models.BGS;
 using ODJournalDatabase.Database.Interfaces;
 
@@ -13,7 +14,7 @@ namespace ODEliteTracker.Managers
 
         private readonly ODEliteTrackerDatabaseProvider databaseProvider;
 
-        private readonly Dictionary<string, List<VoucherClaim>> bounties = [];
+        private readonly Dictionary<string, List<VoucherClaim>> bounties = new(StringComparer.InvariantCultureIgnoreCase);
         private Dictionary<string, DateTime> ignoreBounties = [];
 
         public void Initialise(int commanderID)
@@ -29,7 +30,10 @@ namespace ODEliteTracker.Managers
 
         public void AddBounty(VoucherClaim voucherClaim)
         {
-            if(bounties.TryGetValue(voucherClaim.Faction, out var claims))
+            if (string.IsNullOrEmpty(voucherClaim.Faction))
+                return;
+
+            if (bounties.TryGetValue(voucherClaim.Faction, out var claims))
             {
                 claims.Add(voucherClaim);
                 return;
@@ -38,15 +42,30 @@ namespace ODEliteTracker.Managers
             bounties.TryAdd(voucherClaim.Faction, [voucherClaim]);
         }
 
-        public bool FactionBountiesClaimed(string factionName)
-        {
-            if (!bounties.ContainsKey(factionName))
+        public bool FactionBountiesClaimed(RedeemVoucherEvent.RedeemVoucherEventArgs.FactionAmount faction, double? brokerPercentage)
+        { 
+            if (string.IsNullOrEmpty(faction.Faction))
+            {
+                var known = bounties.FirstOrDefault(x => IsWithinPercentageRange(faction.Amount, x.Value.Sum(claim => claim.Value), brokerPercentage ?? 0));
+
+                if (string.IsNullOrEmpty(known.Key) == false)
+                    return bounties.Remove(known.Key);
+                return false;
+            }
+            if (!bounties.ContainsKey(faction.Faction))
             {
                 return false;
             }
 
-            bounties.Remove(factionName);
+            bounties.Remove(faction.Faction);
             return true;
+        }
+
+        public static bool IsWithinPercentageRange(double value, double baseValue, double percentage)
+        {
+            double lowerBound = baseValue - (baseValue * percentage / 100);
+            double upperBound = baseValue + (baseValue * percentage / 100);
+            return value >= lowerBound && value <= upperBound;
         }
 
         public void AddIgnoredBounty(int commanderID, string factionName)
@@ -65,9 +84,9 @@ namespace ODEliteTracker.Managers
         {
             var ret = new List<BountyClaims>();
 
-            foreach(var voucherClaim in bounties)
+            foreach (var voucherClaim in bounties)
             {
-                if(ignoreBounties.TryGetValue(voucherClaim.Key, out var time))
+                if (ignoreBounties.TryGetValue(voucherClaim.Key, out var time))
                 {
                     var vouchers = voucherClaim.Value.Where(x => x.Timestamp > time);
 
@@ -81,7 +100,7 @@ namespace ODEliteTracker.Managers
                 ret.Add(new(voucherClaim.Key, voucherClaim.Value.Sum(x => x.Value), voucherClaim.Value.Count));
             }
 
-            return ret; 
+            return ret;
         }
     }
 

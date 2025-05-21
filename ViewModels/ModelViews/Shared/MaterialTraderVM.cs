@@ -1,6 +1,5 @@
 ﻿using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Services;
-using ODMVVM.Commands;
 using System.Windows.Input;
 
 namespace ODEliteTracker.ViewModels.ModelViews.Shared

@@ -6,6 +6,7 @@ using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Database.DTOs;
 using ODEliteTracker.Models.BGS;
 using ODMVVM.Helpers;
+using ODEliteTracker.Managers;
 
 namespace ODEliteTracker.Stores
 {
@@ -40,6 +41,7 @@ namespace ODEliteTracker.Stores
         private readonly List<BGSMission> missions = [];
         private readonly Dictionary<long, BGSStarSystem> systems = [];
         private readonly List<MegaShipScan> megaShipScans = [];
+        private readonly Dictionary<string, string> shipTargets = new(StringComparer.OrdinalIgnoreCase);
         private TickData? selectedTick;
         private BGSStarSystem? currentSystem;
         private Station? currentStation;
@@ -57,7 +59,7 @@ namespace ODEliteTracker.Stores
         public EventHandler<BGSMission>? CargoDepotEvent;
         public EventHandler? MissionsUpdatedEvent;
         public EventHandler<BGSStarSystem>? VouchersClaimedEvent;
-        public EventHandler<Station>? CurrentStationUpdated;
+        public EventHandler<Station?>? CurrentStationUpdated;
         public EventHandler<BGSStarSystem>? SystemUpdated;
         public EventHandler<BGSStarSystem>? SystemAdded;
         public EventHandler? MegaShipScansUpdated;
@@ -92,6 +94,7 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.SearchAndRescue, true},
                 { JournalTypeEnum.SupercruiseDestinationDrop, true},
                 { JournalTypeEnum.SupercruiseEntry, true},
+                { JournalTypeEnum.ShipTargeted, true},
                 { JournalTypeEnum.DataScanned, true},
                 { JournalTypeEnum.Shutdown, true},
                 { JournalTypeEnum.Music, true},
@@ -142,6 +145,7 @@ namespace ODEliteTracker.Stores
                     currentStation = new Station(location, faction, system);
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
+                    shipTargets.Clear();
                     CurrentSystemAddress = fsdJump.SystemAddress;
                     CurrentSystemName = fsdJump.StarSystem;
                     CheckForCZ(fsdJump.Timestamp);
@@ -241,30 +245,21 @@ namespace ODEliteTracker.Stores
                     evtMissions.AddRange(missionsEvt.Complete);
                     evtMissions.AddRange(missionsEvt.Failed);
 
-                    if (evtMissions.Count == 0)
-                        break;
-                    var missionsToRemove = new List<BGSMission>();
-
-                    foreach (var m in missions)
-                    {
-                        if (m.CurrentState > MissionState.Redirected || m.Odyssey != odyssey)
-                            continue;
-
-                        var mis = evtMissions.FirstOrDefault(x => x.MissionID == m.MissionID);
-
-                        if (mis is null)
-                        {
-                            missionsToRemove.Add(m);
-                        }
-                    }
+                    var missionsToRemove = missions.Where(x => x.CurrentState <= MissionState.Redirected).ToList();
 
                     if (missionsToRemove.Count == 0)
                         break;
 
-                    foreach (var ms in missionsToRemove)
+                    foreach (var m in missionsToRemove)
                     {
-                        missions.Remove(ms);
+                        var mis = evtMissions.Count == 0 ? null : evtMissions.FirstOrDefault(x => x.MissionID == m.MissionID);
+
+                        if(mis == null)
+                        {
+                            missions.Remove(m);
+                        }
                     }
+
                     if (IsLive)
                         MissionsUpdatedEvent?.Invoke(this, EventArgs.Empty);
                     break;
@@ -343,7 +338,8 @@ namespace ODEliteTracker.Stores
                     if (currentSystem == null || commitCrime.CrimeType.Contains("murder") == false)
                         return;
 
-                    if (sharedData.Factions.TryGetValue(commitCrime.Faction, out var value))
+                    var victimFaction = GetVictimFaction(commitCrime);
+                    if (sharedData.Factions.TryGetValue(victimFaction, out var value))
                     {
                         var crime = new SystemCrime(commitCrime, value);
 
@@ -385,11 +381,18 @@ namespace ODEliteTracker.Stores
                     break;
                 case SupercruiseDestinationDropEvent.SupercruiseDestinationDropEventArgs scDestDrop:
                     currentSuperCruiseDestination = scDestDrop.Type;
+                    shipTargets.Clear();
                     czManager.OnDestinationDrop(scDestDrop.Type);
                     break;
                 case SupercruiseEntryEvent.SupercruiseEntryEventArgs scEntry:
                     currentSuperCruiseDestination = null;
+                    shipTargets.Clear();
                     CheckForCZ(scEntry.Timestamp);
+                    break;
+                case ShipTargetedEvent.ShipTargetedEventArgs shipTargetedData:
+                    if (string.IsNullOrEmpty(shipTargetedData.Faction))
+                        break;
+                    shipTargets.TryAdd(shipTargetedData.PilotName_Localised ?? shipTargetedData.PilotName, shipTargetedData.Faction);
                     break;
                 case MusicEvent.MusicEventArgs music:
                     if (string.Equals(music.MusicTrack, "MainMenu") == false)
@@ -431,6 +434,23 @@ namespace ODEliteTracker.Stores
 
             }
         }
+
+        private string GetVictimFaction(CommitCrimeEvent.CommitCrimeEventArgs e)
+        {
+            if(string.Equals(e.CrimeType, "onFoot_murder"))
+            {
+                return e.Faction;
+            }
+
+            if (shipTargets.TryGetValue(e.Victim, out var value))
+            {
+                return value;
+            }
+
+            //Commander didn't get a level 3 scan so we don't know the faction
+            return string.Empty;
+        }
+
 
         private void CheckForCZ(DateTime timestamp)
         {
@@ -507,7 +527,7 @@ namespace ODEliteTracker.Stores
         {
             if (IsLive)
             {
-                //TODO fire event
+                CurrentStationUpdated?.Invoke(this, currentStation);
             }
         }
 
@@ -523,6 +543,8 @@ namespace ODEliteTracker.Stores
             missions.Clear();
             systems.Clear();
             IsLive = false;
+            megaShipScans.Clear();
+            shipTargets.Clear();
         }
         public override void Dispose()
         {

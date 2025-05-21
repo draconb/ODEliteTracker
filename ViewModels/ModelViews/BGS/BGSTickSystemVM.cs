@@ -1,5 +1,4 @@
-﻿using EliteJournalReader;
-using ODEliteTracker.Models.BGS;
+﻿using ODEliteTracker.Models.BGS;
 using ODEliteTracker.Models.Galaxy;
 using ODMVVM.ViewModels;
 

@@ -1,5 +1,4 @@
 ﻿using EliteJournalReader;
-using Microsoft.VisualBasic;
 using ODEliteTracker.Models.PowerPlay;
 using ODMVVM.Helpers;
 using ODMVVM.ViewModels;

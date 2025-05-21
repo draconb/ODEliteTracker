@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
-using ODEliteTracker.Database;
+﻿using ODEliteTracker.Database;
 using ODEliteTracker.Database.DTOs;
 using ODEliteTracker.Services;
 using ODJournalDatabase.Database.Interfaces;
-using ODMVVM.Helpers.IO;
 
 namespace ODEliteTracker.Stores
 {

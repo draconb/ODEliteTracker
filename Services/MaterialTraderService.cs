@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
 using ODEliteTracker.Models.Galaxy;
-using System;
 using System.IO;
 using System.Reflection;
-using System.Windows.Media;
 
 namespace ODEliteTracker.Services
 {

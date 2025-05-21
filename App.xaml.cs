@@ -1,18 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
-using ODCapi.Services;
 using ODEliteTracker.Extensions;
-using ODEliteTracker.Services;
 using ODEliteTracker.Stores;
-using ODEliteTracker.ViewModels.PopOuts;
 using ODEliteTracker.Views;
-using ODMVVM.Navigation;
-using ODMVVM.Navigation.Controls;
-using ODMVVM.ViewModels;
 using System.IO;
-using System.Net.Http.Headers;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -23,10 +15,10 @@ namespace ODEliteTracker
     /// </summary>
     public partial class App
     {
-        public static Version AppVersion { get; internal set; } = new Version(1, 3, 0);
+        public static Version AppVersion { get; internal set; } = new Version(1, 3, 1);
 
 #if INSTALL || DEBUG
-        public readonly static string BaseDirectory = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ODEliteTracker");
+        public readonly static string BaseDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ODEliteTracker");
 #else
         public readonly static string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 #endif

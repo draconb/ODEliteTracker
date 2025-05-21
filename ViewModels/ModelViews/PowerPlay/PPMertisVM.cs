@@ -1,6 +1,4 @@
-﻿using System.Security.Policy;
-
-namespace ODEliteTracker.ViewModels.ModelViews.PowerPlay
+﻿namespace ODEliteTracker.ViewModels.ModelViews.PowerPlay
 {
     public sealed class PPMeritsVM
     {
