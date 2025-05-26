@@ -273,6 +273,7 @@ namespace ODEliteTracker.ViewModels
 
         internal void OnClose()
         {
+            journalManager.Shutdown();
             popOutService.CloseViews(settings.SelectedCommanderID);
             notificationService.Dispose();
         }

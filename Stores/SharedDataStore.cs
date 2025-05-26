@@ -37,7 +37,7 @@ namespace ODEliteTracker.Stores
         private readonly NotificationService notificationService;
         private readonly SettingsStore settings;
         private readonly Dictionary<string, FactionData> factions = [];
-        private readonly Dictionary<string, DateTime> previousShipTargets = [];
+        private readonly Dictionary<long, StarSystem> Systems = [];
         private string? commanderPower;
         private readonly BountiesManager bountiesManager;
         private readonly MaterialTraderService materialTraderService;
@@ -65,10 +65,13 @@ namespace ODEliteTracker.Stores
                 { JournalTypeEnum.Bounty, true },
                 { JournalTypeEnum.RedeemVoucher, true},
                 { JournalTypeEnum.MarketBuy, true},
+                { JournalTypeEnum.Scan, true},
+                { JournalTypeEnum.SupercruiseEntry, true},
             };
         }
         public Dictionary<string, FactionData> Factions => factions;
         public StarSystem? CurrentSystem { get; private set; }
+        public SystemBody? CurrentBody { get; private set; }
         public StationMarket? CurrentMarket { get; private set; }
         public string? CurrentBody_Station { get; private set; }
         public ulong CurrentMarketID { get; private set; } = 0;
@@ -141,6 +144,13 @@ namespace ODEliteTracker.Stores
                     UpdateCurrentBody_Station(bodyStation);
                     AddFactions(location.Factions);
 
+                    if (location.BodyType == BodyType.Planet && CurrentSystem != null)
+                    {
+                        var body = new SystemBody(location, CurrentSystem);
+
+                        CurrentSystem.AddBody(body);
+                    }
+
                     if (location.Population == 0 || location.SystemFaction is null || location.Factions is null || location.Factions.Count == 0)
                     {
                         SystemNotification(location.StarSystem,
@@ -162,6 +172,7 @@ namespace ODEliteTracker.Stores
                         ]);
                     break;
                 case FSDJumpEvent.FSDJumpEventArgs fsdJump:
+                    CurrentBody = null;
                     UpdateCurrentSystem(new(fsdJump));
                     UpdateCurrentBody_Station(null);
                     AddFactions(fsdJump.Factions);
@@ -244,6 +255,10 @@ namespace ODEliteTracker.Stores
                     UpdateCurrentBody_Station(null);
                     break;
                 case ApproachBodyEvent.ApproachBodyEventArgs approachBody:
+                    CurrentBody = CurrentSystem?.Bodies.FirstOrDefault(x => x.Key == approachBody.BodyID).Value;
+
+                    if (CurrentBody != null)
+                        CurrentBody.Landable = true;
                     UpdateCurrentBody_Station(approachBody.Body);
                     break;
                 case EliteJournalReader.Events.MarketEvent.MarketEventArgs:
@@ -285,14 +300,10 @@ namespace ODEliteTracker.Stores
 
                     var pilotName = shipTargeted.PilotName_Localised ?? shipTargeted.PilotName;
 
-                    if (string.IsNullOrEmpty(pilotName) || string.Equals(pilotName, previousShipTargets))
+                    if (string.IsNullOrEmpty(pilotName))
                     {
                         return;
                     }
-
-                    //Updated to a system managed by the notification store
-                    //if (CanNotifyOfTarget(pilotName) == false)
-                    //    break;
 
                     if (string.IsNullOrEmpty(shipTargeted.Power) && shipTargeted.Bounty <= 0)
                     {
@@ -375,36 +386,15 @@ namespace ODEliteTracker.Stores
                     if (IsLive)
                         PurchasesUpdated?.Invoke(this, purchase);
                     break;
+                case ScanEvent.ScanEventArgs scan:
+                    if (CurrentSystem is null)
+                        break;
+                    CurrentSystem.AddBody(scan);
+                    break;
+                case SupercruiseEntryEvent.SupercruiseEntryEventArgs:
+                    CurrentBody = null;
+                    break;
             }
-        }
-
-        private bool CanNotifyOfTarget(string pilotName)
-        {
-            var notificationTime = TimeSpan.FromSeconds(settings.NotificationSettings.DisplayTime + 1);
-            var utcNow = DateTime.UtcNow;
-
-            //Remove old targets so the dictionary doesn't grow massive
-            var oldTargets = previousShipTargets.Where(x => utcNow - x.Value > notificationTime);
-            if (oldTargets.Any())
-            {
-                foreach (var target in oldTargets)
-                {
-                    previousShipTargets.Remove(target.Key);
-                }
-            }
-            //Check if we know about this one and if it's been long enough since the last scan
-            if (previousShipTargets.ContainsKey(pilotName))
-            {
-                if (utcNow - previousShipTargets[pilotName] < notificationTime)
-                {
-                    return false;
-                }
-                previousShipTargets[pilotName] = utcNow;
-                return true;
-            }
-
-            previousShipTargets.TryAdd(pilotName, utcNow);
-            return true;
         }
 
         private void SystemNotification(string name, string[] fields)
@@ -424,7 +414,7 @@ namespace ODEliteTracker.Stores
                 return;
             }
 
-            CurrentSystem = starSystem;
+            CurrentSystem = AddSystem(starSystem);
 
             if (IsLive == false)
             {
@@ -433,6 +423,18 @@ namespace ODEliteTracker.Stores
             }
 
             CurrentSystemChanged?.Invoke(this, CurrentSystem);
+        }
+
+        private StarSystem AddSystem(StarSystem starSystem)
+        {
+            if (Systems.TryGetValue(starSystem.Address, out var system))
+            {
+                system.UpdateSystem(starSystem);
+                return system;
+            }
+
+            Systems.TryAdd(starSystem.Address, starSystem);
+            return starSystem;
         }
 
         private void UpdateCurrentBody_Station(string? text)

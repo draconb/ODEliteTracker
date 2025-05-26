@@ -1,0 +1,261 @@
+﻿<UserControl x:Class="ODEliteTracker.Views.PopOuts.CompassPopOutView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ODEliteTracker.Views.PopOuts"
+             xmlns:odcompass="clr-namespace:ODCompass;assembly=ODCompass"
+             xmlns:popouts="clr-namespace:ODEliteTracker.ViewModels.PopOuts"
+             xmlns:controls="clr-namespace:ODMVVM.Controls;assembly=ODMVVM"
+             d:DataContext="{d:DesignInstance popouts:CompassPopOutViewModel}"
+             mc:Ignorable="d"
+             d:DesignHeight="300"
+             d:DesignWidth="900">
+    <Border CornerRadius="5"
+            Grid.Row="2"
+            Padding="5">
+        <Border.Background>
+            <SolidColorBrush Color="{DynamicResource Overlay_CardBackGrounColour}"
+                             Opacity="{Binding Opacity, Mode=OneWay}" />
+        </Border.Background>
+        <Grid Height="Auto">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="220" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <odcompass:ODCompass  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  Grid.Row="0"
+                                  Margin="10"
+                                  FontFamily="{StaticResource Eurostile}"
+                                  Height="200"
+                                  FontSize="22"
+                                  Visibility="{Binding CompassSettings.CompassVis, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                  Heading="{Binding Heading}"
+                                  TargetHeading="{Binding TargetHeading}"
+                                  TargetText="{Binding TargetText}"
+                                  CompassMovementSpeed="{Binding CompassSettings.CurrentSpeed}"
+                                  ForegroundBrush="{DynamicResource Overlay_ForegroundBrush}" />
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Target"
+                           Grid.Column="0"
+                           Grid.Row="1"
+                           Visibility="{Binding TargetInfoVis}"
+                           VerticalAlignment="Center"
+                           Margin="5,0" />
+
+                <TextBlock Text="Latitude"
+                           FontSize="14"
+                           Visibility="{Binding TargetInfoVis}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Grid.Column="1"
+                           Grid.Row="0" />
+                <controls:NumberInputBox Width="100"
+                                         Margin="5,0"
+                                         Grid.Column="1"
+                                         Grid.Row="1"
+                                         Visibility="{Binding TargetInfoVis}"
+                                         InputText="{Binding TargetLat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         VerticalContentAlignment="Center"
+                                         TextBlock.TextAlignment="Right" />
+
+                <TextBlock Text="Longitude"
+                           FontSize="14"
+                           Visibility="{Binding TargetInfoVis}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Grid.Column="2"
+                           Grid.Row="0" />
+                <controls:NumberInputBox Width="100"
+                                         Margin="5,0"
+                                         Grid.Column="2"
+                                         Grid.Row="1"
+                                         Visibility="{Binding TargetInfoVis}"
+                                         InputText="{Binding TargetLon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         VerticalContentAlignment="Center"
+                                         TextBlock.TextAlignment="Right" />
+
+                <Button Style="{DynamicResource EliteStyleButton}"
+                        Content="&#xE711;"
+                        Grid.Row="1"
+                        Grid.Column="3"
+                        FontSize="22"
+                        FontWeight="Bold"
+                        Command="{Binding ClearTargetCommand}"
+                        FontFamily="Segoe MDL2 Assets"
+                        Margin="5"
+                        Height="30"
+                        Width="30"
+                        Visibility="{Binding TitleBarVisibility}"
+                        VerticalAlignment="Center">
+                    <Button.ToolTip>
+                        <TextBlock Text="Clear Target"
+                                   FontFamily="{StaticResource Eurostile}" />
+                    </Button.ToolTip>
+                </Button>
+
+                <Button Style="{DynamicResource EliteStyleImageButton}"
+                        Grid.Row="1"
+                        Grid.Column="4"
+                        Command="{Binding OpenBookmarksCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                        Margin="5"
+                        Height="30"
+                        Width="30"
+                        ToolTip="Bookmarks"
+                        Visibility="{Binding TitleBarVisibility}"
+                        VerticalAlignment="Center">
+                    <Image Source="/Assets/Icons/bookmark.png" />
+                </Button>
+
+                <ToggleButton Style="{DynamicResource EliteSytleImageToggleBtn}"
+                              Grid.Row="1"
+                              Grid.Column="5"
+                              x:Name="SettingsBtn"
+                              Margin="5"
+                              Height="30"
+                              Width="30"
+                              ToolTip="Settings"
+                              Visibility="{Binding TitleBarVisibility}"
+                              VerticalAlignment="Center">
+                    <Image Source="/Assets/Icons/settings.png"
+                           Margin="2" />
+                </ToggleButton>
+
+                <Popup IsOpen="{Binding IsChecked, ElementName=SettingsBtn}"
+                       PlacementTarget="{Binding ElementName=SettingsBtn}"
+                       Closed="Popup_Closed"
+                       HorizontalOffset="-160"
+                       Width="380"
+                       VerticalOffset="-10"
+                       Placement="Top"
+                       StaysOpen="False">
+                    <Border Background="{DynamicResource ViewBackground}"
+                            BorderBrush="{DynamicResource Overlay_BorderBrush}"
+                            Padding="5"
+                            CornerRadius="5"
+                            BorderThickness="1.5">
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Settings"
+                                       FontSize="16"
+                                       Foreground="{DynamicResource Header}"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+
+                            <WrapPanel Grid.Row="1"
+                                       HorizontalAlignment="Center"
+                                       TextBlock.FontSize="14">
+                                <CheckBox Content="Hide When No Lat/long"
+                                          Margin="5"
+                                          Width="170"
+                                          IsChecked="{Binding CompassSettings.HideWhenNoLatLon, Mode=TwoWay}"
+                                          Style="{DynamicResource EliteStyleCheckBox}" />
+                                <CheckBox Content="Hide Target Info"
+                                          Margin="5"
+                                          Width="170"
+                                          IsChecked="{Binding CompassSettings.HideTargetInfo, Mode=TwoWay}"
+                                          Style="{DynamicResource EliteStyleCheckBox}" />
+                                <CheckBox Content="Hide When On Foot"
+                                          Margin="5"
+                                          Width="170"
+                                          IsChecked="{Binding CompassSettings.HideOnFoot, Mode=TwoWay}"
+                                          Style="{DynamicResource EliteStyleCheckBox}" />
+                                <CheckBox Content="Hide When In SRV"
+                                          Margin="5"
+                                          Width="170"
+                                          IsChecked="{Binding CompassSettings.HideInSrv, Mode=TwoWay}"
+                                          Style="{DynamicResource EliteStyleCheckBox}" />
+                                <StackPanel Width="340"
+                                            HorizontalAlignment="Center">
+                                    <TextBlock Text="Compass Speed In Ship"
+                                               Margin="5"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource Header}" />
+                                    <Slider Minimum="0.01"
+                                            Maximum="0.1"
+                                            SmallChange="0.01"
+                                            LargeChange="0.01"
+                                            Margin="5"
+                                            Value="{Binding CompassSettings.SpeedInShip}" />
+                                    <TextBlock Text="Compass Speed On Foot/SRV"
+                                               Margin="5"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource Header}" />
+                                    <Slider Minimum="0.01"
+                                            Maximum="0.1"
+                                            SmallChange="0.01"
+                                            LargeChange="0.01"
+                                            Margin="5"
+                                            Value="{Binding CompassSettings.SpeedOnFoot}" />
+                                </StackPanel>
+                            </WrapPanel>
+                        </Grid>
+                    </Border>
+                </Popup>
+
+                <ComboBox ItemsSource="{Binding CurrentSystemBookmarks, UpdateSourceTrigger=PropertyChanged}"
+                          SelectedItem="{Binding SelectedBookmark, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          Visibility="{Binding TitleBarVisibility}"
+                          Style="{DynamicResource TopPlacementComboBox}"
+                          Tag="Up"
+                          HorizontalAlignment="Left"
+                          Width="380"
+                          Grid.Column="6"
+                          Grid.RowSpan="2"
+                          Margin="2">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding BookmarkName}"
+                                           Foreground="{DynamicResource Header}"
+                                           FontSize="20"/>
+                                <TextBlock Text="{Binding BodyName}"
+                                           Grid.Row="1"/>
+
+                                <TextBlock Text="{Binding LatString}"
+                                           TextAlignment="Right"
+                                           Grid.Row="0"
+                                           Grid.Column="1" />
+                                <TextBlock Text="{Binding LonString}"
+                                           Grid.Row="1"
+                                           TextAlignment="Right"
+                                           Grid.Column="1" />
+                            </Grid>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+
+        </Grid>
+    </Border>
+</UserControl>

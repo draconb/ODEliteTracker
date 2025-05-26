@@ -335,7 +335,7 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-
+    
     <Style TargetType="{x:Type DataGridCell}"
            x:Key="NoSelectCellNoMargin">
         <Setter Property="BorderThickness"

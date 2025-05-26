@@ -3,9 +3,13 @@ using EliteJournalReader;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ODEliteTracker.Database.DTOs;
+using ODEliteTracker.Models.Bookmarks;
+using ODEliteTracker.Models.Galaxy;
+using ODEliteTracker.ViewModels.ModelViews.Bookmarks;
 using ODJournalDatabase.Database.DTOs;
 using ODJournalDatabase.Database.Interfaces;
 using ODJournalDatabase.JournalManagement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace ODEliteTracker.Database
 {
@@ -446,6 +450,113 @@ namespace ODEliteTracker.Database
 
             known.BeforeDate = beforeDate;
             context.SaveChanges();
+        }
+        #endregion
+
+        #region Compass Bookmarks
+        public async Task<int> AddBookmark(SystemBookmarkVM system, BookmarkVM bookmark)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var known = context.SystemBookmarks.Include(x => x.Bookmarks).FirstOrDefault(x => x.Address == system.Address);
+
+            var newBookmark = new BookMarkDTO()
+            {
+                BodyId = bookmark.BodyId,
+                BodyName = bookmark.BodyName,
+                BodyNameLocal = bookmark.BodyNameLocal,
+                BookmarkName = bookmark.BookmarkName,
+                Description = bookmark.Description,
+                Latitude = bookmark.Latitude,
+                Longitude = bookmark.Longitude,
+            };
+
+            if (known == null)
+            {
+               
+                context.SystemBookmarks.Add(new SystemBookmarkDTO()
+                {
+                    Address = system.Address,
+                    Name = system.Name,
+                    Notes = system.Notes,
+                    X = system.X,
+                    Y = system.Y,
+                    Z = system.Z,
+                    Bookmarks = [newBookmark]
+                });
+                await context.SaveChangesAsync(true);
+
+                return newBookmark.Id;
+            }
+
+            var knownBookmark = known.Bookmarks.FirstOrDefault(x => x.Id == bookmark.Id);
+
+            if (knownBookmark != null)
+            {
+                knownBookmark.BodyId = bookmark.BodyId;
+                knownBookmark.BodyName = bookmark.BodyName;
+                knownBookmark.BodyNameLocal = bookmark.BodyNameLocal;
+                knownBookmark.BookmarkName = bookmark.BookmarkName;
+                knownBookmark.Description = bookmark.Description;
+                knownBookmark.Latitude = bookmark.Latitude;
+                knownBookmark.Longitude = bookmark.Longitude;
+
+                await context.SaveChangesAsync(true);
+
+                return knownBookmark.Id;
+            }
+
+            var newBkmark = new BookMarkDTO() 
+            {
+                BodyId = bookmark.BodyId,
+                BodyName = bookmark.BodyName,
+                BodyNameLocal = bookmark.BodyNameLocal,
+                BookmarkName = bookmark.BookmarkName,
+                Description = bookmark.Description,
+                Latitude = bookmark.Latitude,
+                Longitude = bookmark.Longitude,
+            };
+
+            known.Notes = system.Notes;
+            known.Bookmarks.Add(newBkmark);
+
+            await context.SaveChangesAsync(true);
+            return newBkmark.Id;
+        }
+
+        public async Task<List<SystemBookmark>> GetAllBookmarks()
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var ret = await context.SystemBookmarks
+                .Include(body => body.Bookmarks)
+                .Select(x => new SystemBookmark(x))
+                .ToListAsync();
+
+            return ret;
+        }
+
+        public async Task DeleteBookmark(long systemAddress, int bookmarkId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var known = context.SystemBookmarks.Include(x => x.Bookmarks).FirstOrDefault(x => x.Address == systemAddress);
+
+            if (known == null)
+            {
+                return;
+            }
+
+            var knownBookmark = known.Bookmarks.FirstOrDefault(x => x.Id == bookmarkId);
+
+            if (knownBookmark == null)
+            {
+                return;
+            }
+
+            known.Bookmarks.Remove(knownBookmark);
+
+            await context.SaveChangesAsync(true);
         }
         #endregion
     }

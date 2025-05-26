@@ -31,9 +31,9 @@ namespace ODEliteTracker.ViewModels.PopOuts
 
         private readonly TradeMissionStore missionStore;
 
-        public override string Title => "Trade Overlay";
+        public override string Name => "Trade Overlay";
         public override bool IsLive => missionStore.IsLive;
-
+        public override Uri TitleBarIcon => new("/Assets/Icons/trade.png", UriKind.Relative);
         private List<TradeMissionVM> Missions { get; } = [];
 
         public CommodityTradeStackVM? CommodityTradeStack { get; private set; }

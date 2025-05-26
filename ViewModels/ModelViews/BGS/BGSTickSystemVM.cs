@@ -142,20 +142,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.BGS
         public string? ControllingFactionState => Factions.FirstOrDefault(x => string.Equals(x.Name, ControllingFaction))?.FactionState;
         public string SystemAllegiance => system.SystemAllegiance;
         public List<FactionVM> Factions { get; }
-        public List<SystemConflictVM> Conflicts { get; } = [];      
-
-
-        private bool isSelected;
-        public bool IsSelected
-        {
-            get => isSelected;
-            set
-            {
-                isSelected = value;
-                OnPropertyChanged(nameof(IsSelected));
-            }
-        }
-
+        public List<SystemConflictVM> Conflicts { get; } = [];    
         public bool HasData => Factions.Any(x => x.HasData());
     }
 }

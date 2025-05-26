@@ -32,6 +32,7 @@ namespace ODEliteTracker.Services
         private readonly CAPIService capiService;
         private readonly List<IProcessJournalLogs> journalLogParserList = [];
         private DateTime lastCAPICall = DateTime.MinValue;
+        private readonly List<IWatchStatus> statusWatchers = [];
         private bool ManagerLive { get; set; }
 
         public bool CanCallCAPI => capiService.CurrentState == ODCapi.Services.State.Authorised && DateTime.UtcNow - lastCAPICall > TimeSpan.FromMinutes(10);
@@ -55,6 +56,12 @@ namespace ODEliteTracker.Services
         public bool CAPIIsLive => capiService.IsLive;
 
         public event EventHandler? CommandersUpdated;
+
+        public event EventHandler<StatusFileEvent>? OnStatusFileUpdate
+        {
+            add { eventParser.StatusUpdated += value; }
+            remove { eventParser.StatusUpdated -= value; }
+        }
 
         public event EventHandler<bool>? CAPILive
         {
@@ -83,12 +90,15 @@ namespace ODEliteTracker.Services
                 if (settingsStore.SelectedCommanderID <= 0)
                 {
                     Commanders = await oDDatabase.GetAllJournalCommanders();
-                    SelectedCommander = Commanders.FirstOrDefault();
+                    SelectedCommander = Commanders.FirstOrDefault(x => x.Id == eventParser.JournalCMDR?.Id);
 
                     if(SelectedCommander == null)
                     {
-                        return;
+                        SelectedCommander = Commanders.FirstOrDefault();
                     }
+
+                    if (SelectedCommander == null)
+                        return;
 
                     settingsStore.SelectedCommanderID = SelectedCommander.Id;
                 }
@@ -183,6 +193,7 @@ namespace ODEliteTracker.Services
             }
             CommandersUpdated?.Invoke(this, EventArgs.Empty);
         }
+
         public async Task ResetDatabase()
         {
             ManagerLive = false;
@@ -190,6 +201,28 @@ namespace ODEliteTracker.Services
             Commanders.Clear();
             CommandersUpdated?.Invoke(this, EventArgs.Empty);
             await Task.Factory.StartNew(oDDatabase.ResetDatabaseAsync);
+        }
+
+        public bool StartStatusWatcher(IWatchStatus watcher)
+        {
+            if (selectedCommander == null)
+                return false;
+
+            if(statusWatchers.Contains(watcher) == false)
+                statusWatchers.Add(watcher);
+            return eventParser.StartStatusWatcher();
+        }
+
+        public void StopStatusWatcher(IWatchStatus watcher)
+        {
+            statusWatchers.Remove(watcher);
+            if (statusWatchers.Count == 0)
+                eventParser.StopWatcher();
+        }
+
+        public void Shutdown()
+        {
+            eventParser.StopWatcher();
         }
         #endregion
 

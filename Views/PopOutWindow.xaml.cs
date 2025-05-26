@@ -62,6 +62,11 @@ namespace ODEliteTracker.Views
                 return;
             Application.Current.Dispatcher.Invoke(() =>
             {
+                if(viewModel.PauseWindowListener)
+                {
+                    viewModel.OnMouseEnter_Leave(true);
+                    return;
+                }
                 //Get the mouse position
                 var mousePos = System.Windows.Forms.Control.MousePosition;
                 //Check if the mouse is within the window
@@ -134,22 +139,6 @@ namespace ODEliteTracker.Views
             double toolTipWidth = ToolBarPopUp.Width;
             ToolBarPopUp.HorizontalOffset = ToolBarPopUp.HorizontalOffset + 1;
             ToolBarPopUp.HorizontalOffset = (placementTargetWidth / 2.0) - (toolTipWidth / 2.0);
-        }
-
-        private void PopOut_MouseEnter(object sender, MouseEventArgs e)
-        {
-            //checkForMouseTimer.Stop();
-
-            //viewModel.OnMouseEnter_Leave(false);
-        }
-
-        private void PopOut_MouseLeave(object sender, MouseEventArgs e)
-        {
-            //if (IsActive == false)
-            //{
-            //    return;
-            //}
-            //checkForMouseTimer.Start();   
         }
     }
 }

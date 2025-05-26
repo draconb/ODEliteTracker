@@ -25,6 +25,9 @@ namespace ODEliteTracker.Notifications
                 case NotificationOptions.CopyToClipboard:
                     ImageSource = "/Assets/Icons/Clipboard.png";
                     break;
+                case NotificationOptions.FleetCarrierReady:
+                    ImageSource = "/Assets/Icons/fleetcarrier.png";
+                    break;
             }            
 
             var thinBorder = 2;

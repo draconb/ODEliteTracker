@@ -54,7 +54,7 @@ namespace ODEliteTracker.ViewModels
             if (this.dataStore.IsLive)
                 OnStoreLive(null, true);
 
-            if(this.sharedDataStore.IsLive)
+            if (this.sharedDataStore.IsLive)
                 OnSharedDataLive(null, true);
         }
 
@@ -109,26 +109,19 @@ namespace ODEliteTracker.ViewModels
                 OnPropertyChanged(nameof(SelectedTab));
             }
         }
+
         private BGSTickSystemVM? selectedSystem;
         public BGSTickSystemVM? SelectedSystem
         {
             get => selectedSystem;
             set
             {
-                if (selectedSystem != null)
-                {
-                    selectedSystem.IsSelected = false;
-                }
                 selectedSystem = value;
-                if (selectedSystem != null)
-                {
-                    selectedSystem.IsSelected = true;
-                }
                 OnPropertyChanged(nameof(SelectedSystem));
             }
         }
-        private ObservableCollection<BGSTickSystemVM> systems { get; set; } = [];
 
+        private ObservableCollection<BGSTickSystemVM> systems { get; set; } = [];
         public IEnumerable<BGSTickSystemVM> Systems
         {
             get
@@ -138,6 +131,7 @@ namespace ODEliteTracker.ViewModels
                 return systems;
             }
         }
+
         public IEnumerable<MegaShipScanVM> MegaShipScans { get; private set; } = [];
 
         public ObservableCollection<TickDataVM> Ticks { get; set; } = [];
@@ -213,7 +207,7 @@ namespace ODEliteTracker.ViewModels
                 return;
             }
 
-            if(Helpers.DiscordPostCreator.CreateBGSPost(systems, selectedTick))
+            if (Helpers.DiscordPostCreator.CreateBGSPost(systems, selectedTick))
             {
                 DiscordButtonText = "Post Created";
                 notification.ShowBasicNotification(new("Clipboard", ["BGS Activity Post", "Copied To Clipboard"], Models.Settings.NotificationOptions.CopyToClipboard));
@@ -422,7 +416,7 @@ namespace ODEliteTracker.ViewModels
 
         private void OnSharedDataLive(object? sender, bool e)
         {
-            if(e)
+            if (e)
             {
                 OnCurrentSystemChanged(sender, sharedDataStore.CurrentSystem);
             }

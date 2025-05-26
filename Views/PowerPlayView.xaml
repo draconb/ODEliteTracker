@@ -44,7 +44,7 @@
                         <RowDefinition Height="130" />
                     </Grid.RowDefinitions>
 
-                    <TextBox Text="Pledge"
+                    <TextBlock Text="Pledge"
                              Grid.Row="0"
                              FontSize="20"
                              Foreground="{DynamicResource Header}"
@@ -123,7 +123,7 @@
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Center"
                                    Text="{Binding MeritsEarnThisCycle}" />
-                        
+
                         <TextBlock Grid.Column="0"
                                    Grid.Row="4"
                                    VerticalAlignment="Center"
@@ -157,59 +157,47 @@
                                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
                                  HorizontalAlignment="Stretch"
                                  HorizontalContentAlignment="Stretch"
+                                 ItemContainerStyle="{DynamicResource SelectedContainerStyle}"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Foreground="{DynamicResource PrimaryForeground}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="5" />
-                                            <ColumnDefinition />
-                                        </Grid.ColumnDefinitions>
+                                    <Button FontSize="20"
+                                            Tag="1"
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
+                                            CommandParameter="{Binding }"
+                                            Style="{DynamicResource EliteStyleButton}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="40" />
+                                            </Grid.ColumnDefinitions>
 
-                                        <Rectangle x:Name="Highlighter"
-                                                   Margin="0,2"
-                                                   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                                   Fill="{DynamicResource NavBtnForeground}" />
-
-                                        <Button FontSize="20"
-                                                Margin="5,0"
-                                                Tag="1"
-                                                Grid.Column="1"
-                                                HorizontalAlignment="Stretch"
-                                                HorizontalContentAlignment="Stretch"
-                                                Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
-                                                CommandParameter="{Binding }"
-                                                Style="{DynamicResource EliteStyleButton}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="40" />
-                                                </Grid.ColumnDefinitions>
-
-                                                <TextBlock Text="{Binding Name}"
-                                                           HorizontalAlignment="Left"
-                                                           VerticalAlignment="Center"
-                                                           TextWrapping="NoWrap"
-                                                           Grid.RowSpan="2"
-                                                           FontWeight="SemiBold"
-                                                           Margin="5,3" />
-                                                <Rectangle Style="{DynamicResource PowerPlayIcon}"
-                                                           Grid.Column="1">
-                                                    <Rectangle.OpacityMask>
-                                                        <VisualBrush Stretch="Uniform">
-                                                            <VisualBrush.Visual>
-                                                                <Viewbox Stretch="Uniform">
-                                                                    <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}" />
-                                                                </Viewbox>
-                                                            </VisualBrush.Visual>
-                                                        </VisualBrush>
-                                                    </Rectangle.OpacityMask>
-                                                </Rectangle>
-                                            </Grid>
-                                        </Button>
-                                    </Grid>
+                                            <TextBlock Text="{Binding Name}"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center"
+                                                       TextWrapping="NoWrap"
+                                                       Grid.RowSpan="2"
+                                                       FontWeight="SemiBold"
+                                                       Margin="5,3" />
+                                            <Rectangle Style="{DynamicResource PowerPlayIcon}"
+                                                       Grid.Column="1">
+                                                <Rectangle.OpacityMask>
+                                                    <VisualBrush Stretch="Uniform">
+                                                        <VisualBrush.Visual>
+                                                            <Viewbox Stretch="Uniform">
+                                                                <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}" />
+                                                            </Viewbox>
+                                                        </VisualBrush.Visual>
+                                                    </VisualBrush>
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </Grid>
+                                    </Button>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -225,57 +213,45 @@
                                  HorizontalContentAlignment="Stretch"
                                  Background="Transparent"
                                  Grid.Row="1"
+                                 ItemContainerStyle="{DynamicResource SelectedContainerStyle}"
                                  BorderThickness="0"
                                  Foreground="{DynamicResource PrimaryForeground}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="5" />
-                                            <ColumnDefinition />
-                                        </Grid.ColumnDefinitions>
-
-                                        <Rectangle x:Name="Highlighter"
-                                                   Margin="0,2"
-                                                   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}"
-                                                   Fill="{DynamicResource NavBtnForeground}" />
-
-                                        <Button FontSize="20"
-                                                Margin="5,0"
-                                                Tag="1"
-                                                Grid.Column="1"
-                                                Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
-                                                CommandParameter="{Binding }"
-                                                HorizontalAlignment="Stretch"
-                                                HorizontalContentAlignment="Stretch"
-                                                Style="{DynamicResource EliteStyleButton}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="40" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Name}"
-                                                           HorizontalAlignment="Left"
-                                                           VerticalAlignment="Center"
-                                                           TextWrapping="NoWrap"
-                                                           Grid.RowSpan="2"
-                                                           FontWeight="SemiBold"
-                                                           Margin="5,3" />
-                                                <Rectangle Style="{DynamicResource PowerPlayIcon}"
-                                                           Grid.Column="2">
-                                                    <Rectangle.OpacityMask>
-                                                        <VisualBrush Stretch="Uniform">
-                                                            <VisualBrush.Visual>
-                                                                <Viewbox Stretch="Uniform">
-                                                                    <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}" />
-                                                                </Viewbox>
-                                                            </VisualBrush.Visual>
-                                                        </VisualBrush>
-                                                    </Rectangle.OpacityMask>
-                                                </Rectangle>
-                                            </Grid>
-                                        </Button>
-                                    </Grid>
+                                    <Button FontSize="20"
+                                            Tag="1"
+                                            Grid.Column="1"
+                                            Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
+                                            CommandParameter="{Binding }"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Style="{DynamicResource EliteStyleButton}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="40" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center"
+                                                       TextWrapping="NoWrap"
+                                                       Grid.RowSpan="2"
+                                                       FontWeight="SemiBold"
+                                                       Margin="5,3" />
+                                            <Rectangle Style="{DynamicResource PowerPlayIcon}"
+                                                       Grid.Column="2">
+                                                <Rectangle.OpacityMask>
+                                                    <VisualBrush Stretch="Uniform">
+                                                        <VisualBrush.Visual>
+                                                            <Viewbox Stretch="Uniform">
+                                                                <Image Source="{Binding ControllingPower, Converter={StaticResource PowerToImage}}" />
+                                                            </Viewbox>
+                                                        </VisualBrush.Visual>
+                                                    </VisualBrush>
+                                                </Rectangle.OpacityMask>
+                                            </Rectangle>
+                                        </Grid>
+                                    </Button>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>

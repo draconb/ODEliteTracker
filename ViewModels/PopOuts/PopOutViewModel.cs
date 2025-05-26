@@ -1,4 +1,5 @@
-﻿using ODEliteTracker.Models.Settings;
+﻿using Newtonsoft.Json.Linq;
+using ODEliteTracker.Models.Settings;
 using ODMVVM.Commands;
 using ODMVVM.ViewModels;
 using System.Windows;
@@ -12,20 +13,26 @@ namespace ODEliteTracker.ViewModels.PopOuts
 		{
 			HideToolButtonBar = new ODRelayCommand(OnHideToolBar);
 			ResetUIScaleCommand = new ODRelayCommand(OnResetUIScale, (_) => UiScale != 1);
+			ResetWindowPositionCommand = new ODRelayCommand(OnResetPosition);
+			CloseWindowCommand = new ODRelayCommand(OnCloseWindow);
 
         }
 
-		private bool _isClosing;
+        private bool _isClosing;
 		public event EventHandler<PopOutViewModel>? WindowClosed;
 		public event EventHandler? CloseWindowEvent;
 
         public ODWindowPosition Position { get; set; } = new();
-		public abstract string Title { get; }
+		public abstract string Name { get; }
+		public string Title => Count > 1 ? $"{Name} ({Count:N0})" : Name;
         public abstract bool IsLive { get; }
         public virtual bool IsBusy => !IsLive;
-
+		public bool PauseWindowListener { get; set; }	
+		public abstract Uri TitleBarIcon { get; }
         public ICommand HideToolButtonBar { get; }
         public ICommand ResetUIScaleCommand { get; }
+        public ICommand ResetWindowPositionCommand { get; }
+        public ICommand CloseWindowCommand { get; }
 
         public int Count { get; set; }
 
@@ -162,7 +169,7 @@ namespace ODEliteTracker.ViewModels.PopOuts
 				OnPropertyChanged(nameof(BorderThickness));
 			}
 		}
-		public virtual object? AdditionalSettings { get; set; }
+		public virtual JObject? AdditionalSettings { get; set; }
 
 		public virtual void OnMouseEnter_Leave(bool mouseLeave)
 		{
@@ -204,6 +211,17 @@ namespace ODEliteTracker.ViewModels.PopOuts
             CloseWindowEvent?.Invoke(this, EventArgs.Empty);
         }
 
+        internal virtual void OnResetPosition(object? obj)
+        {
+            ODWindowPosition.ResetWindowPosition(Position, 800, 450);
+        }
+
+        private void OnCloseWindow(object? obj)
+        {
+            CloseWindow();
+            WindowClosed?.Invoke(this, this);
+        }
+
         internal void ApplyParams(PopOutParams popOutParams)
         {
             Count = popOutParams.Count;
@@ -215,8 +233,17 @@ namespace ODEliteTracker.ViewModels.PopOuts
             UiScale = popOutParams.UiScale;
             ClickThrough = popOutParams.ClickThrough;
             Position = popOutParams.Position.Clone();
+			AdditionalSettings = popOutParams.AdditionalSettings;
+			ParamsUpdated();
+        }
+        internal virtual JObject? GetAdditionalSettings()
+        {
+            return AdditionalSettings;
         }
 
+        protected virtual void ParamsUpdated() { }
 		protected virtual void Dispose() { }
+
+
     }
 }

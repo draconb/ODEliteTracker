@@ -53,6 +53,7 @@ namespace ODEliteTracker.Extensions
             services.AddTransient<ColonisationPopOut>();
             services.AddTransient<MassacrePopOutViewModel>();
             services.AddTransient<TradePopoutViewModel>();
+            services.AddTransient<CompassPopOutViewModel>();
         }
 
         public static void AddViewModels(this IServiceCollection services)
@@ -94,10 +95,25 @@ namespace ODEliteTracker.Extensions
             services.AddSingleton<PowerPlayDataStore>();
             services.AddSingleton<TickDataStore>();
             services.AddSingleton<FleetCarrierDataStore>();
+            services.AddSingleton<BookmarkDataStore>();
         }
 
         public static void AddHttpClients(this IServiceCollection services, string appName)
         {
+            services.AddHttpClient<EdsmApiService>((httpClient) =>
+            {
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                httpClient.BaseAddress = new Uri("https://www.edsm.net/");
+            })
+                .ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    return new SocketsHttpHandler
+                    {
+                        PooledConnectionLifetime = TimeSpan.FromSeconds(5),
+                        ConnectTimeout = TimeSpan.FromSeconds(10),
+                    };
+                });
+
             services.AddHttpClient<EliteBGSApiService>((httpClient) =>
             {
                 httpClient.BaseAddress = new Uri("https://elitebgs.app/api/ebgs/v5/");

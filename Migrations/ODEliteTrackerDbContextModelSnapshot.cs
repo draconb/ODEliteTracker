@@ -37,6 +37,45 @@ namespace ODEliteTracker.Migrations
                     b.ToTable("TickData");
                 });
 
+            modelBuilder.Entity("ODEliteTracker.Database.DTOs.BookMarkDTO", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("BodyId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("BodyName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BodyNameLocal")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BookmarkName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("REAL");
+
+                    b.Property<long>("SystemAddress")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SystemAddress");
+
+                    b.ToTable("BookMarkDTO");
+                });
+
             modelBuilder.Entity("ODEliteTracker.Database.DTOs.DepotShoppingListDTO", b =>
                 {
                     b.Property<long>("MarketID")
@@ -83,6 +122,32 @@ namespace ODEliteTracker.Migrations
                     b.HasKey("MarketID", "SystemAddress", "StationName");
 
                     b.ToTable("InactiveDepots");
+                });
+
+            modelBuilder.Entity("ODEliteTracker.Database.DTOs.SystemBookmarkDTO", b =>
+                {
+                    b.Property<long>("Address")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("X")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("Y")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("Z")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("Address");
+
+                    b.ToTable("SystemBookmarks");
                 });
 
             modelBuilder.Entity("ODJournalDatabase.Database.DTOs.JournalCommanderDTO", b =>
@@ -164,6 +229,21 @@ namespace ODEliteTracker.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Settings");
+                });
+
+            modelBuilder.Entity("ODEliteTracker.Database.DTOs.BookMarkDTO", b =>
+                {
+                    b.HasOne("ODEliteTracker.Database.DTOs.SystemBookmarkDTO", null)
+                        .WithMany("Bookmarks")
+                        .HasForeignKey("SystemAddress")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_SystemAddress");
+                });
+
+            modelBuilder.Entity("ODEliteTracker.Database.DTOs.SystemBookmarkDTO", b =>
+                {
+                    b.Navigation("Bookmarks");
                 });
 #pragma warning restore 612, 618
         }

@@ -44,4 +44,7 @@
     <DataTemplate DataType="{x:Type popoutsVMs:TradePopoutViewModel}">
         <popouts:TradePopOutView />
     </DataTemplate>
+    <DataTemplate DataType="{x:Type popoutsVMs:CompassPopOutViewModel}">
+        <popouts:CompassPopOutView />
+    </DataTemplate>
 </ResourceDictionary>

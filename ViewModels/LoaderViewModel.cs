@@ -91,6 +91,7 @@ namespace ODEliteTracker.ViewModels
                 Logger.Error(ex.StackTrace);
                 await Task.Delay(2000);
                 InitialiseComplete?.Invoke(this, false);
+                return;
             }
             catch (Exception ex)
             {
@@ -99,6 +100,7 @@ namespace ODEliteTracker.ViewModels
                 Logger.Error(ex.StackTrace);
                 await Task.Delay(2000);
                 InitialiseComplete?.Invoke(this, false);
+                return;
             }
 
             InitialiseComplete?.Invoke(this, true);

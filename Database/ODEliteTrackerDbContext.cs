@@ -10,5 +10,19 @@ namespace ODEliteTracker.Database
         public DbSet<DepotShoppingListDTO> DepotShoppingList { get; set; }
         public DbSet<BGSTickData> TickData { get; set; }
         public DbSet<IgnoredBounties> IgnoredBounties { get; set; }
+        public DbSet<SystemBookmarkDTO> SystemBookmarks { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Entity<SystemBookmarkDTO>()
+                .HasMany(e => e.Bookmarks)
+                .WithOne()
+                .HasForeignKey(e => e.SystemAddress)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_SystemAddress");
+
+        }
     }
 }

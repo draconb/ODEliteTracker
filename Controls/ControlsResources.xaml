@@ -12,6 +12,8 @@
     </ObjectDataProvider>
     
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/ODCompass;component/ODCompassStyle.xaml" />
+
         <ResourceDictionary Source="/Controls/Navigation/NavigationBtnStyle.xaml" />
         <ResourceDictionary Source="/Controls/Styles/ScrollbarStyle.xaml" />
         <ResourceDictionary Source="/Controls/Styles/DataGridStyles.xaml" />

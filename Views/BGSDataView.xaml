@@ -108,51 +108,39 @@
                              HorizontalContentAlignment="Stretch"
                              Background="Transparent"
                              BorderThickness="0"
+                             ItemContainerStyle="{DynamicResource SelectedContainerStyle}"
                              Foreground="{DynamicResource PrimaryForeground}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="5" />
-                                        <ColumnDefinition />
-                                    </Grid.ColumnDefinitions>
-
-                                    <Rectangle x:Name="Highlighter"
-                                               Margin="0,2"
-                                               Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                               Fill="{DynamicResource NavBtnForeground}" />
-
-                                    <Button FontSize="20"
-                                            Margin="5,0"
-                                            Tag="1"
-                                            Grid.Column="1"
-                                            HorizontalAlignment="Stretch"
-                                            HorizontalContentAlignment="Stretch"
-                                            Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
-                                            CommandParameter="{Binding }"
-                                            Style="{DynamicResource EliteStyleButton}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="40" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Name}"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center"
-                                                       TextWrapping="NoWrap"
-                                                       Grid.RowSpan="2"
-                                                       FontWeight="SemiBold"
-                                                       Margin="5,3" />
-
-                                            <Image Source="{Binding SystemAllegiance, Converter={StaticResource AllegianceToImage}}"
-                                                   Stretch="Uniform"
-                                                   Grid.Column="1"
-                                                   Height="30"
+                                <Button FontSize="20"
+                                        Tag="1"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch"
+                                        Command="{Binding ElementName=Root, Path=DataContext.SetSelectedSystemCommand}"
+                                        CommandParameter="{Binding }"
+                                        Style="{DynamicResource EliteStyleButton}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="40" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Name}"
+                                                   HorizontalAlignment="Left"
                                                    VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center" />
-                                        </Grid>
-                                    </Button>
-                                </Grid>
+                                                   TextWrapping="NoWrap"
+                                                   Grid.RowSpan="2"
+                                                   FontWeight="SemiBold"
+                                                   Margin="5,3" />
+
+                                        <Image Source="{Binding SystemAllegiance, Converter={StaticResource AllegianceToImage}}"
+                                               Stretch="Uniform"
+                                               Grid.Column="1"
+                                               Height="30"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center" />
+                                    </Grid>
+                                </Button>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -463,7 +451,7 @@
                                   AlternatingRowBackground="{DynamicResource RowAlternationColour}"
                                   Style="{StaticResource BaseDataGridStyle}"
                                   RowStyle="{DynamicResource NoSelectRowStyle}"
-                                  CellStyle="{DynamicResource NoSelectCellNoMargin}" >
+                                  CellStyle="{DynamicResource NoSelectCellNoMargin}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Origin"
                                                     MinWidth="95"
@@ -519,7 +507,7 @@
                                       BorderThickness="0"
                                       Style="{StaticResource BaseDataGridStyle}"
                                       RowStyle="{DynamicResource NoSelectRowStyle}"
-                                      CellStyle="{DynamicResource NoSelectCellNoMargin}" >
+                                      CellStyle="{DynamicResource NoSelectCellNoMargin}">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Scan Date"
                                                         MinWidth="120"
@@ -544,7 +532,7 @@
                         <bounties:BountyViewControl />
                     </TabItem>
                     <TabItem Header="Material Traders">
-                        <materialtraders:MaterialTradersControl DataContext="{Binding MaterialTraders}"/>
+                        <materialtraders:MaterialTradersControl DataContext="{Binding MaterialTraders}" />
                     </TabItem>
                 </TabControl>
 

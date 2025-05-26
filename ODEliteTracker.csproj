@@ -15,11 +15,14 @@
     <None Remove="Assets\Icons\assassin-large.png" />
     <None Remove="Assets\Icons\assassin.png" />
     <None Remove="Assets\Icons\bgs.png" />
+    <None Remove="Assets\Icons\bookmark.png" />
     <None Remove="Assets\Icons\ClickThrough.png" />
     <None Remove="Assets\Icons\Clipboard.png" />
     <None Remove="Assets\Icons\ColonisationBtn.png" />
+    <None Remove="Assets\Icons\compass.png" />
     <None Remove="Assets\Icons\Coriolis_sm.png" />
     <None Remove="Assets\Icons\edassets_larger.png" />
+    <None Remove="Assets\Icons\edsmlogo.png" />
     <None Remove="Assets\Icons\GitHub_Logo_White.png" />
     <None Remove="Assets\Icons\inaramenulogo.png" />
     <None Remove="Assets\Icons\Mega-Ship_Icon.png" />
@@ -28,10 +31,12 @@
     <None Remove="Assets\Icons\paypal-donate-button.png" />
     <None Remove="Assets\Icons\PopOutBtn.png" />
     <None Remove="Assets\Icons\powerplay.png" />
+    <None Remove="Assets\Icons\ResetWindow.png" />
     <None Remove="Assets\Icons\settings.png" />
     <None Remove="Assets\Icons\settlement_pm.png" />
     <None Remove="Assets\Icons\ShoppingCart.png" />
     <None Remove="Assets\Icons\ShowInTaskBar.png" />
+    <None Remove="Assets\Icons\spansh.png" />
     <None Remove="Assets\Icons\TopMost.png" />
     <None Remove="Assets\Icons\trade.png" />
     <None Remove="Assets\Icons\Transparency.png" />
@@ -86,6 +91,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ODCapi\ODCapi.csproj" />
+    <ProjectReference Include="..\ODCompass\ODCompass\ODCompass.csproj" />
     <ProjectReference Include="..\ODJournalDatabase\ODJournalDatabase.csproj" />
     <ProjectReference Include="..\ODMvvm\ODMVVM.csproj" />
     <ProjectReference Include="..\ToastNotifications\Src\ToastNotifications\ToastNotifications.csproj" />
@@ -96,11 +102,14 @@
     <Resource Include="Assets\Icons\assassin-large.png" />
     <Resource Include="Assets\Icons\assassin.png" />
     <Resource Include="Assets\Icons\bgs.png" />
+    <Resource Include="Assets\Icons\bookmark.png" />
     <Resource Include="Assets\Icons\ClickThrough.png" />
     <Resource Include="Assets\Icons\Clipboard.png" />
     <Resource Include="Assets\Icons\ColonisationBtn.png" />
+    <Resource Include="Assets\Icons\compass.png" />
     <Resource Include="Assets\Icons\Coriolis_sm.png" />
     <Resource Include="Assets\Icons\edassets_larger.png" />
+    <Resource Include="Assets\Icons\edsmlogo.png" />
     <Resource Include="Assets\Icons\fleetcarrier.png" />
     <Resource Include="Assets\Icons\GitHub_Logo_White.png" />
     <Resource Include="Assets\Icons\inaramenulogo.png" />
@@ -110,10 +119,12 @@
     <Resource Include="Assets\Icons\paypal-donate-button.png" />
     <Resource Include="Assets\Icons\PopOutBtn.png" />
     <Resource Include="Assets\Icons\powerplay.png" />
+    <Resource Include="Assets\Icons\ResetWindow.png" />
     <Resource Include="Assets\Icons\settings.png" />
     <Resource Include="Assets\Icons\settlement_pm.png" />
     <Resource Include="Assets\Icons\ShoppingCart.png" />
     <Resource Include="Assets\Icons\ShowInTaskBar.png" />
+    <Resource Include="Assets\Icons\spansh.png" />
     <Resource Include="Assets\Icons\TopMost.png" />
     <Resource Include="Assets\Icons\trade.png" />
     <Resource Include="Assets\Icons\Transparency.png" />

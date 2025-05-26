@@ -19,9 +19,8 @@
                      Title="{Binding Title}"
                      SizeChanged="PopOut_SizeChanged"
                      ResizeMode="CanResize"
+                     SizeToContent="Height"
                      LocationChanged="PopOut_LocationChanged"
-                     MouseEnter="PopOut_MouseEnter"
-                     MouseLeave="PopOut_MouseLeave"
                      x:Name="PopOut"
                      MinWidth="250"
                      MinHeight="200"
@@ -49,7 +48,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <views:ODTitleBar TitleBarIcon="/Assets/Icons/ColonisationBtn.png"
+            <views:ODTitleBar TitleBarIcon="{Binding DataContext.TitleBarIcon}"
                               ColourImageIcon="True"
                               WindowChrome.IsHitTestVisibleInChrome="True"
                               Visibility="{Binding DataContext.TitleBarVisibility, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
@@ -99,8 +98,7 @@
                         CornerRadius="10"
                         BorderBrush="{DynamicResource Overlay_BorderBrush}"
                         BorderThickness="1"
-                        Background="{DynamicResource Overlay_CardBackground}"
-                        Visibility="{Binding ToolButtonVisibility}">
+                        Background="{DynamicResource Overlay_CardBackground}">
                     <DockPanel>
                         <ToggleButton Style="{DynamicResource NavigationImageToggleBtn}"
                                       IsChecked="{Binding ShowInTaskBar}"

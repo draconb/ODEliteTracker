@@ -11,6 +11,9 @@ namespace ODEliteTracker.Services
         private readonly SettingsStore setting = setting;
         private readonly List<PopOutViewModel> activeViews = [];
 
+        public event EventHandler? PopOutsUpdated;
+        public IEnumerable<PopOutViewModel> ActiveViews => activeViews.OrderBy(x => x.Name).ThenBy(x => x.Count);
+
         public void OpenPopOut(Type type, int commanderID, int count = 0)
         {
             if (type.BaseType != typeof(PopOutViewModel))
@@ -42,12 +45,16 @@ namespace ODEliteTracker.Services
             {
                 var popOutParams = setting.GetParams(newView, count, commanderID);
                 newView.ApplyParams(popOutParams);
+                if (newView.Position.IsZero)
+                    newView.OnResetPosition(null);
                 newView.WindowClosed += OnPopOutWindowClosed;
                 activeViews.Add(newView);
 
                 var view = new PopOutWindow(newView);
 
                 view.Show();
+
+                PopOutsUpdated?.Invoke(this, EventArgs.Empty);
             });
         }
 
@@ -55,6 +62,7 @@ namespace ODEliteTracker.Services
         {
             setting.SaveParams(e, false, setting.SelectedCommanderID);
             activeViews.Remove(e);
+            PopOutsUpdated?.Invoke(this, EventArgs.Empty);
         }
         
         public void OpenSavedViews(int commanderID)

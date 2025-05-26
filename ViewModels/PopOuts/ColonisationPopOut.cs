@@ -64,12 +64,11 @@ namespace ODEliteTracker.ViewModels.PopOuts
         private readonly FleetCarrierDataStore fcDataStore;
         private readonly SettingsStore settings;
 
-        public override object? AdditionalSettings { get; set; } = null;
-
-        public override string Title => Count > 1 ? $"Colonisation Overlay ({Count})" : $"Colonisation Overlay";
+        public override string Name => $"Colonisation Overlay";
 
         public override bool IsLive => colonisationStore.IsLive;
 
+        public override Uri TitleBarIcon => new("/Assets/Icons/ColonisationBtn.png", UriKind.Relative);
         public ObservableCollection<ConstructionDepotVM> Depots { get; } = [];
 
         private ConstructionDepotVM? selectedDepot;

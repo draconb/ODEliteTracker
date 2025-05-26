@@ -221,16 +221,8 @@ namespace ODEliteTracker.ViewModels
             get => selectedDepot;
             set
             {
-                if(selectedDepot == value) 
-                    return;
-                if (selectedDepot != null)
-                    selectedDepot.IsSelected = false;
                 selectedDepot = value;
-                if (selectedDepot != null)
-                {
-                    selectedDepot.IsSelected = true;
-                    selectedDepot.UpdateMostRecentPurchase(sharedData.MarketPurchases);
-                }
+
                 CheckMarket();
                 OnFcStoreLive(null, true);
                 OnPropertyChanged(nameof(SelectedDepot));
@@ -482,7 +474,8 @@ namespace ODEliteTracker.ViewModels
                         continue;
                     var commodity = new StationCommodityVM(item, required != null)
                     {
-                        Required = required?.RemainingCount ?? 0
+                        Required = required?.RemainingCount ?? 0,
+                        CarrierStockValue = required?.CarrierStockValue ?? 0
                     };
 
                     market.ItemsForSale.Add(commodity);
@@ -496,7 +489,8 @@ namespace ODEliteTracker.ViewModels
 
                 var commodity1 = new StationCommodityVM(item, required1 != null)
                 {
-                    Required = required1?.RemainingCount ?? 0
+                    Required = required1?.RemainingCount ?? 0,
+                    CarrierStockValue = required1?.CarrierStockValue ?? 0
                 };
 
                 market.ItemsForSale.Add(commodity1);
@@ -572,6 +566,7 @@ namespace ODEliteTracker.ViewModels
             }
 
             ShoppingList.UpdateCarrierStock(e);
+            CheckMarket();
             OnPropertyChanged(nameof(ShoppingListResources));
             OnPropertyChanged(nameof(SelectedDepotResources));
         }

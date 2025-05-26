@@ -117,11 +117,6 @@ namespace ODEliteTracker.ViewModels
             get => selectedSystem;
             set
             {
-
-                if (selectedSystem != null)
-                    selectedSystem.IsSelected = false;
-                if (value != null)
-                    value.IsSelected = true;
                 selectedSystem = value;
 
                 OnPropertyChanged(nameof(SelectedSystem));

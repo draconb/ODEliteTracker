@@ -1,4 +1,5 @@
-﻿using ODEliteTracker.ViewModels.PopOuts;
+﻿using Newtonsoft.Json.Linq;
+using ODEliteTracker.ViewModels.PopOuts;
 using ODMVVM.ViewModels;
 
 namespace ODEliteTracker.Models.Settings
@@ -22,7 +23,7 @@ namespace ODEliteTracker.Models.Settings
         public bool ShowInTaskBar { get; set; } = true;
         public bool ClickThrough { get; set; }
         public bool Active { get; set; }
-        public object? AdditionalSettings { get; set; }
+        public JObject? AdditionalSettings { get; set; }
         public double UiScale { get; set; } = 1d;
         public double Opacity { get; set; } = 1d;
 
@@ -52,9 +53,9 @@ namespace ODEliteTracker.Models.Settings
             ShowInTaskBar = popOut.ShowInTaskBar;
             ClickThrough = popOut.ClickThrough;
             Active = active;
-            AdditionalSettings = popOut.AdditionalSettings;
             UiScale = popOut.UiScale;
             Opacity = popOut.Opacity;
+            AdditionalSettings = popOut.GetAdditionalSettings();
         }
     }
 }

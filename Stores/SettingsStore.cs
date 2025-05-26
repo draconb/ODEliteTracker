@@ -179,15 +179,11 @@ namespace ODEliteTracker.Stores
 
             if (haveParams != null)
             {
-                if (haveParams.Position.IsZero)
-                    ODWindowPosition.ResetWindowPosition(haveParams.Position, 800, 450);
                 haveParams.Active = true;
                 return haveParams;
             }
 
             haveParams = Models.Settings.PopOutParams.CreateParams(popOut, count + 1, true);
-            if (haveParams.Position.IsZero)
-                ODWindowPosition.ResetWindowPosition(haveParams.Position, 800, 450);
             popOutParams.Add(haveParams);
             PopOutParams.TryAdd(commanderId, popOutParams);
             return haveParams;

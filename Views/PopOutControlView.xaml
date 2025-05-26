@@ -70,116 +70,225 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border Background="{DynamicResource CardBackground}"
-                CornerRadius="5"
-                MinHeight="180"
-                Height="Auto"
-                Grid.ColumnSpan="2"
-                VerticalAlignment="Stretch"
-                Margin="5"
-                Padding="5">
-            <WrapPanel x:Name="Panels"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Top"
-                       Orientation="Horizontal"
-                       Margin="5"
-                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                       ScrollViewer.VerticalScrollBarVisibility="Disabled">
+        <Grid Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border Background="{DynamicResource CardBackground}"
+                    CornerRadius="5"
+                    MinHeight="180"
+                    Height="Auto"
+                    VerticalAlignment="Stretch"
+                    Margin="5"
+                    Padding="5">
+                <WrapPanel x:Name="Panels"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Orientation="Horizontal"
+                           Margin="5"
+                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                           ScrollViewer.VerticalScrollBarVisibility="Disabled">
 
-                <Button Style="{DynamicResource EliteStyleButton}"
-                        Height="140"
-                        Width="140"
-                        Command="{Binding OpenPopOut}"
-                        CommandParameter="{x:Type popouts:MassacrePopOutViewModel}"
-                        Margin="5">
-                    <Grid Height="120"
-                          Width="120">
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                                   Height="48"
-                                   Width="48">
-                            <Rectangle.OpacityMask>
-                                <VisualBrush>
-                                    <VisualBrush.Visual>
-                                        <Image Source="/Assets/Icons/assassin.png" />
-                                    </VisualBrush.Visual>
-                                </VisualBrush>
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
-                        <TextBlock Text="Massacre Overlay"
-                                   TextWrapping="Wrap"
-                                   Margin="5"
-                                   TextAlignment="Center"
-                                   Grid.Row="1" />
-                    </Grid>
-                </Button>
+                    <Button Style="{DynamicResource EliteStyleButton}"
+                            Height="140"
+                            Width="140"
+                            Command="{Binding OpenPopOut}"
+                            CommandParameter="{x:Type popouts:MassacrePopOutViewModel}"
+                            Margin="5">
+                        <Grid Height="120"
+                              Width="120">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                       Height="48"
+                                       Width="48">
+                                <Rectangle.OpacityMask>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <Image Source="/Assets/Icons/assassin.png" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                            <TextBlock Text="Massacre Overlay"
+                                       TextWrapping="Wrap"
+                                       Margin="5"
+                                       TextAlignment="Center"
+                                       Grid.Row="1" />
+                        </Grid>
+                    </Button>
 
-                <Button Style="{DynamicResource EliteStyleButton}"
-                        Height="140"
-                        Width="140"
-                        Command="{Binding OpenPopOut}"
-                        CommandParameter="{x:Type popouts:TradePopoutViewModel}"
-                        Margin="5">
-                    <Grid Height="120"
-                          Width="120">
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                                   Height="48"
-                                   Width="48">
-                            <Rectangle.OpacityMask>
-                                <VisualBrush>
-                                    <VisualBrush.Visual>
-                                        <Image Source="/Assets/Icons/trade.png" />
-                                    </VisualBrush.Visual>
-                                </VisualBrush>
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
-                        <TextBlock Text="Trade&#x0a;Overlay"
-                                   TextWrapping="Wrap"
-                                   Margin="5"
-                                   TextAlignment="Center"
-                                   Grid.Row="1" />
-                    </Grid>
-                </Button>
-                
-                <Button Style="{DynamicResource EliteStyleButton}"
-                        Height="140"
-                        Width="140"
-                        Command="{Binding OpenPopOut}"
-                        CommandParameter="{x:Type popouts:ColonisationPopOut}"
-                        Margin="5">
-                    <Grid Height="120"
-                          Width="120">
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
-                                   Height="48"
-                                   Width="48">
-                            <Rectangle.OpacityMask>
-                                <VisualBrush>
-                                    <VisualBrush.Visual>
-                                        <Image Source="/Assets/Icons/ColonisationBtn.png" />
-                                    </VisualBrush.Visual>
-                                </VisualBrush>
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
-                        <TextBlock Text="Colonisation Overlay"
-                                   TextWrapping="Wrap"
-                                   Margin="5"
-                                   TextAlignment="Center"
-                                   Grid.Row="1" />
-                    </Grid>
-                </Button>
-            </WrapPanel>
-        </Border>
+                    <Button Style="{DynamicResource EliteStyleButton}"
+                            Height="140"
+                            Width="140"
+                            Command="{Binding OpenPopOut}"
+                            CommandParameter="{x:Type popouts:TradePopoutViewModel}"
+                            Margin="5">
+                        <Grid Height="120"
+                              Width="120">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                       Height="48"
+                                       Width="48">
+                                <Rectangle.OpacityMask>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <Image Source="/Assets/Icons/trade.png" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                            <TextBlock Text="Trade&#x0a;Overlay"
+                                       TextWrapping="Wrap"
+                                       Margin="5"
+                                       TextAlignment="Center"
+                                       Grid.Row="1" />
+                        </Grid>
+                    </Button>
+
+                    <Button Style="{DynamicResource EliteStyleButton}"
+                            Height="140"
+                            Width="140"
+                            Command="{Binding OpenPopOut}"
+                            CommandParameter="{x:Type popouts:ColonisationPopOut}"
+                            Margin="5">
+                        <Grid Height="120"
+                              Width="120">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                       Height="48"
+                                       Width="48">
+                                <Rectangle.OpacityMask>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <Image Source="/Assets/Icons/ColonisationBtn.png" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                            <TextBlock Text="Colonisation Overlay"
+                                       TextWrapping="Wrap"
+                                       Margin="5"
+                                       TextAlignment="Center"
+                                       Grid.Row="1" />
+                        </Grid>
+                    </Button>
+
+                    <Button Style="{DynamicResource EliteStyleButton}"
+                            Height="140"
+                            Width="140"
+                            Command="{Binding OpenPopOut}"
+                            CommandParameter="{x:Type popouts:CompassPopOutViewModel}"
+                            Margin="5">
+                        <Grid Height="120"
+                              Width="120">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                       Height="48"
+                                       Width="48">
+                                <Rectangle.OpacityMask>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <Image Source="/Assets/Icons/compass.png" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                            <TextBlock Text="Compass Overlay"
+                                       TextWrapping="Wrap"
+                                       Margin="5"
+                                       TextAlignment="Center"
+                                       Grid.Row="1" />
+                        </Grid>
+                    </Button>
+                </WrapPanel>
+            </Border>
+
+            <Border Background="{DynamicResource CardBackground}"
+                    CornerRadius="5"
+                    MinWidth="380"
+                    Grid.Column="1"
+                    VerticalAlignment="Stretch"
+                    Margin="5"
+                    Padding="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+
+                    <TextBlock Text="Active Overlays"
+                               FontSize="22"
+                               Margin="5"
+                               Foreground="{DynamicResource Header}" />
+
+                    <ListBox ItemsSource="{Binding ActiveViews}"
+                             Grid.Row="1"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Background="{DynamicResource EliteBtnBG}">
+                                        <TextBlock Text="{Binding Title}"
+                                                   Margin="10"
+                                                   Foreground="{DynamicResource EliteBtnFG}"
+                                                   FontSize="24" />
+                                    </Border>
+
+                                    <Button Style="{DynamicResource EliteStyleImageButton}"
+                                            Grid.Column="1"
+                                            ToolTip="Reset Window Position"
+                                            Command="{Binding ResetWindowPositionCommand}"
+                                            Margin="5,0"
+                                            Width="35">
+                                        <Image Source="/Assets/Icons/ResetWindow.png" />
+                                    </Button>
+
+                                    <Button Style="{DynamicResource EliteStyleButton}"
+                                            Grid.Column="2"
+                                            FontFamily="Segoe MDL2 Assets"
+                                            Content="&#xE8BB;"
+                                            FontSize="20"
+                                            Command="{Binding CloseWindowCommand}"
+                                            VerticalAlignment="Stretch"
+                                            RenderOptions.ClearTypeHint="Auto"
+                                            TextOptions.TextRenderingMode="Aliased"
+                                            TextOptions.TextFormattingMode="Display"
+                                            Margin="5,0"
+                                            Width="35">
+                                        <Button.ToolTip>
+                                            <TextBlock Text="Close Overlay"
+                                                       FontFamily="{StaticResource Eurostile}" />
+                                        </Button.ToolTip>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+
+        </Grid>
 
         <Border Background="{DynamicResource CardBackground}"
                 Grid.Row="1"

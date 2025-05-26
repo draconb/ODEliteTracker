@@ -31,10 +31,9 @@ namespace ODEliteTracker.ViewModels.PopOuts
 
         private readonly MassacreMissionStore massacreStore;
 
-        public override string Title => "Massacre Overlay";
+        public override string Name => "Massacre Overlay";
         public override bool IsLive => massacreStore.IsLive;
-        public override object? AdditionalSettings { get ; set ; }
-
+        public override Uri TitleBarIcon => new("/Assets/Icons/assassin.png", UriKind.Relative);
         private List<MassacreStackVM> stacks { get; } = [];
 
         public ObservableCollection<FactionStackVM> FactionStacks { get; private set; } = [];

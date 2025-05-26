@@ -80,7 +80,7 @@
     
     <!--Scrollbar-->
     <SolidColorBrush x:Key="ScrollBarLine"
-                     Color="#6A3004" />
+                     Color="#FF9B5217" />
     <SolidColorBrush x:Key="ScrollBarThumbColour"
                      Color="#A84900" />
     <SolidColorBrush x:Key="ScrollBarThumbMouseOver"

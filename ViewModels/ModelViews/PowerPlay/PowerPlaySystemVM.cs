@@ -27,20 +27,6 @@ namespace ODEliteTracker.ViewModels.ModelViews.PowerPlay
         public string? ControllingFaction => system.ControllingFaction;
         public string? SystemAllegiance => system.SystemAllegiance;
 
-        private bool isSelected;
-        public bool IsSelected
-        {
-            get
-            {
-                return isSelected;
-            }
-            set
-            {
-                isSelected = value;
-                OnPropertyChanged(nameof(IsSelected));
-            }
-        }
-
         public bool MeritsEarned(DateTime cycle)
         {
             if (Data.TryGetValue(cycle, out var data))

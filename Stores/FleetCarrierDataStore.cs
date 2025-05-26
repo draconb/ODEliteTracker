@@ -2,6 +2,7 @@
 using EliteJournalReader.Events;
 using ODEliteTracker.Models.FleetCarrier;
 using ODEliteTracker.Models.Market;
+using ODEliteTracker.Notifications;
 using ODEliteTracker.Services;
 using ODJournalDatabase.JournalManagement;
 using ODMVVM.Helpers;
@@ -11,7 +12,7 @@ namespace ODEliteTracker.Stores
 {
     public sealed class FleetCarrierDataStore : LogProcessorBase
     {
-        public FleetCarrierDataStore(IManageJournalEvents journalManager, SharedDataStore sharedData) 
+        public FleetCarrierDataStore(IManageJournalEvents journalManager, SharedDataStore sharedData, NotificationService notificationService) 
         {
             this.journalManager = (JournalManager)journalManager;
 
@@ -21,11 +22,14 @@ namespace ODEliteTracker.Stores
             }
 
             this.sharedData = sharedData;
+            this.notificationService = notificationService;
             this.sharedData.MarketEvent += OnMarketEvent;
+            fleetCarrierTimer.CountDownFinishedEvent += FleetCarrierTimer_CountDownFinishedEvent;
         }
 
         private readonly JournalManager? journalManager;
         private readonly SharedDataStore sharedData;
+        private readonly NotificationService notificationService;
         private readonly CountdownTimer fleetCarrierTimer = new(new(0, 20, 0), new(0, 0, 1));
         private FleetCarrier? carrierData;
         private bool dockedOnCarrier = false;
@@ -143,13 +147,13 @@ namespace ODEliteTracker.Stores
 
                     var span = (jumpRequest.DepartureTime - DateTime.UtcNow) + TimeSpan.FromMinutes(5);
 
-                    if(span > TimeSpan.Zero)
+                    if (span > TimeSpan.Zero)
                     {
                         fleetCarrierTimer.UpdateRuntime(span);
                         fleetCarrierTimer.Start();
                     }
 
-                    if(IsLive)
+                    if (IsLive)
                     {
                         CarrierDestinationUpdated?.Invoke(this, carrierData);
                     }
@@ -322,7 +326,20 @@ namespace ODEliteTracker.Stores
         }
         #endregion
 
+        private void FleetCarrierTimer_CountDownFinishedEvent(object? sender, EventArgs e)
+        {
+            var args = new NotificationArgs("Fleet Carrier", ["Carrier Cooldown Complete"], Models.Settings.NotificationOptions.FleetCarrierReady);
+
+            notificationService.ShowBasicNotification(args);
+        }
+
+#if DEBUG
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+#endif
         private async Task OnCAPILive(object? s, bool e)
+#if DEBUG
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+#endif
         {
             if (e == false)
                 return;
