@@ -57,7 +57,7 @@ namespace ODEliteTracker.ViewModels
         private readonly SettingsStore settings;
         private readonly Timer expiryTimeUpdateTimer;
 
-        private List<MassacreStackVM> stacks { get; } = [];
+        private readonly List<MassacreStackVM> stacks = [];
         public IEnumerable<MassacreStackVM> Stacks
         {
             get
@@ -69,6 +69,7 @@ namespace ODEliteTracker.ViewModels
                 return stacks.Where(x => x.ActiveMissionCount > 0).OrderBy(x => x.IssuingFaction);
             }
         }
+
         private IEnumerable<MassacreMissionVM> activeMissions { get; set; } = [];
         public IEnumerable<MassacreMissionVM> ActiveMissions
         {
@@ -153,7 +154,7 @@ namespace ODEliteTracker.ViewModels
                 AddMissionToStack(mission);
             }
 
-            var factionMissions = Stacks.Where(x => x.ActiveMissionCount > 0)
+            var factionMissions = stacks.Where(x => x.ActiveMissionCount > 0)
                                         .SelectMany(x => x.Missions)
                                         .Where(x => x.CurrentState <= MissionState.Completed)
                                         .GroupBy(x => x.TargetFaction)

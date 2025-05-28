@@ -47,4 +47,7 @@
     <DataTemplate DataType="{x:Type popoutsVMs:CompassPopOutViewModel}">
         <popouts:CompassPopOutView />
     </DataTemplate>
+    <DataTemplate DataType="{x:Type popoutsVMs:ShoppingListPopOutVM}">
+        <popouts:ShoppingListPopOut />
+    </DataTemplate>
 </ResourceDictionary>

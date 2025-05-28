@@ -59,6 +59,7 @@ namespace ODEliteTracker.Stores
         public EventHandler<ConstructionDepot>? DepotUpdated;
         public EventHandler<CommanderSystem>? NewCommanderSystem;
         public EventHandler<CommanderSystem>? ReleaseCommanderSystem;
+        public EventHandler<bool>? ShoppingListUpdated;
 
         public override void ClearData()
         {
@@ -209,6 +210,7 @@ namespace ODEliteTracker.Stores
             var add = !shoppingListDepots.Contains(tuple);
             SetDepotShopping(vM,add);
             shoppingListDepots = databaseProvider.GetDepotShoppingList();
+            ShoppingListUpdated?.Invoke(this, add);
             return add;
         }
 

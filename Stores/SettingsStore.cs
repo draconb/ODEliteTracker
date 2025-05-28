@@ -161,7 +161,6 @@ namespace ODEliteTracker.Stores
             if (count == 0)
             {
                 var ret = Models.Settings.PopOutParams.CreateParams(popOut, 1, true);
-                ODWindowPosition.ResetWindowPosition(ret.Position, 800, 450);
                 popOutParams.Add(ret);
                 return ret;
             }

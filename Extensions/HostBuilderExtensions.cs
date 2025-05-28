@@ -54,6 +54,7 @@ namespace ODEliteTracker.Extensions
             services.AddTransient<MassacrePopOutViewModel>();
             services.AddTransient<TradePopoutViewModel>();
             services.AddTransient<CompassPopOutViewModel>();
+            services.AddTransient<ShoppingListPopOutVM>();
         }
 
         public static void AddViewModels(this IServiceCollection services)

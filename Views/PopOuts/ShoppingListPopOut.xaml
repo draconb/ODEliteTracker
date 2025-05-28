@@ -1,0 +1,77 @@
+﻿<UserControl x:Class="ODEliteTracker.Views.PopOuts.ShoppingListPopOut"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ODEliteTracker.Views.PopOuts"
+             xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
+             xmlns:popouts="clr-namespace:ODEliteTracker.ViewModels.PopOuts"
+             d:DataContext="{d:DesignInstance popouts:ShoppingListPopOutVM}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <busyIndicator:BusyMask x:Name="BusyIndicator"
+                            IsBusy="{Binding IsBusy}"
+                            Background="{DynamicResource Overlay_CardBackground}"
+                            Foreground="{DynamicResource Overlay_ForegroundBrush}"
+                            FontSize="30"
+                            BusyContent="Parsing Colonisation Logs"
+                            IndicatorType="Cupertino"
+                            BusyContentMargin="0,20,0,0">
+        <Border CornerRadius="5"
+                Grid.Row="2"
+                Padding="5">
+            <Border.Background>
+                <SolidColorBrush Color="{DynamicResource Overlay_CardBackGrounColour}"
+                                 Opacity="{Binding Opacity, Mode=OneWay}" />
+            </Border.Background>
+            <Grid>
+                <DataGrid ItemsSource="{Binding ShoppingListResources}"
+                          Margin="5"
+                          Style="{DynamicResource BaseDataGridStyle}"
+                          RowStyle="{DynamicResource NoSelectRowStyle}"
+                          CellStyle="{DynamicResource OverlayCell}"
+                          Foreground="{DynamicResource Overlay_ForegroundBrush}"
+                          FontSize="18"
+                          IsReadOnly="True"
+                          GridLinesVisibility="None"
+                          HeadersVisibility="Column"
+                          ScrollViewer.HorizontalScrollBarVisibility="{Binding IsMouseOver, Converter={StaticResource BoolToVis}}"
+                          ScrollViewer.VerticalScrollBarVisibility="{Binding IsMouseOver, Converter={StaticResource BoolToVis}}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Commodity"
+                                            MinWidth="250"
+                                            HeaderStyle="{DynamicResource OverlayDataGridHeaderLeft}"
+                                            ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                            Binding="{Binding LocalName}" />
+                        <DataGridTextColumn Header="Category"
+                                            MinWidth="180"
+                                            Width="*"
+                                            HeaderStyle="{DynamicResource OverlayDataGridHeaderLeft}"
+                                            ElementStyle="{DynamicResource DataGridElementLeftMarginBody}"
+                                            Binding="{Binding Category}" />
+                        <DataGridTextColumn Header="Market Stock"
+                                            MinWidth="150"
+                                            HeaderStyle="{DynamicResource OverDataGridHeaderCenter}"
+                                            ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                            Binding="{Binding MarketStock}" />
+                        <DataGridTextColumn Header="Carrier Stock"
+                                            MinWidth="150"
+                                            HeaderStyle="{DynamicResource OverDataGridHeaderCenter}"
+                                            ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                            Binding="{Binding CarrierStock}" />
+                        <DataGridTextColumn Header="Carrier Diff"
+                                            MinWidth="150"
+                                            HeaderStyle="{DynamicResource OverDataGridHeaderCenter}"
+                                            ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                            Binding="{Binding CarrierStockDiff}" />
+                        <DataGridTextColumn Header="Remaining"
+                                            MinWidth="100"
+                                            HeaderStyle="{DynamicResource OverDataGridHeaderCenter}"
+                                            ElementStyle="{DynamicResource DataGridElementRightMargin}"
+                                            Binding="{Binding Remaining}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </busyIndicator:BusyMask>
+</UserControl>

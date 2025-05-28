@@ -1,4 +1,5 @@
-﻿using ODEliteTracker.Models.Market;
+﻿using ODEliteTracker.Models.Colonisation;
+using ODEliteTracker.Models.Market;
 using ODMVVM.Extensions;
 using ODMVVM.ViewModels;
 using System.Collections.ObjectModel;
@@ -35,7 +36,7 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
             }
         }
 
-        public void PopulateResources(Models.FleetCarrier.FleetCarrier? e, Dictionary<ODMVVM.Helpers.Commodity, List<CommodityPurchase>> purchases)
+        public void PopulateResources(Models.FleetCarrier.FleetCarrier? e, Dictionary<ODMVVM.Helpers.Commodity, List<CommodityPurchase>>? purchases)
         {
             Resources.Clear();
 
@@ -65,7 +66,9 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
             }
 
             UpdateCarrierStock(e);
-            UpdateMostRecentPurchase(purchases);
+
+            if (purchases != null)
+                UpdateMostRecentPurchase(purchases);
         }
 
         public void UpdateCarrierStock(Models.FleetCarrier.FleetCarrier? e)
@@ -98,6 +101,17 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
                 MarketPurchaseVM purchase = new(purchased, null);
 
                 known.UpdatePurchase(purchase);
+            }
+        }
+
+        internal void UpdateDepot(ConstructionDepot e, Models.FleetCarrier.FleetCarrier? carrier)
+        {
+            var known = Depots.FirstOrDefault(x => x.MarketID == e.MarketID);
+
+            if (known != null)
+            {
+                known.Update(e);
+                PopulateResources(carrier, null);
             }
         }
     }

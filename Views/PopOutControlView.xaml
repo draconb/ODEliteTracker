@@ -187,6 +187,37 @@
                             Height="140"
                             Width="140"
                             Command="{Binding OpenPopOut}"
+                            CommandParameter="{x:Type popouts:ShoppingListPopOutVM}"
+                            Margin="5">
+                        <Grid Height="120"
+                              Width="120">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                                       Height="48"
+                                       Width="48">
+                                <Rectangle.OpacityMask>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <Image Source="/Assets/Icons/ShoppingCart.png" />
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                            <TextBlock Text="Shopping List Overlay"
+                                       TextWrapping="Wrap"
+                                       Margin="5"
+                                       TextAlignment="Center"
+                                       Grid.Row="1" />
+                        </Grid>
+                    </Button>
+                    
+                    <Button Style="{DynamicResource EliteStyleButton}"
+                            Height="140"
+                            Width="140"
+                            Command="{Binding OpenPopOut}"
                             CommandParameter="{x:Type popouts:CompassPopOutViewModel}"
                             Margin="5">
                         <Grid Height="120"

@@ -330,7 +330,6 @@ namespace ODEliteTracker.ViewModels
             }
         }
 
-
         private void Depots_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             OnPropertyChanged(nameof(ActiveDepots));
