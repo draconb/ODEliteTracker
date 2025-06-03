@@ -19,6 +19,7 @@
             <wpfconverters:NullToVisibilityConverter x:Key="NullToVis" />
             <converters:FlagsEnumValueConverter x:Key="EnumFlagConverter" />
             <wpfconverters:CentreToolTipConverter x:Key="CentreToolTipConverter" />
+            <wpfconverters:VisibilityToBoolConverter x:Key="VisToBoolConverter" />
             <FontFamily x:Key="Eurostile">pack://application:,,,/Assets/Fonts/#Eurostile</FontFamily>
             
             <ResourceDictionary.MergedDictionaries>

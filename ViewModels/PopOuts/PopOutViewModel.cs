@@ -243,7 +243,5 @@ namespace ODEliteTracker.ViewModels.PopOuts
 
         protected virtual void ParamsUpdated() { }
 		protected virtual void Dispose() { }
-
-
     }
 }

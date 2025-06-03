@@ -6,7 +6,6 @@ using ODEliteTracker.Models.Galaxy;
 using ODEliteTracker.Database.DTOs;
 using ODEliteTracker.Models.BGS;
 using ODMVVM.Helpers;
-using ODEliteTracker.Managers;
 
 namespace ODEliteTracker.Stores
 {

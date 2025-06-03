@@ -253,6 +253,7 @@ namespace ODEliteTracker.ViewModels.PopOuts
         {
             ODWindowPosition.ResetWindowPosition(Position, 900, 300);
         }
+
         protected override void ParamsUpdated()
         {
             var settings = AdditionalSettings?.ToObject<CompassSettings>();

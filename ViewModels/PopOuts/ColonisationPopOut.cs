@@ -1,6 +1,8 @@
-﻿using ODEliteTracker.Models;
+﻿using Newtonsoft.Json.Linq;
+using ODEliteTracker.Models;
 using ODEliteTracker.Models.Colonisation;
 using ODEliteTracker.Models.FleetCarrier;
+using ODEliteTracker.Models.Settings;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews.Colonisation;
 using ODEliteTracker.ViewModels.ModelViews.Market;
@@ -69,6 +71,8 @@ namespace ODEliteTracker.ViewModels.PopOuts
         public override bool IsLive => colonisationStore.IsLive;
 
         public override Uri TitleBarIcon => new("/Assets/Icons/ColonisationBtn.png", UriKind.Relative);
+
+        public ColonisationPopOutSettingsVM Settings { get; } = new();
         public ObservableCollection<ConstructionDepotVM> Depots { get; } = [];
 
         private ConstructionDepotVM? selectedDepot;
@@ -115,6 +119,17 @@ namespace ODEliteTracker.ViewModels.PopOuts
                 settings.ColonisationSettings.ColonisationCommoditySorting = value;
                 OnPropertyChanged(nameof(SelectedDepotResources));
             }
+        }
+
+        protected override void ParamsUpdated()
+        {
+            var settings = AdditionalSettings?.ToObject<ColonisationPopOutSettings>();
+            Settings.LoadSettings(settings ?? new());
+        }
+
+        internal override JObject? GetAdditionalSettings()
+        {
+            return JObject.FromObject(Settings.GetSettings());
         }
 
         private void OnStoreLive(object? sender, bool e)

@@ -42,7 +42,16 @@ namespace ODEliteTracker.ViewModels.ModelViews.Colonisation
         public string CarrierStock => CarrierStockValue > 0 ? $"{CarrierStockValue:N0} t" : string.Empty;
         public long MarketStockValue { get; private set; }
         public string MarketStock => MarketStockValue > 0 ? $"{MarketStockValue:N0} t" : string.Empty;
-        public string CarrierStockDiff => CarrierStockValue > 0 ? $"{CarrierStockValue - RemainingCount:N0} t" : string.Empty;
+        public string CarrierStockDiff
+        {
+            get
+            {
+                if (RemainingCount <= 0 || CarrierStockValue <= 0)
+                    return string.Empty;
+
+                return $"{CarrierStockValue - RemainingCount:N0} t";
+            }
+        }
 
         public MarketPurchaseVM? FirstPurchase { get; set; }
 

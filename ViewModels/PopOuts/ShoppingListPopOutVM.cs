@@ -1,7 +1,9 @@
-﻿using ODEliteTracker.Models;
+﻿using Newtonsoft.Json.Linq;
+using ODEliteTracker.Models;
 using ODEliteTracker.Models.Colonisation;
 using ODEliteTracker.Models.FleetCarrier;
 using ODEliteTracker.Models.Market;
+using ODEliteTracker.Models.Settings;
 using ODEliteTracker.Stores;
 using ODEliteTracker.ViewModels.ModelViews.Colonisation;
 using ODMVVM.Extensions;
@@ -64,6 +66,7 @@ namespace ODEliteTracker.ViewModels.PopOuts
 
         public override Uri TitleBarIcon => new("/Assets/Icons/ShoppingCart.png", UriKind.Relative);
 
+        public ColonisationPopOutSettingsVM Settings { get; } = new();
         public ColonisationShoppingList ShoppingList { get; } = new();
 
         public CommoditySorting ShoppingListCommoditySorting
@@ -91,6 +94,17 @@ namespace ODEliteTracker.ViewModels.PopOuts
                     _ => ShoppingList.Resources.Where(x => x.RemainingCount > 0).OrderBy(x => x.LocalName),
                 };
             }
+        }
+
+        protected override void ParamsUpdated()
+        {
+            var settings = AdditionalSettings?.ToObject<ColonisationPopOutSettings>();
+            Settings.LoadSettings(settings ?? new());
+        }
+
+        internal override JObject? GetAdditionalSettings()
+        {
+            return JObject.FromObject(Settings.GetSettings());
         }
 
         private void OnColonisationStoreLive(object? sender, bool e)
